@@ -6,6 +6,7 @@ class ProviderTeam extends ChangeNotifier {
   List<UbPlayer> get players => _players;
 
   void addPlayer(UbPlayer newPlayer) {
+    newPlayer.calculateBaseValues();
     _players.add(newPlayer);
     notifyListeners();
   }
