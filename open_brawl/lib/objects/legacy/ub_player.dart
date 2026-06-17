@@ -1,6 +1,10 @@
-import 'package:open_brawl/objects/equipment_manager.dart';
+/*import 'package:open_brawl/objects/equipment_manager.dart';
 import 'package:open_brawl/objects/magic_resonance.dart';
-import 'package:open_brawl/objects/skll_manager.dart';
+import 'package:open_brawl/objects/skll_manager.dart';*/
+
+import 'package:open_brawl/objects/legacy/equipment_manager.dart';
+import 'package:open_brawl/objects/legacy/magic_resonance.dart';
+import 'package:open_brawl/objects/legacy/skll_manager.dart';
 
 enum PlayerRace {
   mensch,

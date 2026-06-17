@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:open_brawl/objects/skill.dart';
+import 'package:open_brawl/objects/legacy/skill.dart';
+import 'package:open_brawl/objects/legacy/skll_manager.dart';
+import 'package:open_brawl/objects/legacy/ub_player.dart';
+/*import 'package:open_brawl/objects/skill.dart';
 import 'package:open_brawl/objects/skll_manager.dart';
-import 'package:open_brawl/objects/ub_player.dart';
+import 'package:open_brawl/objects/ub_player.dart';*/
 //import 'skill.dart';
 //import 'skill_manager.dart';
 //import 'ub_player.dart';

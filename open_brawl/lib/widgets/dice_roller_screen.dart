@@ -361,7 +361,8 @@ class _DiceRollerScreenState extends State<DiceRollerScreen>
   Widget _buildExplodingChip(int value, String label) {
     return FilterChip(
       label: Text(label),
-      selected: _diceRoller._explodingSixes == value,
+      //TODO fix later if needed
+      //selected: _diceRoller._explodingSixes == value,
       onSelected: (_) {
         _diceRoller.setExplodingSixes(value);
         setState(() {});

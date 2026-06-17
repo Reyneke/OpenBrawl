@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:open_brawl/objects/equipment.dart';
-import 'package:open_brawl/objects/equipment_manager.dart';
-import 'package:open_brawl/objects/ub_player.dart';
+import 'package:open_brawl/objects/legacy/equipment.dart';
+import 'package:open_brawl/objects/legacy/equipment_manager.dart';
+import 'package:open_brawl/objects/legacy/ub_player.dart';
+//import 'package:open_brawl/objects/equipment.dart';
+//import 'package:open_brawl/objects/equipment_manager.dart';
+//import 'package:open_brawl/objects/ub_player.dart';
 
 /*import 'equipment.dart';
 import 'equipment_manager.dart';

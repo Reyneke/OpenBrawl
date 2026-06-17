@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:open_brawl/objects/ub_player.dart';
+import 'package:open_brawl/objects/legacy/ub_player.dart';
+//import 'package:open_brawl/objects/ub_player.dart';
 
 // Annahme: Deine Klassen sind in separaten Dateien
 // import 'ub_player.dart';

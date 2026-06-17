@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:open_brawl/objects/ub_player.dart';
+import 'package:open_brawl/objects/object_team.dart';
+//import 'package:open_brawl/objects/ub_player.dart';
 import 'package:open_brawl/provider/provider_team.dart';
-import 'package:open_brawl/screens/screen_team_editor.dart';
+import 'package:open_brawl/screens/screen_team_select.dart';
 import 'package:open_brawl/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
@@ -15,25 +16,16 @@ class MainApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
 
       home: Scaffold(
+        appBar: AppBar(
+          title: Text("Team Select"),
+        ),
         body: const Center(
-          child: ScreenTeamEditor(),
+          child: ScreenTeamSelect(),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            context.read<ProviderTeam>().addPlayer(
-              UbPlayer(
-                key: 1,
-                name: 'Ghost',
-                body: 1,
-                agility: 1,
-                reaction: 1,
-                strength: 1,
-                willpower: 1,
-                logic: 1,
-                intuition: 1,
-                charisma: 1,
-                edge: 1,
-              ),
+            context.read<ProviderTeam>().addTeam(
+              ObjectTeam.createTeam("New Team", ""),
             );
           },
           child: const Icon((Icons.add)),

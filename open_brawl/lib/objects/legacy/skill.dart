@@ -1,4 +1,6 @@
-import 'package:open_brawl/objects/ub_player.dart';
+//import 'package:open_brawl/objects/ub_player.dart';
+
+import 'package:open_brawl/objects/legacy/ub_player.dart';
 
 enum SkillCategory {
   combat, // Kampf

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:open_brawl/objects/ub_player.dart';
+import 'package:open_brawl/objects/legacy/ub_player.dart';
+
+//import 'package:open_brawl/objects/ub_player.dart';
 
 import 'combat_simulator.dart';
-import 'ub_player.dart';
+//import 'ub_player.dart';
 
 class CombatScreen extends StatefulWidget {
   final List<UbPlayer> players;
@@ -305,7 +307,7 @@ class _CombatScreenState extends State<CombatScreen>
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
         label: Text(label),
-        icon: Icon(icon, size: 16),
+        //icon: Icon(icon, size: 16),
         selected: _selectedAction == action,
         onSelected: (_) {
           setState(() {
@@ -321,7 +323,7 @@ class _CombatScreenState extends State<CombatScreen>
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
         label: Text(label),
-        icon: Icon(icon, size: 16),
+        //icon: Icon(icon, size: 16),
         selected: _selectedRange == range,
         onSelected: (_) {
           setState(() {

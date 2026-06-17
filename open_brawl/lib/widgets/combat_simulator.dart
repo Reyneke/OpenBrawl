@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:open_brawl/objects/ub_player.dart';
+import 'package:open_brawl/objects/legacy/ub_player.dart';
 
 import 'dice_roller.dart';
 //import 'equipment.dart';
@@ -429,8 +429,9 @@ class CombatSimulator extends ChangeNotifier {
     int damage,
     bool isCritical,
   ) {
-    if (!hit)
+    if (!hit) {
       return "${attacker.player.name} verfehlt ${defender.player.name}!";
+    }
 
     if (isCritical) {
       return "⭐ KRITISCHER TREFFER! ${attacker.player.name} trifft ${defender.player.name} für $damage Schaden!";

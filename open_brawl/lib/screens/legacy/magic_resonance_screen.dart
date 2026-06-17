@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:open_brawl/objects/magic_resonance.dart';
+import 'package:open_brawl/objects/legacy/magic_resonance.dart';
+//import 'package:open_brawl/objects/magic_resonance.dart';
 //import 'magic_resonance.dart';
 
 class MagicResonanceScreen extends StatefulWidget {
