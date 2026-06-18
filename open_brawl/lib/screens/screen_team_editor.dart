@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:open_brawl/objects/object_team.dart';
 import 'package:open_brawl/provider/provider_team.dart';
 import 'package:open_brawl/screens/screen_character_market.dart';
-import 'package:open_brawl/screens/screen_character_owerview.dart';
+import 'package:open_brawl/widgets/character_list_item.dart';
 import 'package:provider/provider.dart';
 
 class ScreenTeamEditor extends StatefulWidget {
@@ -36,28 +36,36 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
                 title: Text("No players yet"),
               ),
             )
-          : ListView.builder(
-              itemCount: widget.selectedTeam.teamPlayers.length,
-              itemBuilder: (context, index) {
-                var listItem = widget.selectedTeam.teamPlayers[index];
+          : Column(
+              children: [
+                Flexible(
+                  flex: 4,
+                  child: ListView.builder(
+                    itemCount: widget.selectedTeam.teamPlayers.length,
+                    itemBuilder: (context, index) {
+                      var listItem = widget.selectedTeam.teamPlayers[index];
 
-                return GestureDetector(
-                  child: Card(
-                    child: ListTile(
-                      title: Text(listItem.name),
-                    ),
+                      return CharacterListItem(
+                        currentTeam: currentTeam,
+                        listItem: listItem,
+                      );
+                    },
                   ),
-                  onTap: () {
-                    Navigator.push<void>(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (context) =>
-                            ScreenCharacterOwerview(currentCharacter: listItem),
-                      ),
-                    );
-                  },
-                );
-              },
+                ),
+                Flexible(
+                  flex: 1,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (!currentTeam.getIsTeamValid()) {
+                        null;
+                      }
+                    },
+                    child: currentTeam.getIsTeamValid()
+                        ? Text("Enter Battle")
+                        : Text("Team not ready yet"),
+                  ),
+                ),
+              ],
             ),
 
       floatingActionButton: FloatingActionButton(

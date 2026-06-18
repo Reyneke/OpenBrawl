@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:open_brawl/widgets/dice_roller.dart';
+import 'package:open_brawl/widgets/legacy/dice_roller.dart';
 
 // ============================================================
 // ENUMS & BASISKLASSEN

@@ -29,4 +29,38 @@ class ObjectTeam {
       teamNuyen: 1000,
     );
   }
+
+  bool getIsTeamValid() {
+    if (teamPlayers.isNotEmpty) {
+      final int countScout = teamPlayers
+          .where((player) => player.position == TeamPositions.scout)
+          .length;
+      final int countBanger = teamPlayers
+          .where((player) => player.position == TeamPositions.banger)
+          .length;
+      final int countHeavies = teamPlayers
+          .where((player) => player.position == TeamPositions.heavy)
+          .length;
+      final int countBlaster = teamPlayers
+          .where((player) => player.position == TeamPositions.blaster)
+          .length;
+      final int countOutrider = teamPlayers
+          .where((player) => player.position == TeamPositions.outrider)
+          .length;
+      final int countMedico = teamPlayers
+          .where((player) => player.position == TeamPositions.medico)
+          .length;
+
+      if ((countScout == 4) &&
+          (countBanger == 4) &&
+          (countHeavies == 2) &&
+          (countBlaster == 1) &&
+          (countOutrider == 1) &&
+          (countMedico == 1)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }

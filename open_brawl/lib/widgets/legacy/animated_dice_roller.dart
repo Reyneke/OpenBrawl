@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:open_brawl/widgets/dice_roller.dart';
+import 'package:open_brawl/widgets/legacy/dice_roller.dart';
 
 /**
  * // Einfacher Aufruf

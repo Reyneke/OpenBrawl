@@ -32,6 +32,14 @@ class ProviderTeam extends ChangeNotifier {
     notifyListeners();
   }
 
+  void modifyCharacterInTeam(ObjectTeam teamIteam, ObjectPlayer newPlayer) {
+    int position = getListPosition(teamIteam, newPlayer);
+    removeCharacterfromTeam(teamIteam, newPlayer);
+    _teams[getTeamPosition(teamIteam)].teamPlayers.insert(position, newPlayer);
+
+    notifyListeners();
+  }
+
   int getListPosition(ObjectTeam teamIteam, ObjectPlayer characterIteam) {
     return _teams[getTeamPosition(teamIteam)].teamPlayers.indexWhere(
       (character) => character.id == characterIteam.id,

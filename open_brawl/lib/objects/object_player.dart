@@ -2,11 +2,14 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
+enum TeamPositions { inactive, scout, banger, heavy, blaster, outrider, medico }
+
 class ObjectPlayer {
   int id;
   String name;
   String image;
   int price = 3000;
+  TeamPositions position = TeamPositions.inactive;
 
   ObjectPlayer({
     required this.id,
