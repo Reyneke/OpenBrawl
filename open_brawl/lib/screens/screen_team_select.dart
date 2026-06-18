@@ -37,7 +37,7 @@ class _ScreenTeamSelectState extends State<ScreenTeamSelect> {
             Navigator.push<void>(
               context,
               MaterialPageRoute<void>(
-                builder: (context) => ScreenTeamEditor(currentTeam: listItem),
+                builder: (context) => ScreenTeamEditor(selectedTeam: listItem),
               ),
             );
           },

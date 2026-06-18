@@ -9,6 +9,7 @@ class ObjectTeam {
   String teamLogo;
   int teamNuyen;
   List<ObjectPlayer> teamPlayers = [];
+  DateTime timeCreated = DateTime.now();
 
   ObjectTeam({
     required this.teamId,
@@ -18,7 +19,7 @@ class ObjectTeam {
   });
 
   factory ObjectTeam.createTeam(String teamName, String teamLogo) {
-    final bytes = utf8.encode(teamName);
+    final bytes = utf8.encode(DateTime.now().microsecondsSinceEpoch.toString());
     final digest = sha256.convert(bytes);
 
     return ObjectTeam(
