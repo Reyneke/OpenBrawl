@@ -3,6 +3,7 @@ import 'package:open_brawl/objects/object_team.dart';
 import 'package:open_brawl/provider/provider_team.dart';
 import 'package:open_brawl/screens/screen_character_market.dart';
 import 'package:open_brawl/widgets/character_list_item.dart';
+import 'package:open_brawl/widgets/widget_image_select.dart';
 import 'package:provider/provider.dart';
 
 class ScreenTeamEditor extends StatefulWidget {
@@ -38,6 +39,16 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
             )
           : Column(
               children: [
+                Flexible(
+                  flex: 2,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      WidgetImageSelect(titleText: currentTeam.teamName),
+                      Text(currentTeam.teamName),
+                    ],
+                  ),
+                ),
                 Flexible(
                   flex: 4,
                   child: ListView.builder(

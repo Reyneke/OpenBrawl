@@ -4,12 +4,24 @@ import 'package:crypto/crypto.dart';
 
 enum TeamPositions { inactive, scout, banger, heavy, blaster, outrider, medico }
 
+enum CharacterStatus {
+  fine,
+  reeling,
+  hurt,
+  afraid,
+  injured,
+  dying,
+  dead,
+  overkilled,
+}
+
 class ObjectPlayer {
   int id;
   String name;
   String image;
   int price = 3000;
   TeamPositions position = TeamPositions.inactive;
+  CharacterStatus status = CharacterStatus.fine;
 
   ObjectPlayer({
     required this.id,

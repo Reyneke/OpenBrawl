@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:open_brawl/objects/object_player.dart';
+import 'package:open_brawl/widgets/widget_image_select.dart';
 
 class ScreenCharacterOwerview extends StatefulWidget {
   final ObjectPlayer currentCharacter;
@@ -19,8 +20,19 @@ class _ScreenCharacterOwerviewState extends State<ScreenCharacterOwerview> {
       ),
       body: Column(
         children: [
-          Text("Player: ${widget.currentCharacter.name}"),
-          Text("Value ${widget.currentCharacter.price}"),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              WidgetImageSelect(titleText: widget.currentCharacter.name),
+              Column(
+                children: [
+                  Text("Player: ${widget.currentCharacter.name}"),
+                  Text("Value ${widget.currentCharacter.price}"),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );
