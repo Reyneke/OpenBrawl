@@ -1,13 +1,22 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:open_brawl/objects/object_player.dart';
+import 'package:open_brawl/objects/object_team.dart';
+import 'package:open_brawl/provider/provider_team.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:universal_file_picker/universal_file_picker.dart';
 
 class WidgetImageSelect extends StatefulWidget {
+  final Widget rootObject;
   final String titleText;
-  const WidgetImageSelect({super.key, required this.titleText});
+  const WidgetImageSelect({
+    super.key,
+    required this.titleText,
+    required this.rootObject,
+  });
 
   @override
   State<WidgetImageSelect> createState() => _WidgetImageSelectState();
@@ -19,6 +28,18 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.rootObject is ObjectPlayer) {
+      final imageObject = widget.rootObject as ObjectPlayer;
+      if (imageObject.image.isNotEmpty) {
+        _imageUrl = imageObject.image;
+      }
+    } else if (widget.rootObject is ObjectTeam) {
+      final imageObject = widget.rootObject as ObjectTeam;
+      if (imageObject.teamLogo.isNotEmpty) {
+        _imageUrl = imageObject.teamLogo;
+      }
+    }
+
     return GestureDetector(
       child: SizedBox(
         height: 600,
@@ -107,6 +128,36 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
 
       setState(() {
         _imageUrl = localPath;
+        if (widget.rootObject is ObjectPlayer) {
+          final imageObject = widget.rootObject as ObjectPlayer;
+          final teamObject = context.read<ProviderTeam>().getCharacterInTeam(
+            imageObject,
+          );
+          imageObject.image = (_imageUrl ?? "");
+
+          if (teamObject != null) {
+            context.read<ProviderTeam>().modifyCharacterInTeam(
+              teamObject,
+              imageObject,
+            );
+          }
+          /*final imageObject = widget.rootObject as ObjectPlayer;
+          if (imageObject.image.isNotEmpty) {
+            _imageUrl = imageObject.image;
+          }*/
+        }
+        if (widget.rootObject is ObjectTeam) {
+          final imageObject = widget.rootObject as ObjectTeam;
+          final index = context.read<ProviderTeam>().getTeamPosition(
+            imageObject,
+          );
+
+          if (index >= 0) {
+            context.read<ProviderTeam>().teams[index].teamLogo =
+                (_imageUrl ?? "");
+          }
+        }
+
         _isUploading = false;
       });
 

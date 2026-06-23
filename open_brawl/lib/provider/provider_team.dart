@@ -32,6 +32,17 @@ class ProviderTeam extends ChangeNotifier {
     notifyListeners();
   }
 
+  ObjectTeam? getCharacterInTeam(ObjectPlayer player) {
+    for (var team in _teams) {
+      if (team.teamPlayers.indexWhere(((element) => element.id == player.id)) >=
+          0) {
+        return team;
+      }
+    }
+
+    return null;
+  }
+
   void modifyCharacterInTeam(ObjectTeam teamIteam, ObjectPlayer newPlayer) {
     int position = getListPosition(teamIteam, newPlayer);
     removeCharacterfromTeam(teamIteam, newPlayer);

@@ -44,7 +44,10 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      WidgetImageSelect(titleText: currentTeam.teamName),
+                      WidgetImageSelect(
+                        titleText: currentTeam.teamName,
+                        rootObject: currentTeam as Widget,
+                      ),
                       Text(currentTeam.teamName),
                     ],
                   ),

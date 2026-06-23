@@ -24,7 +24,10 @@ class _ScreenCharacterOwerviewState extends State<ScreenCharacterOwerview> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             //crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              WidgetImageSelect(titleText: widget.currentCharacter.name),
+              WidgetImageSelect(
+                titleText: widget.currentCharacter.name,
+                rootObject: widget.currentCharacter as Widget,
+              ),
               Column(
                 children: [
                   Text("Player: ${widget.currentCharacter.name}"),
