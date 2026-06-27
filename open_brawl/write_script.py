@@ -1,4 +1,7 @@
-﻿import 'dart:io';
+
+import os
+
+content = """import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:open_brawl/objects/object_player.dart';
@@ -45,7 +48,7 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
       child: SizedBox(
         height: 600,
         child: (_imageUrl != null)
-            ? (_imageUrl!.startsWith('http')
+            ? (_imageUrl!.startsWith("http")
                 ? Image.network(_imageUrl!, height: 150)
                 : Image.file(File(_imageUrl!), height: 150))
             : Container(
@@ -205,3 +208,9 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
     }
   }
 }
+"""
+
+with open(r'd:\dev\OpenBrawl\open_brawl\lib\widgets\widget_image_select.dart', 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print('File written successfully')

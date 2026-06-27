@@ -181,11 +181,12 @@ class HomeScreen extends StatelessWidget {
         child: ScreenTeamSelect(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.read<ProviderTeam>().addTeam(
+        onPressed: () async {
+          await context.read<ProviderTeam>().addTeam(
             ObjectTeam.createTeam("New Team", ""),
           );
         },
+
         child: const Icon((Icons.add)),
       ),
     );

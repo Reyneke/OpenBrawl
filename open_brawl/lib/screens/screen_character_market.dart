@@ -176,7 +176,7 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
     return false;
   }*/
 
-  void _handleTransfer(
+  Future<void> _handleTransfer(
     /*List<ObjectPlayer> buyList,
     List<ObjectPlayer> sellList,*/
   ) async {
@@ -187,7 +187,7 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
         deductable -= character.price;
         if (mounted) {
           context.read<ProviderMarket>().removeCharacter(character);
-          context.read<ProviderTeam>().addCharacterToTeam(
+          await context.read<ProviderTeam>().addCharacterToTeam(
             widget.currentTeam,
             character,
           );
@@ -198,7 +198,7 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
         deductable += character.price;
         if (mounted) {
           context.read<ProviderMarket>().addCharacter(character);
-          context.read<ProviderTeam>().removeCharacterfromTeam(
+          await context.read<ProviderTeam>().removeCharacterfromTeam(
             widget.currentTeam,
             character,
           );
@@ -206,7 +206,7 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
       }
 
       if (mounted) {
-        context.read<ProviderTeam>().adjustMoney(
+        await context.read<ProviderTeam>().adjustMoney(
           widget.currentTeam,
           deductable,
         );

@@ -17,7 +17,10 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider<ProviderServer>(create: (_) => providerServer),
-        ChangeNotifierProvider<ProviderTeam>(create: (_) => ProviderTeam()),
+        ChangeNotifierProvider<ProviderTeam>(
+          create: (_) => ProviderTeam(providerServer),
+        ),
+
         ChangeNotifierProvider<ProviderMarket>(create: (_) => ProviderMarket()),
         //Provider<SomethingElse>(create: (_) => SomethingElse()),
         //Provider<AnotherThing>(create: (_) => AnotherThing()),

@@ -12,6 +12,12 @@ class ScreenTeamSelect extends StatefulWidget {
 
 class _ScreenTeamSelectState extends State<ScreenTeamSelect> {
   @override
+  void initState() {
+    super.initState();
+    context.read<ProviderTeam>().loadTeamsFromDatabase();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var teamManager = context.watch<ProviderTeam>().teams;
     if (teamManager.isEmpty) {
@@ -21,7 +27,6 @@ class _ScreenTeamSelectState extends State<ScreenTeamSelect> {
         ),
       );
     }
-
     return ListView.builder(
       itemCount: teamManager.length,
       itemBuilder: (context, index) {

@@ -26,7 +26,7 @@ class _ScreenCharacterOwerviewState extends State<ScreenCharacterOwerview> {
             children: [
               WidgetImageSelect(
                 titleText: widget.currentCharacter.name,
-                rootObject: widget.currentCharacter as Widget,
+                rootObject: widget.currentCharacter,
               ),
               Column(
                 children: [
