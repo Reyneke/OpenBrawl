@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 
 // Feature implemented: Image picker uploads teamLogo to Supabase Storage bucket "teambanners"
 // under a folder named after the team (sanitized). See WidgetImageSelect._uploadTeamLogoToSupabase().
+// Images are displayed via createSignedUrl() to work with Supabase policies requiring authentication.
+
 class ScreenTeamEditor extends StatefulWidget {
   final ObjectTeam selectedTeam;
   const ScreenTeamEditor({super.key, required this.selectedTeam});
