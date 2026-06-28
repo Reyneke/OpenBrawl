@@ -29,20 +29,34 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
   String? _displayUrl;
   String? _storedPath;
 
-  /// Returns true if [path] is a Supabase storage path (not a URL, not a local file path).
+  /// Returns true if [path] is a Supabase storage path (not a URL, not a local file path,
+  /// not an asset path).
   bool _isStoragePath(String path) {
     // Local file paths typically contain ':' (Windows: C:\) or start with '/' (Unix /data/...)
     // HTTP URLs start with 'http'
-    // Storage paths look like: "folderId/filename.ext"
+    // Asset paths are bare filenames without path separators (e.g. "urbanbrawl_frame_leer.png")
+    // Storage paths look like: "folderId/filename.ext" (always contain a '/')
     return !path.startsWith('http') &&
         !path.contains(':') &&
-        !path.startsWith('/');
+        !path.startsWith('/') &&
+        path.contains('/');
+  }
+
+  /// Returns true if [path] is an asset image reference (bare filename, no path separators).
+  bool _isAssetPath(String path) {
+    return !path.startsWith('http') &&
+        !path.contains(':') &&
+        !path.startsWith('/') &&
+        !path.contains('/');
   }
 
   /// Generates and caches a signed URL for a Supabase storage path.
-  Future<void> _refreshSignedUrl(String storagePath) async {
+  Future<void> _refreshSignedUrl(
+    String storagePath, {
+    String bucket = 'teambanners',
+  }) async {
     try {
-      final signedUrl = await _getSignedUrl(storagePath);
+      final signedUrl = await _getSignedUrl(storagePath, bucket: bucket);
       if (mounted && _storedPath == storagePath) {
         setState(() {
           _displayUrl = signedUrl;
@@ -84,7 +98,15 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
       if (_isStoragePath(effectivePath)) {
         // It's a Supabase storage path – generate a signed URL for display
         _displayUrl = null; // Clear while loading
-        _refreshSignedUrl(effectivePath);
+        // Determine the bucket: player avatar paths start with a numeric ID,
+        // team banner paths use UUID or string-based folder names.
+        final bucket = RegExp(r'^\d+/').hasMatch(effectivePath)
+            ? 'player_avatars'
+            : 'teambanners';
+        _refreshSignedUrl(effectivePath, bucket: bucket);
+      } else if (_isAssetPath(effectivePath)) {
+        // It's an asset image reference (e.g. default placeholder) – use Image.asset
+        _displayUrl = effectivePath;
       } else {
         // It's either a local file path or an HTTP URL – use directly
         _displayUrl = effectivePath;
@@ -97,6 +119,13 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
         child: (_displayUrl != null)
             ? (_displayUrl!.startsWith('http')
                   ? Image.network(_displayUrl!, height: 150)
+                  : _isAssetPath(_displayUrl!)
+                  ? Image.asset(
+                      'assets/images/$_displayUrl',
+                      height: 150,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Text("Image not found"),
+                    )
                   : Image.file(File(_displayUrl!), height: 150))
             : Container(
                 width: 175,
@@ -106,7 +135,7 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
                 ),
                 child: _storedPath != null && _displayUrl == null
                     ? const CircularProgressIndicator()
-                    : const Text("No image availible - yet"),
+                    : const Text("No image available - yet"),
               ),
       ),
       onTap: () {
@@ -152,25 +181,28 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
     }
   }
 
-  /// Generates a signed URL for the given storage path in the "teambanners" bucket.
+  /// Generates a signed URL for the given storage path in the specified bucket.
   /// The URL is valid for 60 minutes and includes the authentication token,
   /// so it works with Supabase policies that require authenticated access.
-  Future<String> _getSignedUrl(String storagePath) async {
+  Future<String> _getSignedUrl(
+    String storagePath, {
+    String bucket = 'teambanners',
+  }) async {
     final server = context.read<ProviderServer>();
     return await server.client.storage
-        .from('teambanners')
+        .from(bucket)
         .createSignedUrl(storagePath, 60 * 60); // 60 Minuten gültig
   }
 
   /// Returns the storage path for a given signed or public URL, or null if not a Supabase URL.
-  /// The returned path is relative to the "teambanners" bucket (e.g. "uuid/filename.ext").
-  String? _extractStoragePath(String url) {
-    // Pattern: https://<project>.supabase.co/storage/v1/object/<type>/teambanners/<path>
+  /// The returned path is relative to the specified bucket (e.g. "uuid/filename.ext").
+  String? _extractStoragePath(String url, {String bucket = 'teambanners'}) {
+    // Pattern: https://<project>.supabase.co/storage/v1/object/<type>/<bucket>/<path>
     final supabaseUrl = context.read<ProviderServer>().supabaseUrl;
     final prefix = '$supabaseUrl/storage/v1/object/';
     if (!url.startsWith(prefix)) return null;
-    // Find "teambanners/" and return everything after it (the path within the bucket)
-    final bucketPrefix = 'teambanners/';
+    // Find "<bucket>/" and return everything after it (the path within the bucket)
+    final bucketPrefix = '$bucket/';
     final bucketIndex = url.indexOf(bucketPrefix);
     if (bucketIndex == -1) return null;
     return url.substring(bucketIndex + bucketPrefix.length);
@@ -222,6 +254,44 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
     return storagePath;
   }
 
+  Future<String> _uploadPlayerAvatarToSupabase(
+    UFile imageFile,
+    ObjectPlayer player,
+  ) async {
+    final server = context.read<ProviderServer>();
+    final userId = server.currentUser?.id;
+    if (userId == null) {
+      throw Exception('User is not logged in');
+    }
+
+    final file = File(imageFile.path ?? "");
+    if (!await file.exists()) {
+      throw Exception('Datei existiert nicht: ${imageFile.path}');
+    }
+
+    // Use the player's id as the folder name
+    final playerFolderId = player.id.toString();
+
+    final extension = path.extension(imageFile.path ?? "");
+    final fileName = '${DateTime.now().millisecondsSinceEpoch}$extension';
+    final storagePath = '$playerFolderId/$fileName';
+
+    // Upload to Supabase Storage bucket "player_avatars"
+    await server.client.storage
+        .from('player_avatars')
+        .upload(
+          storagePath,
+          file,
+          fileOptions: FileOptions(
+            upsert: false,
+            metadata: {'owner': userId},
+          ),
+        );
+
+    // Return the storage path so callers can generate a signed URL on demand
+    return storagePath;
+  }
+
   Future<void> _selectAndUploadImage() async {
     setState(() => _isUploading = true);
 
@@ -260,19 +330,22 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
           ),
         );
       } else if (widget.rootObject is ObjectPlayer) {
-        // Save player image locally
-        final localPath = await _saveImageLocally(file);
-        if (localPath == null) {
-          throw Exception('Fehler beim Speichern des Bildes');
-        }
-
-        _storedPath = localPath;
-        _displayUrl = localPath;
+        // Upload player avatar to Supabase Storage
         final imageObject = widget.rootObject as ObjectPlayer;
+        final storagePath = await _uploadPlayerAvatarToSupabase(
+          file,
+          imageObject,
+        );
+
+        // Store the storage path; the build() method will generate a signed URL
+        _storedPath = storagePath;
+        _displayUrl = null;
+        _refreshSignedUrl(storagePath, bucket: 'player_avatars');
+
         final teamObject = context.read<ProviderTeam>().getCharacterInTeam(
           imageObject,
         );
-        imageObject.image = localPath;
+        imageObject.image = storagePath;
 
         if (teamObject != null) {
           await context.read<ProviderTeam>().modifyCharacterInTeam(
@@ -283,7 +356,7 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Spieler-Bild erfolgreich gespeichert!'),
+            content: Text('Spieler-Bild erfolgreich in die Cloud hochgeladen!'),
           ),
         );
       }
