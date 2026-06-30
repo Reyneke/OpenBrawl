@@ -1,9 +1,14 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:open_brawl/objects/object_team.dart';
 import 'package:open_brawl/provider/provider_team.dart';
 import 'package:open_brawl/screens/screen_character_market.dart';
 import 'package:open_brawl/widgets/character_list_item.dart';
+import 'package:open_brawl/widgets/widget_image_select.dart';
 import 'package:provider/provider.dart';
+
+// Feature implemented: Image picker uploads teamLogo to Supabase Storage bucket "teambanners"
+// under a folder named after the team (sanitized). See WidgetImageSelect._uploadTeamLogoToSupabase().
+// Images are displayed via createSignedUrl() to work with Supabase policies requiring authentication.
 
 class ScreenTeamEditor extends StatefulWidget {
   final ObjectTeam selectedTeam;
@@ -38,6 +43,20 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
             )
           : Column(
               children: [
+                Flexible(
+                  flex: 2,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      WidgetImageSelect(
+                        //TODO clicking on the widget to upload an image crashes the App. Why?
+                        titleText: currentTeam.teamName,
+                        rootObject: currentTeam,
+                      ),
+                      Text(currentTeam.teamName),
+                    ],
+                  ),
+                ),
                 Flexible(
                   flex: 4,
                   child: ListView.builder(
@@ -103,11 +122,15 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               setState(() {
                 currentTeam.teamName = newTeamName.text.trim();
               });
               Navigator.pop(context, true);
+              // Persist team name change to the database
+              await context.read<ProviderTeam>().updateTeamInDatabase(
+                currentTeam,
+              );
             },
             child: const Text(
               'Confirm',

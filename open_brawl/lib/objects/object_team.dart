@@ -10,12 +10,14 @@ class ObjectTeam {
   int teamNuyen;
   List<ObjectPlayer> teamPlayers = [];
   DateTime timeCreated = DateTime.now();
+  String? dbId; // UUID from Supabase
 
   ObjectTeam({
     required this.teamId,
     required this.teamName,
     required this.teamLogo,
     required this.teamNuyen,
+    this.dbId,
   });
 
   factory ObjectTeam.createTeam(String teamName, String teamLogo) {

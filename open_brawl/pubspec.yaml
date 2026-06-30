@@ -19,6 +19,7 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
   #json_serializable: ^6.14.1
   supabase_flutter: ^2.0.0
+  flutter_dotenv: ^5.1.0
   image_picker: ^1.2.2
   crypto: ^3.0.2
   #hcaptcha: ^0.0.2
@@ -26,6 +27,9 @@ dependencies:
   http: ^1.0.0
   random_name_generator: ^1.5.0
   hex_toolkit: ^1.0.0
+  universal_file_picker: ^0.1.0
+  path_provider: ^2.0.0
+  path: ^1.9.1
   
 
 dev_dependencies:
@@ -38,3 +42,4 @@ flutter:
   assets:
     - assets/
     - assets/images/
+    - .env/.env

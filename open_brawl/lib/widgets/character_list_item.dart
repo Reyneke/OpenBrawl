@@ -40,9 +40,9 @@ class CharacterListItem extends StatelessWidget {
                 label: WidgetUtility().capitalize(charPosition.name),
               );
             }).toList(),
-            onSelected: (TeamPositions? value) {
+            onSelected: (TeamPositions? value) async {
               listItem.position = (value ?? TeamPositions.inactive);
-              context.read<ProviderTeam>().modifyCharacterInTeam(
+              await context.read<ProviderTeam>().modifyCharacterInTeam(
                 currentTeam,
                 listItem,
               );

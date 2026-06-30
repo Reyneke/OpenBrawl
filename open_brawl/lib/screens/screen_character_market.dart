@@ -18,18 +18,40 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
   List<ObjectPlayer> buyList = [];
   List<ObjectPlayer> sellList = [];
   Set<int> selectedIds = {};
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    context.read<ProviderMarket>().createDummyCharacters();
-    selectedIds.clear();
+    _initMarket();
+  }
+
+  Future<void> _initMarket() async {
+    final market = context.read<ProviderMarket>();
+    if (!_isInitialized) {
+      await market.initialize(context);
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+          selectedIds.clear();
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    /*List<ObjectPlayer> buy = [];
-    List<ObjectPlayer> sell = [];*/
+    if (!_isInitialized) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Character Market"),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     final marketPlayers = context.watch<ProviderMarket>().availiblePlayers;
     final teamPlayers = widget.currentTeam.teamPlayers;
 
@@ -74,17 +96,10 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
                               selectedIds.add(listItem.id);
                               buyList.add(listItem);
                             }
-
-                            /*selectCharacterItem(
-                              listItem,
-                              true,
-                            );*/
                           });
                         },
                       );
                     },
-
-                    //=> Text(context.read<ProviderMarket>().availiblePlayers[i]),
                   ),
                 ),
               ),
@@ -118,17 +133,10 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
                               selectedIds.add(listItem.id);
                               sellList.add(listItem);
                             }
-
-                            /*selectCharacterItem(
-                              listItem,
-                              false,
-                            );*/
                           });
                         },
                       );
                     },
-
-                    //(context, index) => Text(widget.currentTeam.teamPlayers[i]),
                   ),
                 ),
               ),
@@ -145,49 +153,18 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
     );
   }
 
-  /*bool selectCharacterItem(
-    ObjectPlayer listItem,
-    //List<ObjectPlayer> characterList,
-    bool getIsBuying,
-  ) {
-    int hasCharacterBeenSelected =
-        -1; /*widget.currentTeam.teamPlayers.indexWhere(
-      (item) => item.id == listItem.id,
-    );*/
-
-    if (getIsBuying) {
-      hasCharacterBeenSelected = context
-          .read<ProviderMarket>()
-          .availiblePlayers
-          .indexWhere(
-            (item) => item.id == listItem.id,
-          );
-    } else {
-      hasCharacterBeenSelected = widget.currentTeam.teamPlayers.indexWhere(
-        (item) => item.id == listItem.id,
-      );
-    }
-    if (hasCharacterBeenSelected >= 0) {
-      characterList.removeAt(hasCharacterBeenSelected);
-    } else {
-      characterList.add(listItem);
-      return true;
-    }
-    return false;
-  }*/
-
-  void _handleTransfer(
-    /*List<ObjectPlayer> buyList,
-    List<ObjectPlayer> sellList,*/
-  ) async {
+  Future<void> _handleTransfer() async {
     bool? confirmed = await showConfirmDialog(context);
     int deductable = 0;
     if (confirmed == true) {
       for (var character in buyList) {
         deductable -= character.price;
         if (mounted) {
-          context.read<ProviderMarket>().removeCharacter(character);
-          context.read<ProviderTeam>().addCharacterToTeam(
+          await context.read<ProviderMarket>().removeCharacter(
+            context,
+            character,
+          );
+          await context.read<ProviderTeam>().addCharacterToTeam(
             widget.currentTeam,
             character,
           );
@@ -197,8 +174,8 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
       for (var character in sellList) {
         deductable += character.price;
         if (mounted) {
-          context.read<ProviderMarket>().addCharacter(character);
-          context.read<ProviderTeam>().removeCharacterfromTeam(
+          await context.read<ProviderMarket>().addCharacter(context, character);
+          await context.read<ProviderTeam>().removeCharacterfromTeam(
             widget.currentTeam,
             character,
           );
@@ -206,7 +183,7 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
       }
 
       if (mounted) {
-        context.read<ProviderTeam>().adjustMoney(
+        await context.read<ProviderTeam>().adjustMoney(
           widget.currentTeam,
           deductable,
         );
