@@ -30,6 +30,7 @@ dependencies:
   universal_file_picker: ^0.1.0
   path_provider: ^2.0.0
   path: ^1.9.1
+  xml: ^6.5.0
   
 
 dev_dependencies:
@@ -42,4 +43,6 @@ flutter:
   assets:
     - assets/
     - assets/images/
+    - assets/maps/
+    - assets/texts/
     - .env/.env

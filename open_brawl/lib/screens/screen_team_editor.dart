@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:open_brawl/objects/object_team.dart';
 import 'package:open_brawl/provider/provider_team.dart';
+import 'package:open_brawl/screens/screen_battle_map.dart';
 import 'package:open_brawl/screens/screen_character_market.dart';
 import 'package:open_brawl/widgets/character_list_item.dart';
 import 'package:open_brawl/widgets/widget_image_select.dart';
@@ -28,11 +29,27 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
     final isNoPlayersAvailible = currentTeam.teamPlayers.isEmpty;
     return Scaffold(
       appBar: AppBar(
-        title: GestureDetector(
-          child: Text("Team: ${currentTeam.teamName}"),
-          onTap: () {
-            showChangeNameDialog(context, currentTeam);
-          },
+        title: Row(
+          children: [
+            GestureDetector(
+            child: Text("Team: ${currentTeam.teamName}"),
+            onTap: () {
+              showChangeNameDialog(context, currentTeam);
+            },
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.push<void>(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (context) =>
+                      ScreenBattleMap(activeTeam: currentTeam),
+                ),
+              );
+            },
+            icon: const Icon(Icons.desktop_mac_outlined),
+          )
+          ],
         ),
       ),
       body: isNoPlayersAvailible
