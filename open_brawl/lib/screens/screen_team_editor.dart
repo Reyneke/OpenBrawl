@@ -1,5 +1,7 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:open_brawl/objects/object_referee.dart';
 import 'package:open_brawl/objects/object_team.dart';
+import 'package:open_brawl/provider/provider_server.dart';
 import 'package:open_brawl/provider/provider_team.dart';
 import 'package:open_brawl/screens/screen_battle_map.dart';
 import 'package:open_brawl/screens/screen_character_market.dart';
@@ -91,9 +93,20 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
                 Flexible(
                   flex: 1,
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (!currentTeam.getIsTeamValid()) {
-                        null;
+                    onPressed: () async {
+                      if (!currentTeam.getIsTeamValid()) return;
+                      final server = context.read<ProviderServer>();
+                      final teamProvider = context.read<ProviderTeam>();
+                      final referee = ObjectReferee(server, teamProvider);
+                      await referee.setTeamReadyForBattle(currentTeam);
+                      if (context.mounted) {
+                        Navigator.push<void>(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (context) =>
+                                ScreenBattleMap(activeTeam: currentTeam),
+                          ),
+                        );
                       }
                     },
                     child: currentTeam.getIsTeamValid()

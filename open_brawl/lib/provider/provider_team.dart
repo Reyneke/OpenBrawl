@@ -211,6 +211,24 @@ class ProviderTeam extends ChangeNotifier {
     await updateTeamInDatabase(teamIteam);
   }
 
+  /// Updates the ready_for_battle status in the database for a given team.
+  Future<void> setTeamReadyForBattle(ObjectTeam team, bool isReady) async {
+    try {
+      final userId = _server.currentUser?.id;
+      if (userId == null) return;
+      final dbId = team.dbId;
+      if (dbId == null) return;
+
+      await _server.client
+          .from('teams')
+          .update({'ready_for_battle': isReady})
+          .eq('id', dbId)
+          .eq('user_id', userId);
+    } catch (e) {
+      debugPrint('Failed to set team ready for battle: $e');
+    }
+  }
+
   /// Loads all teams for the current user from Supabase.
   Future<void> loadTeamsFromDatabase() async {
     try {

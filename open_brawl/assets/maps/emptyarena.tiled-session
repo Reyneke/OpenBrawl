@@ -18,14 +18,16 @@
         },
         "test.tmx": {
             "scale": 0.9110655737704917,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 488.98785425101215,
-                "y": 244.2195231668916
+                "x": 41.16059379217273,
+                "y": 243.12190733243366
             }
         }
     },
+    "last.exportedFilePath": "C:/Users/matth/dev/OpenBrawl/open_brawl/assets/maps",
     "last.imagePath": "C:/Users/matth/dev/OpenBrawl/open_brawl/assets/maps",
+    "map.lastUsedExportFilter": "JSON-Kartendateien (*.tmj *.json)",
     "map.lastUsedFormat": "tmx",
     "map.orientation": null,
     "openFiles": [
