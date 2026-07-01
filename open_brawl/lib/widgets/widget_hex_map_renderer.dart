@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:open_brawl/objects/object_token.dart';
 import 'package:open_brawl/utils/tmx_parser.dart';
@@ -10,6 +11,7 @@ class HexMapRenderer extends StatelessWidget {
   final int? selectedRow;
   final ValueChanged<(int col, int row)>? onTileTap;
   final List<ObjectToken> tokens;
+  final ui.Image? tilesetImage;
 
   const HexMapRenderer({
     super.key,
@@ -18,6 +20,7 @@ class HexMapRenderer extends StatelessWidget {
     this.selectedRow,
     this.onTileTap,
     this.tokens = const [],
+    this.tilesetImage,
   });
 
   @override
@@ -49,6 +52,7 @@ class HexMapRenderer extends StatelessWidget {
                 tokens: tokens,
                 selectedCol: selectedCol,
                 selectedRow: selectedRow,
+                tilesetImage: tilesetImage,
               ),
             ),
           ),
@@ -112,11 +116,15 @@ class _HexMapPainter extends CustomPainter {
   final int? selectedRow;
   final List<ObjectToken> tokens;
 
+  /// Tileset image loaded from assets. If null, falls back to solid colors.
+  final ui.Image? tilesetImage;
+
   _HexMapPainter({
     required this.map,
     this.selectedCol,
     this.selectedRow,
     this.tokens = const [],
+    this.tilesetImage,
   });
 
   @override
@@ -146,7 +154,7 @@ class _HexMapPainter extends CustomPainter {
       ..strokeWidth = 1.0
       ..color = Colors.black45;
 
-    // Colors for different tile GIDs
+    // Colors for different tile GIDs (fallback when tileset image is not available)
     const tileColors = {
       0: Color(0xFF2D2D2D), // empty
       73: Color(0xFF4A7C4F), // grass
@@ -164,9 +172,27 @@ class _HexMapPainter extends CustomPainter {
         final gid = map.getTileGid(col, row);
         final isSelected = col == selectedCol && row == selectedRow;
 
-        // Draw fill
-        tilePaint.color = tileColors[gid] ?? const Color(0xFF6B8E6B);
-        canvas.drawPath(hexPath, tilePaint);
+        if (tilesetImage != null && gid != 0) {
+          // Draw the actual tile texture from the tileset image, clipped to the hex shape
+          final (sx, sy, sw, sh) = map.tileset.getTileSourceRect(gid);
+
+          // Clip to hex path
+          canvas.clipPath(hexPath);
+
+          // Draw the tile source rect centered on the hex
+          // The tile source is drawn so its center aligns with the hex center
+          // (since we already translated to hex center, just offset by -sw/2, -sh/2)
+          canvas.drawImageRect(
+            tilesetImage!,
+            Rect.fromLTWH(sx.toDouble(), sy.toDouble(), sw.toDouble(), sh.toDouble()),
+            Rect.fromLTWH(-sw / 2.0, -sh / 2.0, sw.toDouble(), sh.toDouble()),
+            Paint(),
+          );
+        } else {
+          // Fallback: draw solid color
+          tilePaint.color = tileColors[gid] ?? const Color(0xFF6B8E6B);
+          canvas.drawPath(hexPath, tilePaint);
+        }
 
         // Draw selection highlight
         if (isSelected) {
@@ -255,6 +281,7 @@ class _HexMapPainter extends CustomPainter {
     return oldDelegate.map != map ||
         oldDelegate.selectedCol != selectedCol ||
         oldDelegate.selectedRow != selectedRow ||
-        oldDelegate.tokens != tokens;
+        oldDelegate.tokens != tokens ||
+        oldDelegate.tilesetImage != tilesetImage;
   }
 }

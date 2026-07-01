@@ -37,18 +37,28 @@ class _ScreenBattleMapState extends State<ScreenBattleMap> {
       final currentDbId = widget.activeTeam.dbId;
       if (currentDbId == null) return;
 
-      // Suche nach einem aktiven Match für dieses Team
+      // Suche nach dem letzten Match für dieses Team
+      // Lade die letzten 10 Matches und filtere client-seitig,
+      // um Probleme mit PostgREST's JSON-Array-Operatoren zu vermeiden.
       final response = await server.client
           .from('matches')
           .select()
-          .or(
-            'team1.cs.{${jsonEncode({'id': currentDbId})}},'
-            'team2.cs.{${jsonEncode({'id': currentDbId})}}',
-          )
           .order('created_at', ascending: false)
-          .limit(1);
+          .limit(10);
 
-      final List<dynamic> matches = response as List<dynamic>;
+      final allMatches = (response as List<dynamic>)
+          .cast<Map<String, dynamic>>();
+      final matches = allMatches.where((m) {
+        final t1 = ((m['team1'] as List<dynamic>?) ?? [])
+            .map((e) => jsonDecode(e as String) as Map<String, dynamic>)
+            .toList();
+        final t2 = ((m['team2'] as List<dynamic>?) ?? [])
+            .map((e) => jsonDecode(e as String) as Map<String, dynamic>)
+            .toList();
+        return t1.any((t) => t['id'] == currentDbId) ||
+            t2.any((t) => t['id'] == currentDbId);
+      }).toList();
+
       if (matches.isEmpty) {
         // Kein aktives Match -> Team-Aufstellung anzeigen
         return;

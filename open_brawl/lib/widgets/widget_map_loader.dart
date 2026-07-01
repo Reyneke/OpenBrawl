@@ -1,4 +1,6 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:open_brawl/objects/object_team.dart';
 import 'package:open_brawl/objects/object_token.dart';
 import 'package:open_brawl/utils/tmx_parser.dart';
@@ -17,6 +19,7 @@ class WidgetMapLoader extends StatefulWidget {
 
 class _WidgetMapLoaderState extends State<WidgetMapLoader> {
   Future<TmxMap>? _mapFuture;
+  Future<ui.Image>? _tilesetImageFuture;
   int? _selectedCol;
   int? _selectedRow;
   List<ObjectToken> _tokens = [];
@@ -30,7 +33,11 @@ class _WidgetMapLoaderState extends State<WidgetMapLoader> {
   /// Lade die TMX-Karte, ermittle das Zentrum und generiere
   /// ein ObjectToken pro Spieler im aktiven Team.
   Future<TmxMap> _loadMapAndGenerateTokens() async {
-    final tmxMap = await TmxMap.loadFromAsset('assets/maps/test.tmx');
+    final tmxMap = await TmxMap.loadFromJsonAsset('assets/maps/test.tmj');
+
+    // Start loading the tileset image in parallel
+    _tilesetImageFuture = _loadTilesetImage(tmxMap.tileset.imageAssetPath);
+
     final centerCol = tmxMap.width ~/ 2;
     final centerRow = tmxMap.height ~/ 2;
 
@@ -51,6 +58,16 @@ class _WidgetMapLoaderState extends State<WidgetMapLoader> {
     }
 
     return tmxMap;
+  }
+
+  /// Load a tileset PNG image from assets and decode it to a [ui.Image].
+  Future<ui.Image> _loadTilesetImage(String assetPath) async {
+    final data = await rootBundle.load(assetPath);
+    final codec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(),
+    );
+    final frameInfo = await codec.getNextFrame();
+    return frameInfo.image;
   }
 
   void _onTileTap((int, int) tile) {
@@ -90,18 +107,26 @@ class _WidgetMapLoaderState extends State<WidgetMapLoader> {
         }
 
         final tmxMap = snapshot.data!;
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: HexMapRenderer(
-              map: tmxMap,
-              tokens: _tokens,
-              selectedCol: _selectedCol,
-              selectedRow: _selectedRow,
-              onTileTap: _onTileTap,
-            ),
-          ),
+        return FutureBuilder<ui.Image>(
+          future: _tilesetImageFuture,
+          builder: (context, imageSnapshot) {
+            final tilesetImage = imageSnapshot.data;
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: HexMapRenderer(
+                  map: tmxMap,
+                  tokens: _tokens,
+                  selectedCol: _selectedCol,
+                  selectedRow: _selectedRow,
+                  onTileTap: _onTileTap,
+                  tilesetImage: tilesetImage,
+                ),
+              ),
+            );
+          },
         );
       },
     );

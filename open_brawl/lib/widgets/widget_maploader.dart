@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:open_brawl/objects/object_token.dart';
 import 'package:open_brawl/utils/tmx_parser.dart';
 import 'package:open_brawl/widgets/widget_hex_map_renderer.dart';
-
+//NOTE This widget is currently not used anywhere in the app. It was replaced by WidgetMapLoader, which also handles token generation and selection.
+//NOTE Outdated: This widget loads a TMX map and renders it as a hex grid. It supports tile selection and placing tokens on the map.
 /// Widget that loads and displays the hex tile map from "assets/maps/test.tmx".
 class WidgetMaploader extends StatefulWidget {
   final List<ObjectToken> tokens;
