@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:open_brawl/objects/object_player.dart';
 import 'package:open_brawl/objects/object_team.dart';
 import 'package:open_brawl/provider/provider_server.dart';
-import 'package:random_name_generator/random_name_generator.dart';
 
 /*
 Teamdatabase structure
@@ -25,10 +24,25 @@ create table public.teams (
 class ProviderTeam extends ChangeNotifier {
   final List<ObjectTeam> _teams = [];
   List<ObjectTeam> get teams => _teams;
-  final randomNames = RandomNames(Zone.germany);
   final ProviderServer _server;
 
   ProviderTeam(this._server);
+
+  /// Serializes a list of ObjectPlayer into a JSON-encoded list for database storage.
+  List<String> _serializePlayers(List<ObjectPlayer> players) {
+    return players
+        .map(
+          (player) => jsonEncode({
+            'id': player.id,
+            'name': player.name,
+            'image': player.image,
+            'price': player.price,
+            'position': player.position.name,
+            'status': player.status.name,
+          }),
+        )
+        .toList();
+  }
 
   int getTeamPosition(ObjectTeam teamIteam) {
     return _teams.indexWhere((team) => team.teamId == teamIteam.teamId);
@@ -42,18 +56,7 @@ class ProviderTeam extends ChangeNotifier {
       final dbId = team.dbId;
       if (dbId == null) return;
 
-      final playersJson = team.teamPlayers
-          .map(
-            (player) => jsonEncode({
-              'id': player.id,
-              'name': player.name,
-              'image': player.image,
-              'price': player.price,
-              'position': player.position.name,
-              'status': player.status.name,
-            }),
-          )
-          .toList();
+      final playersJson = _serializePlayers(team.teamPlayers);
 
       await _server.client
           .from('teams')
@@ -82,18 +85,7 @@ class ProviderTeam extends ChangeNotifier {
       final userId = _server.currentUser?.id;
       if (userId == null) return;
 
-      final playersJson = newTeam.teamPlayers
-          .map(
-            (player) => jsonEncode({
-              'id': player.id,
-              'name': player.name,
-              'image': player.image,
-              'price': player.price,
-              'position': player.position.name,
-              'status': player.status.name,
-            }),
-          )
-          .toList();
+      final playersJson = _serializePlayers(newTeam.teamPlayers);
 
       final response = await _server.client.from('teams').insert({
         'teamname': newTeam.teamName,

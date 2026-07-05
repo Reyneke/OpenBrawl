@@ -22,6 +22,7 @@ class _ScreenBattleMapState extends State<ScreenBattleMap> {
   List<Map<String, dynamic>> _battleLog = [];
   ObjectTeam? _opponentTeam;
   bool _isInMatch = false;
+  RealtimeChannel? _matchChannel;
 
   @override
   void initState() {
@@ -32,7 +33,6 @@ class _ScreenBattleMapState extends State<ScreenBattleMap> {
   Future<void> _loadMatchData() async {
     try {
       final server = context.read<ProviderServer>();
-      final teamProvider = context.read<ProviderTeam>();
 
       final currentDbId = widget.activeTeam.dbId;
       if (currentDbId == null) return;
@@ -64,8 +64,7 @@ class _ScreenBattleMapState extends State<ScreenBattleMap> {
         return;
       }
 
-      final match = matches.first as Map<String, dynamic>;
-      final matchId = match['id'] as int;
+      final match = matches.first;
 
       // Prüfen, ob das Team in team1 oder team2 ist
       final team1List = match['team1'] as List<dynamic>? ?? [];
@@ -95,7 +94,7 @@ class _ScreenBattleMapState extends State<ScreenBattleMap> {
       }
 
       // Realtime-Subscription für Battle-Log-Updates
-      server.client
+      _matchChannel = server.client
           .channel('match-${match['id']}')
           .onPostgresChanges(
             event: PostgresChangeEvent.update,
@@ -315,6 +314,7 @@ class _ScreenBattleMapState extends State<ScreenBattleMap> {
 
   @override
   void dispose() {
+    _matchChannel?.unsubscribe();
     super.dispose();
   }
 }

@@ -6,7 +6,6 @@ import 'package:open_brawl/objects/object_team.dart';
 import 'package:open_brawl/provider/provider_server.dart';
 import 'package:open_brawl/provider/provider_team.dart';
 import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_file_picker/universal_file_picker.dart';
@@ -25,7 +24,6 @@ class WidgetImageSelect extends StatefulWidget {
 }
 
 class _WidgetImageSelectState extends State<WidgetImageSelect> {
-  bool _isUploading = false;
   String? _displayUrl;
   String? _storedPath;
 
@@ -144,43 +142,6 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
     );
   }
 
-  Future<String?> _saveImageLocally(UFile imageFile) async {
-    try {
-      final File file = File(imageFile.path ?? "");
-      if (!await file.exists()) {
-        throw Exception('Datei existiert nicht: ${imageFile.path}');
-      }
-
-      final bytes = await file.readAsBytes();
-      if (bytes.isEmpty) {
-        throw Exception('Datei ist leer');
-      }
-
-      final appDirectory = await getApplicationDocumentsDirectory();
-      final teamImageDir = Directory(
-        path.join(appDirectory.path, 'team_images'),
-      );
-      if (!await teamImageDir.exists()) {
-        await teamImageDir.create(recursive: true);
-      }
-
-      final extension = path.extension(imageFile.path ?? "");
-      final fileName =
-          'team_${widget.titleText}_${DateTime.now().millisecondsSinceEpoch}$extension';
-      final filePath = path.join(teamImageDir.path, fileName);
-
-      final savedFile = File(filePath);
-      await savedFile.writeAsBytes(bytes);
-
-      return filePath;
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Fehler: $e')),
-      );
-      return null;
-    }
-  }
-
   /// Generates a signed URL for the given storage path in the specified bucket.
   /// The URL is valid for 60 minutes and includes the authentication token,
   /// so it works with Supabase policies that require authenticated access.
@@ -293,14 +254,9 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
   }
 
   Future<void> _selectAndUploadImage() async {
-    setState(() => _isUploading = true);
-
     try {
       final file = await UniversalFilePicker().pickFile();
-      if (file == null) {
-        setState(() => _isUploading = false);
-        return;
-      }
+      if (file == null) return;
 
       if (widget.rootObject is ObjectTeam) {
         // Upload team logo to Supabase Storage
@@ -361,14 +317,12 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
         );
       }
 
-      setState(() {
-        _isUploading = false;
-      });
     } catch (e) {
-      setState(() => _isUploading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Fehler: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Fehler: $e')),
+        );
+      }
     }
   }
 }

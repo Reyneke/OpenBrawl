@@ -33,36 +33,28 @@ class ObjectTeam {
   }
 
   bool getIsTeamValid() {
-    if (teamPlayers.isNotEmpty) {
-      final int countScout = teamPlayers
-          .where((player) => player.position == TeamPositions.scout)
-          .length;
-      final int countBanger = teamPlayers
-          .where((player) => player.position == TeamPositions.banger)
-          .length;
-      final int countHeavies = teamPlayers
-          .where((player) => player.position == TeamPositions.heavy)
-          .length;
-      final int countBlaster = teamPlayers
-          .where((player) => player.position == TeamPositions.blaster)
-          .length;
-      final int countOutrider = teamPlayers
-          .where((player) => player.position == TeamPositions.outrider)
-          .length;
-      final int countMedico = teamPlayers
-          .where((player) => player.position == TeamPositions.medico)
-          .length;
+    if (teamPlayers.isEmpty) return false;
 
-      if ((countScout == 4) &&
-          (countBanger == 4) &&
-          (countHeavies == 2) &&
-          (countBlaster == 1) &&
-          (countOutrider == 1) &&
-          (countMedico == 1)) {
-        return true;
+    int countScout = 0, countBanger = 0, countHeavy = 0;
+    int countBlaster = 0, countOutrider = 0, countMedico = 0;
+
+    for (final player in teamPlayers) {
+      switch (player.position) {
+        case TeamPositions.scout:    countScout++;
+        case TeamPositions.banger:   countBanger++;
+        case TeamPositions.heavy:    countHeavy++;
+        case TeamPositions.blaster:  countBlaster++;
+        case TeamPositions.outrider: countOutrider++;
+        case TeamPositions.medico:   countMedico++;
+        case TeamPositions.inactive: break;
       }
     }
 
-    return false;
+    return countScout == 4 &&
+        countBanger == 4 &&
+        countHeavy == 2 &&
+        countBlaster == 1 &&
+        countOutrider == 1 &&
+        countMedico == 1;
   }
 }

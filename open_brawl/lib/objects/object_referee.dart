@@ -119,7 +119,7 @@ class ObjectReferee {
           .eq('id', matchId)
           .single();
 
-      final matchData = response as Map<String, dynamic>;
+      final matchData = response;
       final List<dynamic> currentLog =
           (matchData['battle_log'] as List<dynamic>?) ?? [];
 

@@ -24,9 +24,9 @@ class ScreenTeamEditor extends StatefulWidget {
 class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
   @override
   Widget build(BuildContext context) {
-    ObjectTeam currentTeam = context.watch<ProviderTeam>().teams.elementAt(
-      context.watch<ProviderTeam>().getTeamPosition(widget.selectedTeam),
-    );
+    final teamProvider = context.watch<ProviderTeam>();
+    final teamIndex = teamProvider.getTeamPosition(widget.selectedTeam);
+    ObjectTeam currentTeam = teamProvider.teams.elementAt(teamIndex);
 
     final isNoPlayersAvailible = currentTeam.teamPlayers.isEmpty;
     return Scaffold(

@@ -7,26 +7,16 @@ import 'package:open_brawl/widgets/widget_utility.dart';
 import 'package:provider/provider.dart';
 
 class CharacterListItem extends StatelessWidget {
-  CharacterListItem({
+  const CharacterListItem({
     super.key,
     required this.currentTeam,
     required this.listItem,
   });
   final ObjectTeam currentTeam;
-  ObjectPlayer listItem;
+  final ObjectPlayer listItem;
 
   @override
   Widget build(BuildContext context) {
-    List<DropdownMenuEntry<TeamPositions>> menuEntries = TeamPositions.values
-        .map((TeamPositions option) {
-          return DropdownMenuEntry<TeamPositions>(
-            value: option,
-            label: WidgetUtility().capitalize(
-              option.name,
-            ), // "BLUE", "GREEN", "RED"
-          );
-        })
-        .toList();
 
     return GestureDetector(
       child: Card(

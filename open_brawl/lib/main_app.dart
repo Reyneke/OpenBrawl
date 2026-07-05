@@ -42,7 +42,6 @@ class _AuthGateState extends State<AuthGate> {
 
   Future<void> _checkAuthState() async {
     final providerServer = context.read<ProviderServer>();
-    await providerServer.initialize();
 
     if (!mounted) return;
 

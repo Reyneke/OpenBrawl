@@ -14,6 +14,8 @@ class ProviderMarket extends ChangeNotifier {
   bool _isLoaded = false;
   String? _errorMessage;
 
+  String? get errorMessage => _errorMessage;
+
   /// Call this once during app startup to load initial data and subscribe to
   /// realtime changes on the `character_market` table.
   Future<void> initialize(BuildContext context) async {
@@ -125,17 +127,14 @@ class ProviderMarket extends ChangeNotifier {
   /// Creates dummy characters and persists them to Supabase.
   /// After insertion they will arrive via the Realtime subscription.
   /// Queries the actual DB count to avoid exceeding 40 across all clients.
-  Future<void> createDummyCharacters(BuildContext context) async {
-    final server = context.read<ProviderServer>();
-    final client = server.client;
-
+  Future<void> createDummyCharacters(SupabaseClient client) async {
     // First check how many characters are actually in the DB (not just local)
     final countResponse = await client
         .from('character_market')
         .select('id')
         .count(CountOption.exact);
 
-    final currentCount = countResponse.count ?? 0;
+    final currentCount = countResponse.count;
     final maxNumOfCharacters = 40 - currentCount;
 
     if (maxNumOfCharacters <= 0) return;
@@ -156,12 +155,9 @@ class ProviderMarket extends ChangeNotifier {
   /// a minimum of 40 characters. The Realtime subscription will
   /// automatically remove it from the local list.
   Future<void> removeCharacter(
-    BuildContext context,
+    SupabaseClient client,
     ObjectPlayer oldPlayer,
   ) async {
-    final server = context.read<ProviderServer>();
-    final client = server.client;
-
     // Remove from local list immediately so the length is accurate for refill
     _availiblePlayers.removeWhere((p) => p.id == oldPlayer.id);
     notifyListeners();
@@ -174,17 +170,15 @@ class ProviderMarket extends ChangeNotifier {
 
     // Top the market back up to 40 characters.
     // createDummyCharacters checks the actual DB count first.
-    await createDummyCharacters(context);
+    await createDummyCharacters(client);
   }
 
   /// Adds a character to Supabase if it doesn't already exist there.
   /// The Realtime subscription will automatically add it to the local list.
   Future<void> addCharacter(
-    BuildContext context,
+    SupabaseClient client,
     ObjectPlayer newPlayer,
   ) async {
-    final server = context.read<ProviderServer>();
-    final client = server.client;
 
     // Check if a character with this ID already exists in the market
     final existing = await client
@@ -203,10 +197,7 @@ class ProviderMarket extends ChangeNotifier {
   }
 
   /// Removes all market characters from Supabase (for cleanup / testing).
-  Future<void> clearAllCharacters(BuildContext context) async {
-    final server = context.read<ProviderServer>();
-    final client = server.client;
-
+  Future<void> clearAllCharacters(SupabaseClient client) async {
     await client.from('character_market').delete().neq('id', 0);
   }
 

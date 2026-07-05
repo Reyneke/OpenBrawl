@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:open_brawl/objects/object_player.dart';
 import 'package:open_brawl/objects/object_team.dart';
 import 'package:open_brawl/provider/provider_market.dart';
+import 'package:open_brawl/provider/provider_server.dart';
 import 'package:open_brawl/provider/provider_team.dart';
 import 'package:open_brawl/theme/app_theme.dart';
 import 'package:provider/provider.dart';
@@ -154,17 +155,19 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
   }
 
   Future<void> _handleTransfer() async {
+    final market = context.read<ProviderMarket>();
+    final teamProvider = context.read<ProviderTeam>();
+    final client = context.read<ProviderServer>().client;
+    final navigator = Navigator.of(context);
+
     bool? confirmed = await showConfirmDialog(context);
     int deductable = 0;
     if (confirmed == true) {
       for (var character in buyList) {
         deductable -= character.price;
         if (mounted) {
-          await context.read<ProviderMarket>().removeCharacter(
-            context,
-            character,
-          );
-          await context.read<ProviderTeam>().addCharacterToTeam(
+          await market.removeCharacter(client, character);
+          await teamProvider.addCharacterToTeam(
             widget.currentTeam,
             character,
           );
@@ -174,8 +177,8 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
       for (var character in sellList) {
         deductable += character.price;
         if (mounted) {
-          await context.read<ProviderMarket>().addCharacter(context, character);
-          await context.read<ProviderTeam>().removeCharacterfromTeam(
+          await market.addCharacter(client, character);
+          await teamProvider.removeCharacterfromTeam(
             widget.currentTeam,
             character,
           );
@@ -183,11 +186,8 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
       }
 
       if (mounted) {
-        await context.read<ProviderTeam>().adjustMoney(
-          widget.currentTeam,
-          deductable,
-        );
-        Navigator.pop(context);
+        await teamProvider.adjustMoney(widget.currentTeam, deductable);
+        navigator.pop();
       }
     }
   }

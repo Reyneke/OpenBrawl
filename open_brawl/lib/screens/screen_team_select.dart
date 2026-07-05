@@ -14,7 +14,9 @@ class _ScreenTeamSelectState extends State<ScreenTeamSelect> {
   @override
   void initState() {
     super.initState();
-    context.read<ProviderTeam>().loadTeamsFromDatabase();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProviderTeam>().loadTeamsFromDatabase();
+    });
   }
 
   @override

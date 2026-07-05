@@ -8,7 +8,12 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env/.env");
+
+  try {
+    await dotenv.load(fileName: ".env/.env");
+  } catch (e) {
+    debugPrint('⚠️ Warning: Failed to load .env file: $e');
+  }
 
   final providerServer = ProviderServer();
   await providerServer.initialize();
@@ -20,10 +25,7 @@ void main() async {
         ChangeNotifierProvider<ProviderTeam>(
           create: (_) => ProviderTeam(providerServer),
         ),
-
         ChangeNotifierProvider<ProviderMarket>(create: (_) => ProviderMarket()),
-        //Provider<SomethingElse>(create: (_) => SomethingElse()),
-        //Provider<AnotherThing>(create: (_) => AnotherThing()),
       ],
       child: MainApp(),
     ),
