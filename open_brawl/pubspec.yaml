@@ -30,7 +30,9 @@ dependencies:
   universal_file_picker: ^0.1.0
   path_provider: ^2.0.0
   path: ^1.9.1
-  xml: ^6.5.0
+  xml: ^7.0.1
+  tilemap_engine:
+    path: ../packages/tilemap_engine/tiled_warfare/packages/tilemap_engine
   
 
 dev_dependencies:

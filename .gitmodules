@@ -1,3 +1,4 @@
 [submodule "packages/tilemap_engine"]
 	path = packages/tilemap_engine
 	url = https://github.com/Reyneke/TiledWarfare.git
+	branch = main
