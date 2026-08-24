@@ -8,7 +8,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class ProviderMarket extends ChangeNotifier {
   final List<ObjectPlayer> _availablePlayers = [];
   List<ObjectPlayer> get availablePlayers => _availablePlayers;
-  final randomNames = RandomNames(Zone.germany);
 
   RealtimeChannel? _marketChannel;
   bool _isLoaded = false;
@@ -140,8 +139,10 @@ class ProviderMarket extends ChangeNotifier {
     if (maxNumOfCharacters <= 0) return;
 
     for (int i = 0; i < maxNumOfCharacters; ++i) {
+      // Weltweiter Namenspool: Zufällige Zone aus allen 29 verfügbaren Zonen
+      // plus Vor-/Nachname (fullName) statt bisher nur deutsche Vornamen.
       final player = ObjectPlayer.create(
-        randomNames.name(),
+        RandomNames().fullName(),
         "urbanbrawl_frame_leer.png",
       );
       await client.from('character_market').insert({

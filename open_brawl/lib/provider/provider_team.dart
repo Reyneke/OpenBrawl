@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:open_brawl/objects/object_player.dart';
 import 'package:open_brawl/objects/object_team.dart';
 import 'package:open_brawl/provider/provider_server.dart';
+import 'package:open_brawl/utils/id_utils.dart';
 
 /*
 Teamdatabase structure
@@ -226,7 +227,7 @@ class ProviderTeam extends ChangeNotifier {
 
       for (final row in data) {
         final team = ObjectTeam(
-          teamId: row['id'].hashCode,
+          teamId: IdUtils.stableIdFromString(row['id'] as String),
           teamName: row['teamname'] ?? '',
           teamLogo: row['banner_url'] ?? '',
           teamNuyen: row['stats']?['nuyen'] ?? 1000,

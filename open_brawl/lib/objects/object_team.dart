@@ -1,7 +1,5 @@
-import 'dart:convert';
-
-import 'package:crypto/crypto.dart';
 import 'package:open_brawl/objects/object_player.dart';
+import 'package:open_brawl/utils/id_utils.dart';
 
 class ObjectTeam {
   int teamId;
@@ -21,11 +19,8 @@ class ObjectTeam {
   });
 
   factory ObjectTeam.create(String teamName, String teamLogo) {
-    final bytes = utf8.encode(DateTime.now().microsecondsSinceEpoch.toString());
-    final digest = sha256.convert(bytes);
-
     return ObjectTeam(
-      teamId: digest.hashCode,
+      teamId: IdUtils.uniqueId('team|$teamName'),
       teamName: teamName,
       teamLogo: teamLogo,
       teamNuyen: 1000,
@@ -35,26 +30,26 @@ class ObjectTeam {
   bool get isTeamValid {
     if (teamPlayers.isEmpty) return false;
 
-    int countScout = 0, countBanger = 0, countHeavy = 0;
-    int countBlaster = 0, countOutrider = 0, countMedico = 0;
+    int countScout = 0, countJaeger = 0, countBrecher = 0;
+    int countSchuetze = 0, countStuermer = 0, countSani = 0;
 
     for (final player in teamPlayers) {
       switch (player.position) {
-        case TeamPositions.scout:    countScout++;
-        case TeamPositions.banger:   countBanger++;
-        case TeamPositions.heavy:    countHeavy++;
-        case TeamPositions.blaster:  countBlaster++;
-        case TeamPositions.outrider: countOutrider++;
-        case TeamPositions.medico:   countMedico++;
+        case TeamPositions.scout:   countScout++;
+        case TeamPositions.jaeger:  countJaeger++;
+        case TeamPositions.brecher: countBrecher++;
+        case TeamPositions.schuetze: countSchuetze++;
+        case TeamPositions.stuermer: countStuermer++;
+        case TeamPositions.sani:    countSani++;
         case TeamPositions.inactive: break;
       }
     }
 
     return countScout == 4 &&
-        countBanger == 4 &&
-        countHeavy == 2 &&
-        countBlaster == 1 &&
-        countOutrider == 1 &&
-        countMedico == 1;
+        countJaeger == 4 &&
+        countBrecher == 2 &&
+        countSchuetze == 1 &&
+        countStuermer == 1 &&
+        countSani == 1;
   }
 }

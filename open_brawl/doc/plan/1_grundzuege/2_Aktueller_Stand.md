@@ -121,18 +121,24 @@ Da es schon eine Weile her ist, seitdem wir an dem Projekt gearbeitet haben, ist
 
 ### 📝 Rollen-Namenskonflikt
 
-Die Dokumentation (`doc/plan/spielablauf/spielablauf.md`) verwendet abweichende Rollennamen gegenüber dem Code:
+Die Dokumentation (`doc/plan/spielablauf/spielablauf.md`) verwendete abweichende Rollennamen gegenüber dem Code.
 
-| Code (`TeamPositions`) | Doku |
-|---|---|
-| `scout` | Scout |
-| `banger` | Jäger |
-| `heavy` | Brecher |
-| `blaster` | Schütze |
-| `outrider` | Stürmer |
-| `medico` | Sani |
+> **✅ Behoben (24.08.2026):** Die Rollennamen wurden gemäß Entscheidung aus der Doku übernommen; Sonderzeichen (Umlaute) wurden für Code/Serialisierung ersetzt:
 
-> **Empfehlung:** Vor der Implementierung des Regel-Systems sollten die Rollennamen vereinheitlicht werden (Code oder Doku).
+| Alter Code-Name | Neuer Code-Name (`TeamPositions`) | Anzeige (`displayName`) |
+|---|---|---|
+| `scout` | `scout` | Scout |
+| `banger` | `jaeger` | Jäger |
+| `heavy` | `brecher` | Brecher |
+| `blaster` | `schuetze` | Schütze |
+| `outrider` | `stuermer` | Stürmer |
+| `medico` | `sani` | Sani |
+| `inactive` | `inactive` | Ersatz |
+
+**Hinweise zur Migration:**
+- Die UI zeigt weiterhin die deutschen Namen mit Umlauten (`displayName`)
+- Bereits in Supabase persistierte Werte (`teams`-Tabelle, Match-JSON) mit alten Namen werden beim Parsen über `TeamPositions.fromName()` inkl. Legacy-Mapping korrekt zugeordnet
+- Neu serialisierte Daten enthalten die neuen Namen; ein DB-Migrationsskript für Altbestände ist nicht zwingend nötig, aber empfehlenswert
 
 ---
 
@@ -210,8 +216,7 @@ Der gesamte Arbeitsstand (alle Fixes oben **und** die Scope-Abweichungen) liegt 
 1. Änderungen committen (siehe Warnung oben)
 2. Entscheidung über PDFs in `data/`: `.gitignore`-Eintrag oder Git-LFS
 3. `mounted`-Checks in `widget_image_select.dart` ergänzen, um die Analyzer-Infos zu beheben
-4. Rollennamen vereinheitlichen (siehe Abschnitt „Rollen-Namenskonflikt")
-
+4. ~~Rollennamen vereinheitlichen~~ ✅ Erledigt (siehe Abschnitt „Rollen-Namenskonflikt")
 ---
 
 *Stand: 24.08.2026*

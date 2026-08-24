@@ -13,7 +13,7 @@ Unter Berücksichtigung aller Quellen und Dokumente (inklusive Weblinks und PDFs
 | **Kaderstärke 20 Spieler** | 🔶 Teilweise | `ObjectTeam.teamPlayers` erlaubt beliebig viele Spieler. `getIsTeamValid()` prüft auf genau **13 aktive Spieler** (Summe der Pflichtrollen). Obergrenze von 20 wird **nicht erzwungen**. |
 | **Rollenverteilung dokumentiert** | ✅ Ja | 6 primäre Rollen als `TeamPositions`-Enum: `scout`, `banger`, `heavy`, `blaster`, `outrider`, `medico` + `inactive`. |
 | **Verteilungsschlüssel min/max** | ✅ Ja | Fest codiert in `getIsTeamValid()`: **4 Scouts, 4 Banger, 2 Heavy, 1 Blaster, 1 Outrider, 1 Medico** = 13 Feldspieler. |
-| **Wieviele gleichzeitig auf dem Feld?** | ❌ Offen | Kein Mechanismus, der festlegt, wie viele der 13 Spieler gleichzeitig auf dem Hex-Feld aktiv sind. |
+| **Wieviele gleichzeitig auf dem Feld?** | 🔶 Regel geklärt, Mechanismus offen | Maximal **13 Spieler pro Team** im Feld; Ersatzspieler sitzen auf der Wartebank abseits des Schirms → insgesamt bis zu **26 Spieler** auf dem Feld (Entscheidung in `4_Object_Team.md`). Ein Feld-Slot-Mechanismus fehlt im Code noch. |
 | **Ersatzspieler (inactive)** | ✅ Möglich | `inactive`-Status existiert, wird aber in `getIsTeamValid()` ignoriert → bis zu 7 Ersatzspieler möglich (20 - 13). |
 
 #### Ergänzung aus `doc/plan/spielablauf/spielablauf.md`
@@ -293,5 +293,6 @@ Basierend auf der Abhängigkeiten-Reihenfolge aus `2do_07_07_26.md`:
 **Empfehlung:** Bevor mit der Implementierung begonnen wird, sollten die Rollennamen vereinheitlicht werden (Code oder Doku). Das Würfel-/Regel-System sollte auf Basis der vorhandenen Pools und Aktionen als abstraktes System modelliert werden (angelehnt an die Diskussion in `spielablauf.md`).
 
 ---
+
 
 *Stand der Analyse: 08.07.2026*

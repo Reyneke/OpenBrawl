@@ -226,7 +226,7 @@ class _ScreenBattleMapState extends State<ScreenBattleMap> {
                       style: const TextStyle(fontSize: 13),
                     ),
                     subtitle: Text(
-                      player.position.name,
+                      player.position.displayName,
                       style: const TextStyle(fontSize: 11),
                     ),
                   );
