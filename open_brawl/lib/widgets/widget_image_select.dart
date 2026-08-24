@@ -258,6 +258,16 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
       final file = await UniversalFilePicker().pickFile();
       if (file == null) return;
 
+      final filePath = file.path;
+      if (filePath == null || filePath.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Fehler: Kein Dateipfad verfügbar')),
+          );
+        }
+        return;
+      }
+
       if (widget.rootObject is ObjectTeam) {
         // Upload team logo to Supabase Storage
         final imageObject = widget.rootObject as ObjectTeam;

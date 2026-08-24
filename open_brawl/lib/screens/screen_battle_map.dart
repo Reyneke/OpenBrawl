@@ -37,27 +37,18 @@ class _ScreenBattleMapState extends State<ScreenBattleMap> {
       final currentDbId = widget.activeTeam.dbId;
       if (currentDbId == null) return;
 
-      // Suche nach dem letzten Match für dieses Team
-      // Lade die letzten 10 Matches und filtere client-seitig,
-      // um Probleme mit PostgREST's JSON-Array-Operatoren zu vermeiden.
+      // Suche nach dem letzten Match für dieses Team.
+      // Serverseitige Filterung über LIKE auf die JSON-Array-Spalten,
+      // da PostgREST's JSON-Array-Operatoren (@>) hier nicht greifen.
       final response = await server.client
           .from('matches')
           .select()
+          .or('team1.like.*$currentDbId*,team2.like.*$currentDbId*')
           .order('created_at', ascending: false)
-          .limit(10);
+          .limit(1);
 
-      final allMatches = (response as List<dynamic>)
+      final matches = (response as List<dynamic>)
           .cast<Map<String, dynamic>>();
-      final matches = allMatches.where((m) {
-        final t1 = ((m['team1'] as List<dynamic>?) ?? [])
-            .map((e) => jsonDecode(e as String) as Map<String, dynamic>)
-            .toList();
-        final t2 = ((m['team2'] as List<dynamic>?) ?? [])
-            .map((e) => jsonDecode(e as String) as Map<String, dynamic>)
-            .toList();
-        return t1.any((t) => t['id'] == currentDbId) ||
-            t2.any((t) => t['id'] == currentDbId);
-      }).toList();
 
       if (matches.isEmpty) {
         // Kein aktives Match -> Team-Aufstellung anzeigen
@@ -135,23 +126,9 @@ class _ScreenBattleMapState extends State<ScreenBattleMap> {
 
     final playersList = json['players'] as List<dynamic>? ?? [];
     for (final playerJson in playersList) {
-      final playerMap = playerJson as Map<String, dynamic>;
-      // ObjectPlayer reconstruction from JSON
-      final player = ObjectPlayer(
-        id: playerMap['id'] as int,
-        name: playerMap['name'] as String? ?? '',
-        image: playerMap['image'] as String? ?? '',
+      team.teamPlayers.add(
+        ObjectPlayer.fromJson(playerJson as Map<String, dynamic>),
       );
-      player.price = playerMap['price'] as int? ?? 3000;
-      player.position = TeamPositions.values.firstWhere(
-        (p) => p.name == playerMap['position'],
-        orElse: () => TeamPositions.inactive,
-      );
-      player.status = CharacterStatus.values.firstWhere(
-        (s) => s.name == playerMap['status'],
-        orElse: () => CharacterStatus.fine,
-      );
-      team.teamPlayers.add(player);
     }
 
     return team;

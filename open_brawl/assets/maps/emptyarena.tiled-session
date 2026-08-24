@@ -25,11 +25,11 @@
             }
         },
         "test.tmx": {
-            "scale": 1.5,
-            "selectedLayer": 1,
+            "scale": 0.5,
+            "selectedLayer": 7,
             "viewCenter": {
-                "x": 206.33333333333337,
-                "y": 345
+                "x": 1043,
+                "y": 621
             }
         }
     },

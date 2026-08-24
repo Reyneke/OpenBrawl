@@ -20,7 +20,7 @@ class ObjectTeam {
     this.dbId,
   });
 
-  factory ObjectTeam.createTeam(String teamName, String teamLogo) {
+  factory ObjectTeam.create(String teamName, String teamLogo) {
     final bytes = utf8.encode(DateTime.now().microsecondsSinceEpoch.toString());
     final digest = sha256.convert(bytes);
 
@@ -32,7 +32,7 @@ class ObjectTeam {
     );
   }
 
-  bool getIsTeamValid() {
+  bool get isTeamValid {
     if (teamPlayers.isEmpty) return false;
 
     int countScout = 0, countBanger = 0, countHeavy = 0;

@@ -28,7 +28,7 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
     final teamIndex = teamProvider.getTeamPosition(widget.selectedTeam);
     ObjectTeam currentTeam = teamProvider.teams.elementAt(teamIndex);
 
-    final isNoPlayersAvailible = currentTeam.teamPlayers.isEmpty;
+    final isNoPlayersAvailable = currentTeam.teamPlayers.isEmpty;
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -54,7 +54,7 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
           ],
         ),
       ),
-      body: isNoPlayersAvailible
+      body: isNoPlayersAvailable
           ? Card(
               child: ListTile(
                 title: Text("No players yet"),
@@ -94,7 +94,7 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
                   flex: 1,
                   child: ElevatedButton(
                     onPressed: () async {
-                      if (!currentTeam.getIsTeamValid()) return;
+                      if (!currentTeam.isTeamValid) return;
                       final server = context.read<ProviderServer>();
                       final teamProvider = context.read<ProviderTeam>();
                       final referee = ObjectReferee(server, teamProvider);
@@ -109,7 +109,7 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
                         );
                       }
                     },
-                    child: currentTeam.getIsTeamValid()
+                    child: currentTeam.isTeamValid
                         ? Text("Enter Battle")
                         : Text("Team not ready yet"),
                   ),

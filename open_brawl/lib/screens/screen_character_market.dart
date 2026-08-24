@@ -53,7 +53,7 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
       );
     }
 
-    final marketPlayers = context.watch<ProviderMarket>().availiblePlayers;
+    final marketPlayers = context.watch<ProviderMarket>().availablePlayers;
     final teamPlayers = widget.currentTeam.teamPlayers;
 
     return Scaffold(
@@ -161,10 +161,10 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
     final navigator = Navigator.of(context);
 
     bool? confirmed = await showConfirmDialog(context);
-    int deductable = 0;
+    int deductible = 0;
     if (confirmed == true) {
       for (var character in buyList) {
-        deductable -= character.price;
+        deductible -= character.price;
         if (mounted) {
           await market.removeCharacter(client, character);
           await teamProvider.addCharacterToTeam(
@@ -175,10 +175,10 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
       }
 
       for (var character in sellList) {
-        deductable += character.price;
+        deductible += character.price;
         if (mounted) {
           await market.addCharacter(client, character);
-          await teamProvider.removeCharacterfromTeam(
+          await teamProvider.removeCharacterFromTeam(
             widget.currentTeam,
             character,
           );
@@ -186,7 +186,7 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
       }
 
       if (mounted) {
-        await teamProvider.adjustMoney(widget.currentTeam, deductable);
+        await teamProvider.adjustMoney(widget.currentTeam, deductible);
         navigator.pop();
       }
     }

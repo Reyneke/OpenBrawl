@@ -30,7 +30,7 @@ class ObjectPlayer {
     String? image,
   }) : image = image ?? defaultImage;
 
-  factory ObjectPlayer.newPlayer(String name, String image) {
+  factory ObjectPlayer.create(String name, String image) {
     final bytes = utf8.encode(name);
     final digest = sha256.convert(bytes);
 

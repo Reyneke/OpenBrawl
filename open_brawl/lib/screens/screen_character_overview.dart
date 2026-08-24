@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:open_brawl/objects/object_player.dart';
 import 'package:open_brawl/widgets/widget_image_select.dart';
 
-class ScreenCharacterOwerview extends StatefulWidget {
+class ScreenCharacterOverview extends StatefulWidget {
   final ObjectPlayer currentCharacter;
-  const ScreenCharacterOwerview({super.key, required this.currentCharacter});
+  const ScreenCharacterOverview({super.key, required this.currentCharacter});
 
   @override
-  State<ScreenCharacterOwerview> createState() =>
-      _ScreenCharacterOwerviewState();
+  State<ScreenCharacterOverview> createState() =>
+      _ScreenCharacterOverviewState();
 }
 
-class _ScreenCharacterOwerviewState extends State<ScreenCharacterOwerview> {
+class _ScreenCharacterOverviewState extends State<ScreenCharacterOverview> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

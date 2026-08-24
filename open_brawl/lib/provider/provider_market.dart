@@ -6,8 +6,8 @@ import 'package:random_name_generator/random_name_generator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProviderMarket extends ChangeNotifier {
-  final List<ObjectPlayer> _availiblePlayers = [];
-  List<ObjectPlayer> get availiblePlayers => _availiblePlayers;
+  final List<ObjectPlayer> _availablePlayers = [];
+  List<ObjectPlayer> get availablePlayers => _availablePlayers;
   final randomNames = RandomNames(Zone.germany);
 
   RealtimeChannel? _marketChannel;
@@ -31,7 +31,7 @@ class ProviderMarket extends ChangeNotifier {
           .select('id, character, profile_picture_url')
           .order('created_at', ascending: true);
 
-      _availiblePlayers.clear();
+      _availablePlayers.clear();
       final seenIds = <int>{};
       for (final row in response) {
         final characterJson = row['character'] as Map<String, dynamic>?;
@@ -44,7 +44,7 @@ class ProviderMarket extends ChangeNotifier {
           if (imageUrl != null && imageUrl.isNotEmpty) {
             player.image = imageUrl;
           }
-          _availiblePlayers.add(player);
+          _availablePlayers.add(player);
         }
       }
       _isLoaded = true;
@@ -77,12 +77,12 @@ class ProviderMarket extends ChangeNotifier {
         if (characterJson != null) {
           final player = ObjectPlayer.fromJson(characterJson);
           // Skip if a character with this ID already exists
-          if (_availiblePlayers.any((p) => p.id == player.id)) break;
+          if (_availablePlayers.any((p) => p.id == player.id)) break;
           final imageUrl = newRecord['profile_picture_url'] as String?;
           if (imageUrl != null && imageUrl.isNotEmpty) {
             player.image = imageUrl;
           }
-          _availiblePlayers.add(player);
+          _availablePlayers.add(player);
           notifyListeners();
         }
         break;
@@ -90,7 +90,7 @@ class ProviderMarket extends ChangeNotifier {
       case PostgresChangeEvent.delete:
         final oldId = oldRecord['id'] as int?;
         if (oldId != null) {
-          _availiblePlayers.removeWhere((p) => p.id == oldId);
+          _availablePlayers.removeWhere((p) => p.id == oldId);
           notifyListeners();
         }
         break;
@@ -99,12 +99,12 @@ class ProviderMarket extends ChangeNotifier {
         final updatedId = newRecord['id'] as int?;
         final characterJson = newRecord['character'] as Map<String, dynamic>?;
         if (updatedId != null && characterJson != null) {
-          final idx = _availiblePlayers.indexWhere((p) => p.id == updatedId);
+          final idx = _availablePlayers.indexWhere((p) => p.id == updatedId);
           if (idx >= 0) {
-            _availiblePlayers[idx] = ObjectPlayer.fromJson(characterJson);
+            _availablePlayers[idx] = ObjectPlayer.fromJson(characterJson);
             final imageUrl = newRecord['profile_picture_url'] as String?;
             if (imageUrl != null && imageUrl.isNotEmpty) {
-              _availiblePlayers[idx].image = imageUrl;
+              _availablePlayers[idx].image = imageUrl;
             }
             notifyListeners();
           }
@@ -118,9 +118,9 @@ class ProviderMarket extends ChangeNotifier {
     }
   }
 
-  int getListPosition(ObjectPlayer characterIteam) {
-    return _availiblePlayers.indexWhere(
-      (character) => character.id == characterIteam.id,
+  int getListPosition(ObjectPlayer characterItem) {
+    return _availablePlayers.indexWhere(
+      (character) => character.id == characterItem.id,
     );
   }
 
@@ -140,7 +140,7 @@ class ProviderMarket extends ChangeNotifier {
     if (maxNumOfCharacters <= 0) return;
 
     for (int i = 0; i < maxNumOfCharacters; ++i) {
-      final player = ObjectPlayer.newPlayer(
+      final player = ObjectPlayer.create(
         randomNames.name(),
         "urbanbrawl_frame_leer.png",
       );
@@ -159,7 +159,7 @@ class ProviderMarket extends ChangeNotifier {
     ObjectPlayer oldPlayer,
   ) async {
     // Remove from local list immediately so the length is accurate for refill
-    _availiblePlayers.removeWhere((p) => p.id == oldPlayer.id);
+    _availablePlayers.removeWhere((p) => p.id == oldPlayer.id);
     notifyListeners();
 
     // Find the Supabase row by matching the character id inside the jsonb column

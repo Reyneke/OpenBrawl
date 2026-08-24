@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:open_brawl/objects/object_player.dart';
 import 'package:open_brawl/objects/object_team.dart';
 import 'package:open_brawl/provider/provider_team.dart';
-import 'package:open_brawl/screens/screen_character_owerview.dart';
+import 'package:open_brawl/screens/screen_character_overview.dart';
 import 'package:open_brawl/widgets/widget_utility.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +27,7 @@ class CharacterListItem extends StatelessWidget {
             dropdownMenuEntries: TeamPositions.values.map((charPosition) {
               return DropdownMenuEntry<TeamPositions>(
                 value: charPosition, // Wert ist vom Typ CharacterClass
-                label: WidgetUtility().capitalize(charPosition.name),
+                label: WidgetUtility.capitalize(charPosition.name),
               );
             }).toList(),
             onSelected: (TeamPositions? value) async {
@@ -45,7 +45,7 @@ class CharacterListItem extends StatelessWidget {
           context,
           MaterialPageRoute<void>(
             builder: (context) =>
-                ScreenCharacterOwerview(currentCharacter: listItem),
+                ScreenCharacterOverview(currentCharacter: listItem),
           ),
         );
       },

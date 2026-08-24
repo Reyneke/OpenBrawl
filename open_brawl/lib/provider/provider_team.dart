@@ -30,22 +30,11 @@ class ProviderTeam extends ChangeNotifier {
 
   /// Serializes a list of ObjectPlayer into a JSON-encoded list for database storage.
   List<String> _serializePlayers(List<ObjectPlayer> players) {
-    return players
-        .map(
-          (player) => jsonEncode({
-            'id': player.id,
-            'name': player.name,
-            'image': player.image,
-            'price': player.price,
-            'position': player.position.name,
-            'status': player.status.name,
-          }),
-        )
-        .toList();
+    return players.map((player) => jsonEncode(player.toJson())).toList();
   }
 
-  int getTeamPosition(ObjectTeam teamIteam) {
-    return _teams.indexWhere((team) => team.teamId == teamIteam.teamId);
+  int getTeamPosition(ObjectTeam teamItem) {
+    return _teams.indexWhere((team) => team.teamId == teamItem.teamId);
   }
 
   /// Updates an existing team in the database.
@@ -95,7 +84,7 @@ class ProviderTeam extends ChangeNotifier {
           'nuyen': newTeam.teamNuyen,
           'player_count': newTeam.teamPlayers.length,
         },
-        'ready_for_battle': newTeam.getIsTeamValid(),
+        'ready_for_battle': newTeam.isTeamValid,
         'user_id': userId,
       }).select();
 
@@ -136,13 +125,13 @@ class ProviderTeam extends ChangeNotifier {
 
   /// Adds a character to a team and updates the database.
   Future<void> addCharacterToTeam(
-    ObjectTeam teamIteam,
+    ObjectTeam teamItem,
     ObjectPlayer newPlayer,
   ) async {
-    _teams[getTeamPosition(teamIteam)].teamPlayers.add(newPlayer);
+    _teams[getTeamPosition(teamItem)].teamPlayers.add(newPlayer);
     notifyListeners();
 
-    await updateTeamInDatabase(teamIteam);
+    await updateTeamInDatabase(teamItem);
   }
 
   ObjectTeam? getCharacterInTeam(ObjectPlayer player) {
@@ -160,47 +149,47 @@ class ProviderTeam extends ChangeNotifier {
 
   /// Modifies a character in a team and updates the database.
   Future<void> modifyCharacterInTeam(
-    ObjectTeam teamIteam,
+    ObjectTeam teamItem,
     ObjectPlayer newPlayer,
   ) async {
-    int position = getListPosition(teamIteam, newPlayer);
-    removeCharacterfromTeam(teamIteam, newPlayer);
-    _teams[getTeamPosition(teamIteam)].teamPlayers.insert(
+    int position = getListPosition(teamItem, newPlayer);
+    removeCharacterFromTeam(teamItem, newPlayer);
+    _teams[getTeamPosition(teamItem)].teamPlayers.insert(
       position,
       newPlayer,
     );
 
     notifyListeners();
 
-    await updateTeamInDatabase(teamIteam);
+    await updateTeamInDatabase(teamItem);
   }
 
-  int getListPosition(ObjectTeam teamIteam, ObjectPlayer characterIteam) {
-    return _teams[getTeamPosition(teamIteam)].teamPlayers.indexWhere(
-      (character) => character.id == characterIteam.id,
+  int getListPosition(ObjectTeam teamItem, ObjectPlayer characterItem) {
+    return _teams[getTeamPosition(teamItem)].teamPlayers.indexWhere(
+      (character) => character.id == characterItem.id,
     );
   }
 
   /// Removes a character from a team and updates the database.
-  Future<void> removeCharacterfromTeam(
-    ObjectTeam teamIteam,
+  Future<void> removeCharacterFromTeam(
+    ObjectTeam teamItem,
     ObjectPlayer oldPlayer,
   ) async {
-    int position = getListPosition(teamIteam, oldPlayer);
+    int position = getListPosition(teamItem, oldPlayer);
     if (position >= 0) {
-      _teams[getTeamPosition(teamIteam)].teamPlayers.removeAt(position);
+      _teams[getTeamPosition(teamItem)].teamPlayers.removeAt(position);
       notifyListeners();
 
-      await updateTeamInDatabase(teamIteam);
+      await updateTeamInDatabase(teamItem);
     }
   }
 
   /// Adjusts team money and updates the database.
-  Future<void> adjustMoney(ObjectTeam teamIteam, int deductable) async {
-    _teams[getTeamPosition(teamIteam)].teamNuyen += deductable;
+  Future<void> adjustMoney(ObjectTeam teamItem, int deductible) async {
+    _teams[getTeamPosition(teamItem)].teamNuyen += deductible;
     notifyListeners();
 
-    await updateTeamInDatabase(teamIteam);
+    await updateTeamInDatabase(teamItem);
   }
 
   /// Updates the ready_for_battle status in the database for a given team.
@@ -248,23 +237,11 @@ class ProviderTeam extends ChangeNotifier {
         final playersJson = row['players'] as List<dynamic>?;
         if (playersJson != null) {
           for (final playerJson in playersJson) {
-            final Map<String, dynamic> playerMap =
-                jsonDecode(playerJson as String) as Map<String, dynamic>;
-            final player = ObjectPlayer(
-              id: playerMap['id'] as int,
-              name: playerMap['name'] as String? ?? '',
-              image: playerMap['image'] as String? ?? '',
+            team.teamPlayers.add(
+              ObjectPlayer.fromJson(
+                jsonDecode(playerJson as String) as Map<String, dynamic>,
+              ),
             );
-            player.price = playerMap['price'] as int? ?? 3000;
-            player.position = TeamPositions.values.firstWhere(
-              (p) => p.name == playerMap['position'],
-              orElse: () => TeamPositions.inactive,
-            );
-            player.status = CharacterStatus.values.firstWhere(
-              (s) => s.name == playerMap['status'],
-              orElse: () => CharacterStatus.fine,
-            );
-            team.teamPlayers.add(player);
           }
         }
 

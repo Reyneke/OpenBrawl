@@ -18,7 +18,7 @@ class ObjectReferee {
   /// anschließend auf "ready_for_battle" = true. Wenn bereits ein anderes
   /// Team bereit ist, wird ein Match gestartet.
   Future<void> setTeamReadyForBattle(ObjectTeam team) async {
-    if (!team.getIsTeamValid()) {
+    if (!team.isTeamValid) {
       debugPrint('Team ${team.teamName} is not valid for battle.');
       return;
     }
@@ -178,16 +178,7 @@ class ObjectReferee {
       'team_name': team.teamName,
       'team_logo': team.teamLogo,
       'team_nuyen': team.teamNuyen,
-      'players': team.teamPlayers
-          .map((player) => {
-                'id': player.id,
-                'name': player.name,
-                'image': player.image,
-                'price': player.price,
-                'position': player.position.name,
-                'status': player.status.name,
-              })
-          .toList(),
+      'players': team.teamPlayers.map((player) => player.toJson()).toList(),
     };
   }
 }
