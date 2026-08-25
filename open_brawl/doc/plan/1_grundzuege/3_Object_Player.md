@@ -51,14 +51,13 @@ erweitert (`attributes`, `race`, `personality`, `record`, `specialPlayFame`).
 - `PlayerAttribute` – sieben direkt beeinflussbare Werte (siehe oben).
 - _Erschaffung_: `create()` verteilt **26 Punkte** zufällig auf die sieben Attribute.
   - Minimum je Basisattribut: **1**
-  - Maximum ohne Modifikatoren: **6**; Endwert mit Cyber/Bioware gekappt auf **9**
-- Rassenmodifikatoren (Feld `race`):
-  **Hinweis:** Rassenmodifikatoren verschieben das **Maximum** des Attributs
-  um den Modifikator – nicht nur den aktuellen Wert. Beispiele ohne
-  Cyber/Bioware: Elf-Agilität (Mod +2) → Maximum `6 + 2 = 8`; Troll-Widerstand
-  (Mod +2) → Maximum 8; Troll-Aufmerksamkeit (Mod −1) → Maximum `6 − 1 = 5`.
-  Das absolute Maximum (v. a. mit Cyber/Bioware) bleibt **9**, das absolute
-  Minimum **1**.
+  - Maximum je Basisattribut: **6** (Basiswerte lassen sich nur in diesen Grenzen setzen)
+- Modifikatoren (Rasse via Feld `race`, aktive Rolle via `position`):
+  **Hinweis:** Rassen- und Rollenboni sind – als einzige Werte – **nur nach
+  unten gekappt** (Minimum **1**) und wirken nach oben **ungekappet**.
+  Beispiele: Elf-Agilität (Mod +2) bei Basis 6 → **8**; Elf (+2) als
+  Stürmer (+2 Agilität) bei Basis 6 → **10**; Troll-Moral (Mod −1) fällt
+  nie unter **1**.
 
 | Rasse | Modifikatoren |
 |-------|---------------|

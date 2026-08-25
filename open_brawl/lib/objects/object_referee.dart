@@ -19,13 +19,21 @@ class ObjectReferee {
   /// Team bereit ist, wird ein Match gestartet.
   Future<void> setTeamReadyForBattle(ObjectTeam team) async {
     if (!team.isTeamValid) {
-      debugPrint('Team ${team.teamName} is not valid for battle.');
+      debugPrint('Team ${team.name} is not valid for battle.');
+      return;
+    }
+
+    // Vor Matchbeginn muss ein Kapitän ernannt sein.
+    if (!team.hasCaptain) {
+      debugPrint(
+        'Team ${team.name} has no captain and is not ready for battle.',
+      );
       return;
     }
 
     // Team in der Datenbank auf ready_for_battle = true setzen
     await _teamProvider.setTeamReadyForBattle(team, true);
-    debugPrint('Team ${team.teamName} is ready for battle.');
+    debugPrint('Team ${team.name} is ready for battle.');
 
     // Prüfen, ob es ein anderes Team gibt, das ebenfalls ready_for_battle = true ist
     await _checkAndStartMatch(team);
@@ -82,8 +90,8 @@ class ObjectReferee {
   /// und setzt beide Teams zurück auf ready_for_battle = false.
   Future<void> _createMatch(ObjectTeam team1, ObjectTeam team2) async {
     try {
-      final team1Json = _teamToJson(team1);
-      final team2Json = _teamToJson(team2);
+      final team1Json = team1.toJson();
+      final team2Json = team2.toJson();
 
       await _server.client.from('matches').insert({
         'team1': [jsonEncode(team1Json)],
@@ -92,7 +100,7 @@ class ObjectReferee {
       });
 
       debugPrint(
-        'Match started between ${team1.teamName} and ${team2.teamName}',
+        'Match started between ${team1.name} and ${team2.name}',
       );
 
       // Beide Teams zurücksetzen auf ready_for_battle = false
@@ -150,11 +158,14 @@ class ObjectReferee {
     required ObjectTeam loser,
   }) async {
     try {
+      // Ergebnis in die Teamstatistiken eintragen (Gesamtqualität 3-1-0)
+      await _teamProvider.recordMatchResult(winner: winner, loser: loser);
+
       // Ergebnis als JSON im Bucket "team_matches" speichern
       final resultJson = jsonEncode({
         'match_id': matchId,
-        'winner': _teamToJson(winner),
-        'loser': _teamToJson(loser),
+        'winner': winner.toJson(),
+        'loser': loser.toJson(),
         'ended_at': DateTime.now().toIso8601String(),
       });
 
@@ -163,22 +174,10 @@ class ObjectReferee {
           .uploadBinary('${winner.dbId}/$matchId.json', utf8.encode(resultJson));
 
       debugPrint(
-        'Match $matchId ended. Winner: ${winner.teamName}, Loser: ${loser.teamName}',
+        'Match $matchId ended. Winner: ${winner.name}, Loser: ${loser.name}',
       );
     } catch (e) {
       debugPrint('Failed to end match: $e');
     }
-  }
-
-  /// Hilfsmethode: Konvertiert ein ObjectTeam in ein JSON-freundliches Map.
-  Map<String, dynamic> _teamToJson(ObjectTeam team) {
-    return {
-      'id': team.dbId,
-      'team_id': team.teamId,
-      'team_name': team.teamName,
-      'team_logo': team.teamLogo,
-      'team_nuyen': team.teamNuyen,
-      'players': team.teamPlayers.map((player) => player.toJson()).toList(),
-    };
   }
 }

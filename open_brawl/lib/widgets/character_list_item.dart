@@ -16,29 +16,9 @@ class CharacterListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCaptain = currentTeam.captainId == listItem.id;
 
     return GestureDetector(
-      child: Card(
-        child: ListTile(
-          title: Text(listItem.name),
-          trailing: DropdownMenu(
-            //initialSelection: Text(menuEntries.first.label),
-            dropdownMenuEntries: TeamPositions.values.map((charPosition) {
-              return DropdownMenuEntry<TeamPositions>(
-                value: charPosition, // Wert ist vom Typ CharacterClass
-                label: charPosition.displayName,
-              );
-            }).toList(),
-            onSelected: (TeamPositions? value) async {
-              listItem.position = (value ?? TeamPositions.inactive);
-              await context.read<ProviderTeam>().modifyCharacterInTeam(
-                currentTeam,
-                listItem,
-              );
-            },
-          ),
-        ),
-      ),
       onTap: () {
         Navigator.push<void>(
           context,
@@ -50,6 +30,87 @@ class CharacterListItem extends StatelessWidget {
           ),
         );
       },
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          child: Row(
+            children: [
+              // Kapitän-Checkbox: genau ein Kapitän pro Team
+              Tooltip(
+                message: 'Zum Teamkapitän ernennen',
+                child: Checkbox(
+                  value: isCaptain,
+                  onChanged: (checked) {
+                    final provider = context.read<ProviderTeam>();
+                    provider.setTeamCaptain(
+                      currentTeam,
+                      checked == true ? listItem : null,
+                    );
+                  },
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(listItem.name),
+              ),
+              // Primärrolle – zählt allein für „Ready for Battle“
+              Expanded(
+                flex: 3,
+                child: _roleDropdown(
+                  context,
+                  label: 'Primär',
+                  value: listItem.position,
+                  onChanged: (value) async {
+                    listItem.position = value ?? TeamPositions.inactive;
+                    final provider = context.read<ProviderTeam>();
+                    await provider.modifyCharacterInTeam(
+                      currentTeam,
+                      listItem,
+                    );
+                  },
+                ),
+              ),
+              // Sekundärrolle – im Match wechselbar, sofern die Rolle frei ist
+              Expanded(
+                flex: 3,
+                child: _roleDropdown(
+                  context,
+                  label: 'Sekundär',
+                  value: listItem.secondaryPosition,
+                  onChanged: (value) async {
+                    listItem.secondaryPosition =
+                        value ?? TeamPositions.inactive;
+                    final provider = context.read<ProviderTeam>();
+                    await provider.modifyCharacterInTeam(
+                      currentTeam,
+                      listItem,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _roleDropdown(
+    BuildContext context, {
+    required String label,
+    required TeamPositions value,
+    required ValueChanged<TeamPositions?> onChanged,
+  }) {
+    return DropdownMenu<TeamPositions>(
+      initialSelection: value,
+      expandedInsets: const EdgeInsets.symmetric(horizontal: 4),
+      dropdownMenuEntries: TeamPositions.values.map((role) {
+        return DropdownMenuEntry<TeamPositions>(
+          value: role,
+          label: '${role.displayName} ($label)',
+        );
+      }).toList(),
+      onSelected: onChanged,
     );
   }
 }

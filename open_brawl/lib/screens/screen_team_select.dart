@@ -37,7 +37,7 @@ class _ScreenTeamSelectState extends State<ScreenTeamSelect> {
         return GestureDetector(
           child: Card(
             child: ListTile(
-              title: Text(listItem.teamName),
+              title: Text(listItem.name),
             ),
           ),
           onTap: () {

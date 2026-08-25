@@ -34,8 +34,25 @@ class ProviderTeam extends ChangeNotifier {
     return players.map((player) => jsonEncode(player.toJson())).toList();
   }
 
+  /// DB-Zeilen-Payload für Insert/Update (Spaltennamen siehe Schema oben).
+  Map<String, dynamic> _teamRowPayload(ObjectTeam team) {
+    return {
+      'teamname': team.name,
+      'banner_url': team.logo,
+      'players': _serializePlayers(team.players),
+      'stats': {
+        'nuyen': team.nuyen,
+        'player_count': team.players.length,
+        'won': team.record.won,
+        'lost': team.record.lost,
+        'drawn': team.record.drawn,
+        'captain_id': team.captainId,
+      },
+    };
+  }
+
   int getTeamPosition(ObjectTeam teamItem) {
-    return _teams.indexWhere((team) => team.teamId == teamItem.teamId);
+    return _teams.indexWhere((team) => team.id == teamItem.id);
   }
 
   /// Updates an existing team in the database.
@@ -46,19 +63,9 @@ class ProviderTeam extends ChangeNotifier {
       final dbId = team.dbId;
       if (dbId == null) return;
 
-      final playersJson = _serializePlayers(team.teamPlayers);
-
       await _server.client
           .from('teams')
-          .update({
-            'teamname': team.teamName,
-            'banner_url': team.teamLogo,
-            'players': playersJson,
-            'stats': {
-              'nuyen': team.teamNuyen,
-              'player_count': team.teamPlayers.length,
-            },
-          })
+          .update(_teamRowPayload(team))
           .eq('id', dbId)
           .eq('user_id', userId);
     } catch (e) {
@@ -75,16 +82,8 @@ class ProviderTeam extends ChangeNotifier {
       final userId = _server.currentUser?.id;
       if (userId == null) return;
 
-      final playersJson = _serializePlayers(newTeam.teamPlayers);
-
       final response = await _server.client.from('teams').insert({
-        'teamname': newTeam.teamName,
-        'banner_url': newTeam.teamLogo,
-        'players': playersJson,
-        'stats': {
-          'nuyen': newTeam.teamNuyen,
-          'player_count': newTeam.teamPlayers.length,
-        },
+        ..._teamRowPayload(newTeam),
         'ready_for_battle': newTeam.isTeamValid,
         'user_id': userId,
       }).select();
@@ -129,18 +128,23 @@ class ProviderTeam extends ChangeNotifier {
     ObjectTeam teamItem,
     ObjectPlayer newPlayer,
   ) async {
-    _teams[getTeamPosition(teamItem)].teamPlayers.add(newPlayer);
+    final added = _teams[getTeamPosition(teamItem)].addPlayer(newPlayer);
+    if (!added) {
+      debugPrint(
+        'Could not add player to team "${teamItem.name}" '
+        '(roster full or duplicate id).',
+      );
+      return;
+    }
     notifyListeners();
 
     await updateTeamInDatabase(teamItem);
+    await _syncReadyForBattle(teamItem);
   }
 
   ObjectTeam? getCharacterInTeam(ObjectPlayer player) {
     for (var team in _teams) {
-      if (team.teamPlayers.indexWhere(
-            ((element) => element.id == player.id),
-          ) >=
-          0) {
+      if (team.hasPlayer(player)) {
         return team;
       }
     }
@@ -153,22 +157,16 @@ class ProviderTeam extends ChangeNotifier {
     ObjectTeam teamItem,
     ObjectPlayer newPlayer,
   ) async {
-    int position = getListPosition(teamItem, newPlayer);
-    removeCharacterFromTeam(teamItem, newPlayer);
-    _teams[getTeamPosition(teamItem)].teamPlayers.insert(
-      position,
-      newPlayer,
-    );
+    _teams[getTeamPosition(teamItem)].updatePlayer(newPlayer);
 
     notifyListeners();
 
     await updateTeamInDatabase(teamItem);
+    await _syncReadyForBattle(teamItem);
   }
 
   int getListPosition(ObjectTeam teamItem, ObjectPlayer characterItem) {
-    return _teams[getTeamPosition(teamItem)].teamPlayers.indexWhere(
-      (character) => character.id == characterItem.id,
-    );
+    return _teams[getTeamPosition(teamItem)].indexOfPlayer(characterItem);
   }
 
   /// Removes a character from a team and updates the database.
@@ -176,21 +174,54 @@ class ProviderTeam extends ChangeNotifier {
     ObjectTeam teamItem,
     ObjectPlayer oldPlayer,
   ) async {
-    int position = getListPosition(teamItem, oldPlayer);
-    if (position >= 0) {
-      _teams[getTeamPosition(teamItem)].teamPlayers.removeAt(position);
+    final removed = _teams[getTeamPosition(teamItem)].removePlayer(oldPlayer);
+    if (removed) {
       notifyListeners();
 
       await updateTeamInDatabase(teamItem);
+      await _syncReadyForBattle(teamItem);
     }
   }
 
   /// Adjusts team money and updates the database.
   Future<void> adjustMoney(ObjectTeam teamItem, int deductible) async {
-    _teams[getTeamPosition(teamItem)].teamNuyen += deductible;
+    _teams[getTeamPosition(teamItem)].nuyen += deductible;
     notifyListeners();
 
     await updateTeamInDatabase(teamItem);
+  }
+
+  /// Berechnet nach einer Kaderänderung ready_for_battle neu und persistiert es.
+  Future<void> _syncReadyForBattle(ObjectTeam team) async {
+    await setTeamReadyForBattle(team, team.isTeamValid);
+  }
+
+  /// Setzt oder entfernt den Teamkapitän und aktualisiert die Datenbank.
+  Future<void> setTeamCaptain(
+    ObjectTeam teamItem,
+    ObjectPlayer? captain,
+  ) async {
+    if (!_teams[getTeamPosition(teamItem)].setCaptain(captain)) {
+      debugPrint('Could not appoint captain: player not in roster.');
+      return;
+    }
+    notifyListeners();
+
+    await updateTeamInDatabase(teamItem);
+  }
+
+  /// Trägt das Match-Ergebnis in die Statistiken beider Teams ein und
+  /// persistiert sie (Grundlage der Gesamtqualität nach dem 3-1-0-Schema).
+  Future<void> recordMatchResult({
+    required ObjectTeam winner,
+    required ObjectTeam loser,
+  }) async {
+    winner.record.recordWin();
+    loser.record.recordLoss();
+    notifyListeners();
+
+    await updateTeamInDatabase(winner);
+    await updateTeamInDatabase(loser);
   }
 
   /// Updates the ready_for_battle status in the database for a given team.
@@ -226,19 +257,25 @@ class ProviderTeam extends ChangeNotifier {
       _teams.clear();
 
       for (final row in data) {
+        final rowData = row as Map<String, dynamic>;
+        final createdRaw = rowData['created_at'] as String?;
+        final stats = rowData['stats'] as Map<String, dynamic>?;
         final team = ObjectTeam(
-          teamId: IdUtils.stableIdFromString(row['id'] as String),
-          teamName: row['teamname'] ?? '',
-          teamLogo: row['banner_url'] ?? '',
-          teamNuyen: row['stats']?['nuyen'] ?? 1000,
-          dbId: row['id'] as String?,
+          id: IdUtils.stableIdFromString(rowData['id'] as String),
+          name: rowData['teamname'] as String? ?? '',
+          logo: rowData['banner_url'] as String? ?? '',
+          nuyen: (stats?['nuyen'] as num?)?.toInt() ?? ObjectTeam.defaultNuyen,
+          dbId: rowData['id'] as String?,
+          timeCreated: DateTime.tryParse(createdRaw ?? ''),
+          record: TeamMatchRecord.fromJson(stats),
+          captainId: (stats?['captain_id'] as num?)?.toInt(),
         );
 
         // Parse players JSON array
-        final playersJson = row['players'] as List<dynamic>?;
+        final playersJson = rowData['players'] as List<dynamic>?;
         if (playersJson != null) {
           for (final playerJson in playersJson) {
-            team.teamPlayers.add(
+            team.addPlayer(
               ObjectPlayer.fromJson(
                 jsonDecode(playerJson as String) as Map<String, dynamic>,
               ),

@@ -56,7 +56,7 @@ void main() {
       expect(player.price, 3000);
     });
 
-    test('Rassenmodifikatoren werden angewendet und bleiben im Rahmen 1..9', () {
+    test('Rassenmodifikatoren wirken auf den Endwert (Minimum 1, kein Maximum)', () {
       // Elf: +2 Agilität, −1 Widerstand
       final elf = ObjectPlayer(
         id: 1,
@@ -84,7 +84,7 @@ void main() {
       expect(troll.morale, 1); // 1−1 → min 1
     });
 
-    test('Attributendwerte respektieren die Obergrenze 9', () {
+    test('Attributendwerte: Boni sind nach oben ungekappet (Minimum 1)', () {
       final player = ObjectPlayer(
         id: 1,
         name: 'Max',

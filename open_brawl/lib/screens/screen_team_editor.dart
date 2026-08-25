@@ -28,13 +28,14 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
     final teamIndex = teamProvider.getTeamPosition(widget.selectedTeam);
     ObjectTeam currentTeam = teamProvider.teams.elementAt(teamIndex);
 
-    final isNoPlayersAvailable = currentTeam.teamPlayers.isEmpty;
+    final isNoPlayersAvailable = currentTeam.players.isEmpty;
+    final readyForBattle = currentTeam.isTeamValid && currentTeam.hasCaptain;
     return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
             GestureDetector(
-            child: Text("Team: ${currentTeam.teamName}"),
+            child: Text("Team: ${currentTeam.name}"),
             onTap: () {
               showChangeNameDialog(context, currentTeam);
             },
@@ -69,19 +70,33 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
                     children: [
                       WidgetImageSelect(
                         //TODO clicking on the widget to upload an image crashes the App. Why?
-                        titleText: currentTeam.teamName,
+                        titleText: currentTeam.name,
                         rootObject: currentTeam,
                       ),
-                      Text(currentTeam.teamName),
+                      Text(currentTeam.name),
                     ],
+                  ),
+                ),
+                // Team-Statistik (Gesamtqualität nach 3-1-0-Schema)
+                Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Text(
+                      'Siege: ${currentTeam.record.won} · '
+                      'Niederlagen: ${currentTeam.record.lost} · '
+                      'Draws: ${currentTeam.record.drawn} · '
+                      'Qualität: ${currentTeam.record.quality}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ),
                 ),
                 Flexible(
                   flex: 4,
                   child: ListView.builder(
-                    itemCount: widget.selectedTeam.teamPlayers.length,
+                    itemCount: widget.selectedTeam.players.length,
                     itemBuilder: (context, index) {
-                      var listItem = widget.selectedTeam.teamPlayers[index];
+                      var listItem = widget.selectedTeam.players[index];
 
                       return CharacterListItem(
                         currentTeam: currentTeam,
@@ -94,7 +109,7 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
                   flex: 1,
                   child: ElevatedButton(
                     onPressed: () async {
-                      if (!currentTeam.isTeamValid) return;
+                      if (!readyForBattle) return;
                       final server = context.read<ProviderServer>();
                       final teamProvider = context.read<ProviderTeam>();
                       final referee = ObjectReferee(server, teamProvider);
@@ -109,7 +124,7 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
                         );
                       }
                     },
-                    child: currentTeam.isTeamValid
+                    child: readyForBattle
                         ? Text("Enter Battle")
                         : Text("Team not ready yet"),
                   ),
@@ -137,7 +152,7 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
     ObjectTeam currentTeam,
   ) {
     TextEditingController newTeamName = TextEditingController();
-    newTeamName.text = currentTeam.teamName;
+    newTeamName.text = currentTeam.name;
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // verhindert Schließen durch Tippen außerhalb
@@ -154,7 +169,7 @@ class _ScreenTeamEditorState extends State<ScreenTeamEditor> {
           TextButton(
             onPressed: () async {
               setState(() {
-                currentTeam.teamName = newTeamName.text.trim();
+                currentTeam.name = newTeamName.text.trim();
               });
               Navigator.pop(context, true);
               // Persist team name change to the database

@@ -86,7 +86,7 @@ class _WidgetMapLoaderState extends State<WidgetMapLoader> {
     final centerRow = mapData.height ~/ 2;
 
     final generatedTokens = <ObjectToken>[];
-    for (final player in widget.activeTeam.teamPlayers) {
+    for (final player in widget.activeTeam.players) {
       generatedTokens.add(ObjectToken(
         id: player.id,
         player: player,

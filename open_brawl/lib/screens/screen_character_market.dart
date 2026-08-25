@@ -54,7 +54,7 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
     }
 
     final marketPlayers = context.watch<ProviderMarket>().availablePlayers;
-    final teamPlayers = widget.currentTeam.teamPlayers;
+    final roster = widget.currentTeam.players;
 
     return Scaffold(
       appBar: AppBar(
@@ -63,7 +63,7 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
       body: Column(
         children: [
           Card(
-            child: Text("Bank: ${widget.currentTeam.teamNuyen} €"),
+            child: Text("Bank: ${widget.currentTeam.nuyen} €"),
           ),
           Row(
             children: [
@@ -108,9 +108,9 @@ class _ScreenCharacterMarketState extends State<ScreenCharacterMarket> {
                 child: SizedBox(
                   height: 400,
                   child: ListView.builder(
-                    itemCount: teamPlayers.length,
+                    itemCount: roster.length,
                     itemBuilder: (context, index) {
-                      var listItem = teamPlayers[index];
+                      var listItem = roster[index];
 
                       return GestureDetector(
                         child: Card(

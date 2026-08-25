@@ -22,27 +22,113 @@ T _enumFromName<T extends Enum>(
   return legacyNames[name] ?? fallback;
 }
 
+/// Panzerungsklasse, die eine Rolle mit sich bringt.
+enum ArmorClass {
+  none('keine'),
+  light('leicht'),
+  medium('mittelschwer'),
+  heavy('schwer');
+
+  /// Deutscher Anzeigename (mit Umlauten).
+  final String displayName;
+
+  const ArmorClass(this.displayName);
+}
+
 /// Rollennamen gemäß Doku (`doc/plan/spielablauf/spielablauf.md`),
 /// Umlaute für Code/Serialisierung ersetzt (ä→ae, ü→ue).
+///
+/// Jede Rolle bringt ihr Profil aus Panzerung, Verteidigungswert,
+/// Ausrüstungsoptionen, Angriffswert und Attributsbonus mit sich
+/// (siehe „Erweiterungen“ in `doc/plan/1_grundzuege/4_Object_Team.md`):
+/// Der Attributsbonus wirkt wie ein Rassenmodifikator – er verschiebt
+/// Attributswert **und** -maximum – aber nur solange die Rolle aktiv ist.
 enum TeamPositions {
-  inactive,
-  scout,
-  jaeger,
-  brecher,
-  schuetze,
-  stuermer,
-  sani;
+  inactive(
+    displayName: 'Ersatz',
+    armor: ArmorClass.none,
+    defenseValue: 0,
+    equipmentOptions: [],
+    attackBonus: 0,
+  ),
+  scout(
+    displayName: 'Scout',
+    armor: ArmorClass.light,
+    defenseValue: 1,
+    equipmentOptions: ['Persönliche Schusswaffe'],
+    attackBonus: 1,
+  ),
+  jaeger(
+    displayName: 'Jäger',
+    armor: ArmorClass.medium,
+    defenseValue: 2,
+    equipmentOptions: ['Persönliche Schusswaffe'],
+    attackBonus: 1,
+  ),
+  brecher(
+    displayName: 'Brecher',
+    armor: ArmorClass.medium,
+    defenseValue: 2,
+    equipmentOptions: ['Sturmgewehr', 'Maschinenpistole', 'Schrotflinte'],
+    attackBonus: 2,
+  ),
+  schuetze(
+    displayName: 'Schütze',
+    armor: ArmorClass.light,
+    defenseValue: 1,
+    equipmentOptions: ['Leichtes MG mit Gyrostabilisator'],
+    attackBonus: 3,
+  ),
+  stuermer(
+    displayName: 'Stürmer',
+    armor: ArmorClass.medium,
+    defenseValue: 2,
+    equipmentOptions: [
+      'Motorrad mit Sturmgewehr',
+      'Motorrad mit Maschinenpistole',
+      'Motorrad mit Schrotflinte',
+    ],
+    attackBonus: 2,
+    attributeModifiers: {PlayerAttribute.agility: 2},
+  ),
+  sani(
+    displayName: 'Sani',
+    armor: ArmorClass.heavy,
+    defenseValue: 3,
+    equipmentOptions: ['Medkit'],
+    attackBonus: 0,
+    attributeModifiers: {PlayerAttribute.resistance: 2},
+  );
 
   /// Deutscher Anzeigename (mit Umlauten), z. B. für Dropdowns und Labels.
-  String get displayName => switch (this) {
-        TeamPositions.inactive => 'Ersatz',
-        TeamPositions.scout => 'Scout',
-        TeamPositions.jaeger => 'Jäger',
-        TeamPositions.brecher => 'Brecher',
-        TeamPositions.schuetze => 'Schütze',
-        TeamPositions.stuermer => 'Stürmer',
-        TeamPositions.sani => 'Sani',
-      };
+  final String displayName;
+
+  /// Panzerungsklasse der Rolle.
+  final ArmorClass armor;
+
+  /// Verteidigungswert der Rüstung (0 bei `inactive`).
+  final int defenseValue;
+
+  /// Ausrüstungsoptionen; bei mehreren Optionen wählt der Spieler eine aus.
+  final List<String> equipmentOptions;
+
+  /// Angriffswert, den die Rolle bereitstellt.
+  final int attackBonus;
+
+  /// Attributsbonus der aktiven Rolle (wirkt wie ein Rassenmodifikator).
+  final Map<PlayerAttribute, int> attributeModifiers;
+
+  const TeamPositions({
+    required this.displayName,
+    required this.armor,
+    required this.defenseValue,
+    required this.equipmentOptions,
+    required this.attackBonus,
+    this.attributeModifiers = const {},
+  });
+
+  /// Attributsmodifikator der Rolle für [attr] (0, wenn keiner existiert).
+  int modifierFor(PlayerAttribute attr) => attributeModifiers[attr] ?? 0;
 
   /// Lookup-Tabelle der aktuellen Namen (O(1) statt linearem Scan).
   static final Map<String, TeamPositions> _valuesByName = {
@@ -234,8 +320,9 @@ class PlayerMatchRecord {
 ///
 /// Attribute: Die Basiswerte (1..6) werden bei `create()` zufällig verteilt
 /// (26 Punkte auf 7 Attribute, Minimum je 1, Maximum je 6 – siehe
-/// `doc/plan/1_grundzuege/3_Object_Player.md`). Rassenmodifikatoren ([race])
-/// schieben den Endwert Richtung Obergrenze 9 (Cyber/Bio).
+/// `doc/plan/1_grundzuege/3_Object_Player.md`). Rassen- und Rollen-
+/// modifikatoren erhöhen den Endwert ohne obere Kappung; nach unten gilt
+/// das Minimum 1.
 class ObjectPlayer {
   /// Standardbild, wenn kein eigenes Bild hinterlegt ist.
   static const String defaultImage = 'urbanbrawl_frame_leer.png';
@@ -256,12 +343,9 @@ class ObjectPlayer {
   /// Minimum jedes Basisattributs.
   static const int minAttribute = 1;
 
-  /// Maximum jedes Attributs ohne Cyber-/Bioware-Modifikatoren.
+  /// Maximum jedes Basisattributs (Basiswerte lassen sich nur in diesen
+  /// Grenzen setzen; Rassen-/Rollenboni wirken zusätzlich und ungekappet).
   static const int maxBaseAttribute = 6;
-
-  /// Hard-Cap des Attributendwerts (Basis + Modifikatoren). Doku: "mit
-  /// Cyber/Bioware 9".
-  static const int augmentedAttributeCap = 9;
 
   /// Deterministische, namensbasierte Referenz-ID (für Legacy-Workflows).
   static int stableIdFromName(String name) => IdUtils.stableIdFromString(name);
@@ -275,8 +359,14 @@ class ObjectPlayer {
   /// Dateiname des Spielerbildes (Assets-Ordner `assets/images/`).
   String image;
 
-  /// Zugewiesene Teamrolle.
+  /// Zugewiesene Teamrolle (Primärrolle). Nur sie zählt für den
+  /// Teambildschirm bzw. die Freigabe von „Ready for Battle“.
   TeamPositions position;
+
+  /// Zweite Rolle, die der Spieler ausfüllen kann. Im Spiel kann vor jedem
+  /// Spielzug auf sie gewechselt werden, sofern die Rolle frei ist
+  /// (weniger Spieler in dieser Rolle als in `requiredRoster` vorgesehen).
+  TeamPositions secondaryPosition;
 
   /// Aktueller Verletzungszustand.
   CharacterStatus status;
@@ -302,6 +392,7 @@ class ObjectPlayer {
     required this.name,
     String? image,
     this.position = TeamPositions.inactive,
+    this.secondaryPosition = TeamPositions.inactive,
     this.status = CharacterStatus.fine,
     this.race = PlayerRace.mensch,
     this.personality = EnneagramPersonality.one,
@@ -317,6 +408,10 @@ class ObjectPlayer {
     for (final attr in PlayerAttribute.values) {
       _baseAttributes.putIfAbsent(attr, () => defaultAttributePoint);
     }
+    // Regel: Die Sekundärrolle darf nicht der Primärrolle entsprechen.
+    if (secondaryPosition == position && position != TeamPositions.inactive) {
+      secondaryPosition = TeamPositions.inactive;
+    }
   }
 
   /// Unveränderliche Sicht auf die Basisattribute.
@@ -330,20 +425,26 @@ class ObjectPlayer {
 
   /// Attributendwert inkl. Rassenmodifikator.
   ///
-  /// Wichtig: Der Rassenmodifikator verschiebt nicht nur den Attributwert,
-  /// sondern auch das **Maximum** des Attributs mit (siehe
-  /// `doc/plan/1_grundzuege/3_Object_Player.md`). Beispiel:
-  /// Elf-Agilität (Mod +2) hat ohne Cyber/Bioware ein Maximum von
-  /// `6 + 2 = 8`, Troll-Aufmerksamkeit (Mod −1) von `6 − 1 = 5`.
-  /// Das absolute Maximum von 9 (Cyber/Bioware) bleibt bestehen; das
-  /// absolute Minimum ist weiterhin 1.
+  /// Rassenboni erhöhen den Endwert **ohne obere Kappung**; nach unten
+  /// gilt das Minimum 1. Beispiel: Elf-Agilität (Mod +2) bei Basis 6
+  /// ergibt 8; Troll-Moral (Mod −1) kann nie unter 1 fallen.
   int value(PlayerAttribute attr) {
     final mod = race.modifierFor(attr);
-    final effectiveMax =
-        (maxBaseAttribute + mod).clamp(minAttribute, augmentedAttributeCap);
-    return (_baseAttributes[attr]! + mod)
-        .clamp(minAttribute, effectiveMax)
-        .toInt();
+    return max(minAttribute, _baseAttributes[attr]! + mod);
+  }
+
+  /// Attributendwert inklusive Rassen- **und** Rollenmodifikator.
+  ///
+  /// [activeRole] ist die aktuell ausgeübte Rolle; Default ist [position]
+  /// (die Primärrolle). Rollen- und Rassenboni addieren sich und sind –
+  /// als einzige Werte – **nicht** nach oben gekappt; nach unten gilt das
+  /// Minimum 1. Der Rollenbonus gilt nur solange die Rolle aktiv ist.
+  /// Wirtschaftswerte ([marketValue], [price]) nutzen bewusst weiterhin
+  /// [value] ohne Rollenbonus.
+  int effectiveValue(PlayerAttribute attr, {TeamPositions? activeRole}) {
+    final role = activeRole ?? position;
+    final mod = race.modifierFor(attr) + role.modifierFor(attr);
+    return max(minAttribute, _baseAttributes[attr]! + mod);
   }
 
   int get attack => value(PlayerAttribute.attack);
@@ -390,6 +491,7 @@ class ObjectPlayer {
     String? name,
     String? image,
     TeamPositions? position,
+    TeamPositions? secondaryPosition,
     CharacterStatus? status,
     PlayerRace? race,
     EnneagramPersonality? personality,
@@ -402,6 +504,7 @@ class ObjectPlayer {
         name: name ?? this.name,
         image: image ?? this.image,
         position: position ?? this.position,
+        secondaryPosition: secondaryPosition ?? this.secondaryPosition,
         status: status ?? this.status,
         race: race ?? this.race,
         personality: personality ?? this.personality,
@@ -420,6 +523,7 @@ class ObjectPlayer {
         'name': name,
         'image': image,
         'position': position.name,
+        'secondaryPosition': secondaryPosition.name,
         'status': status.name,
         'race': race.name,
         'personality': personality.name,
@@ -443,6 +547,8 @@ class ObjectPlayer {
       name: json['name'] as String,
       image: json['image'] as String?,
       position: TeamPositions.fromName(json['position'] as String?),
+      secondaryPosition:
+          TeamPositions.fromName(json['secondaryPosition'] as String?),
       status: CharacterStatus.fromName(json['status'] as String?),
       race: PlayerRace.fromName(json['race'] as String?),
       personality:

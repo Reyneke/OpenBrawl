@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:open_brawl/objects/object_player.dart';
 import 'package:open_brawl/objects/object_team.dart';
 import 'package:open_brawl/provider/provider_server.dart';
 import 'package:open_brawl/provider/provider_team.dart';
@@ -116,29 +115,14 @@ class _ScreenBattleMapState extends State<ScreenBattleMap> {
   }
 
   ObjectTeam _jsonToTeam(Map<String, dynamic> json) {
-    final team = ObjectTeam(
-      teamId: json['team_id'] as int,
-      teamName: json['team_name'] as String? ?? '',
-      teamLogo: json['team_logo'] as String? ?? '',
-      teamNuyen: json['team_nuyen'] as int? ?? 1000,
-      dbId: json['id'] as String?,
-    );
-
-    final playersList = json['players'] as List<dynamic>? ?? [];
-    for (final playerJson in playersList) {
-      team.teamPlayers.add(
-        ObjectPlayer.fromJson(playerJson as Map<String, dynamic>),
-      );
-    }
-
-    return team;
+    return ObjectTeam.fromJson(json);
   }
 
   @override
   Widget build(BuildContext context) {
     final teamProvider = context.watch<ProviderTeam>();
     final teamIndex = teamProvider.teams.indexWhere(
-      (t) => t.teamId == widget.activeTeam.teamId,
+      (t) => t.id == widget.activeTeam.id,
     );
     final team =
         teamIndex >= 0 ? teamProvider.teams[teamIndex] : widget.activeTeam;
@@ -147,8 +131,8 @@ class _ScreenBattleMapState extends State<ScreenBattleMap> {
       appBar: AppBar(
         title: Text(
           _isInMatch
-              ? 'Match: ${team.teamName} vs ${_opponentTeam?.teamName ?? '?'}'
-              : team.teamName,
+              ? 'Match: ${team.name} vs ${_opponentTeam?.name ?? '?'}'
+              : team.name,
         ),
       ),
       body: Row(
@@ -202,9 +186,9 @@ class _ScreenBattleMapState extends State<ScreenBattleMap> {
             const Divider(height: 1),
             Expanded(
               child: ListView.builder(
-                itemCount: team.teamPlayers.length,
+                itemCount: team.players.length,
                 itemBuilder: (context, index) {
-                  final player = team.teamPlayers[index];
+                  final player = team.players[index];
                   return ListTile(
                     dense: true,
                     leading: CircleAvatar(

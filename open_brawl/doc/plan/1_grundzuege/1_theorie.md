@@ -10,11 +10,11 @@ Unter Berücksichtigung aller Quellen und Dokumente (inklusive Weblinks und PDFs
 
 | Frage / Anforderung | Status | Details |
 |---|---|---|
-| **Kaderstärke 20 Spieler** | 🔶 Teilweise | `ObjectTeam.teamPlayers` erlaubt beliebig viele Spieler. `getIsTeamValid()` prüft auf genau **13 aktive Spieler** (Summe der Pflichtrollen). Obergrenze von 20 wird **nicht erzwungen**. |
-| **Rollenverteilung dokumentiert** | ✅ Ja | 6 primäre Rollen als `TeamPositions`-Enum: `scout`, `banger`, `heavy`, `blaster`, `outrider`, `medico` + `inactive`. |
-| **Verteilungsschlüssel min/max** | ✅ Ja | Fest codiert in `getIsTeamValid()`: **4 Scouts, 4 Banger, 2 Heavy, 1 Blaster, 1 Outrider, 1 Medico** = 13 Feldspieler. |
+| **Kaderstärke 20 Spieler** | ✅ Ja | `ObjectTeam.addPlayer()` setzt die Obergrenze **20** (`maxRosterSize`) im Modell durch; `isTeamValid` prüft auf genau **13 aktive Spieler** (`requiredRoster`). |
+| **Rollenverteilung dokumentiert** | ✅ Ja | 6 primäre Rollen als `TeamPositions`-Enum: `scout`, `jaeger`, `brecher`, `schuetze`, `stuermer`, `sani` + `inactive`. |
+| **Verteilungsschlüssel min/max** | ✅ Ja | Zentral in `ObjectTeam.requiredRoster`: **4 Scout, 4 Jäger, 2 Brecher, 1 Schütze, 1 Stürmer, 1 Sani** = 13 Feldspieler; `isTeamValid` leitet sich generisch daraus ab. |
 | **Wieviele gleichzeitig auf dem Feld?** | 🔶 Regel geklärt, Mechanismus offen | Maximal **13 Spieler pro Team** im Feld; Ersatzspieler sitzen auf der Wartebank abseits des Schirms → insgesamt bis zu **26 Spieler** auf dem Feld (Entscheidung in `4_Object_Team.md`). Ein Feld-Slot-Mechanismus fehlt im Code noch. |
-| **Ersatzspieler (inactive)** | ✅ Möglich | `inactive`-Status existiert, wird aber in `getIsTeamValid()` ignoriert → bis zu 7 Ersatzspieler möglich (20 - 13). |
+| **Ersatzspieler (inactive)** | ✅ Möglich | `inactive`-Status existiert und wird in `isTeamValid` ignoriert → bis zu 7 Ersatzspieler möglich (20 - 13). |
 
 #### Ergänzung aus `doc/plan/spielablauf/spielablauf.md`
 

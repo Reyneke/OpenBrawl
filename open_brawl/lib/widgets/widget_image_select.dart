@@ -78,8 +78,8 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
       }
     } else if (widget.rootObject is ObjectTeam) {
       final imageObject = widget.rootObject as ObjectTeam;
-      if (imageObject.teamLogo.isNotEmpty) {
-        rawValue = imageObject.teamLogo;
+      if (imageObject.logo.isNotEmpty) {
+        rawValue = imageObject.logo;
         // If it's an old public URL (e.g. from before the signed URL fix),
         // extract the storage path so we can generate a signed URL.
         final extracted = _extractStoragePath(rawValue);
@@ -188,7 +188,7 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
     // This ensures banners are organized by the team's stable identifier,
     // not by the team name (which the user can rename at any time).
     // Falls back to teamId (int) if dbId is not yet set (new unsaved team).
-    final teamFolderId = team.dbId ?? team.teamId.toString();
+    final teamFolderId = team.dbId ?? team.id.toString();
 
     final extension = path.extension(imageFile.path ?? "");
     final fileName = '${DateTime.now().millisecondsSinceEpoch}$extension';
@@ -283,8 +283,8 @@ class _WidgetImageSelectState extends State<WidgetImageSelect> {
         );
 
         if (index >= 0) {
-          // Store the storage path (not a public URL) in teamLogo
-          context.read<ProviderTeam>().teams[index].teamLogo = storagePath;
+          // Store the storage path (not a public URL) in logo
+          context.read<ProviderTeam>().teams[index].logo = storagePath;
           await context.read<ProviderTeam>().updateTeamInDatabase(
             context.read<ProviderTeam>().teams[index],
           );
