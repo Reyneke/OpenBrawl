@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="30" height="15" tilewidth="70" tileheight="70" infinite="0" nextlayerid="9" nextobjectid="14">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="30" height="15" tilewidth="70" tileheight="70" infinite="0" nextlayerid="9" nextobjectid="17">
  <tileset firstgid="1" source="Thespazztikone_tilemaps_005_neu.tsx"/>
  <imagelayer id="8" name="Bildebene 1">
-  <image source="../../../../../OneDrive/Bilder/maps/arena(30x15).png" width="2100" height="1050"/>
+  <image source="../../../../../OneDrive/Bilder/maps/arena(40x15).png" width="2800" height="1050"/>
  </imagelayer>
  <layer id="1" name="ground" width="30" height="15" visible="0">
   <data encoding="csv">
@@ -80,14 +80,6 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="2" name="Spawns">
-  <object id="1" name="spawn_player2" x="359.891" y="564.883">
-   <point/>
-  </object>
-  <object id="2" name="spawn_player1" x="1788.09" y="571.468">
-   <point/>
-  </object>
- </objectgroup>
  <objectgroup id="3" name="Gelaendetypen"/>
  <objectgroup id="4" name="Sektoren">
   <object id="5" name="A1" x="0" y="0" width="700" height="350"/>
@@ -99,5 +91,16 @@
   <object id="11" name="C1" x="1400" y="0" width="700" height="350"/>
   <object id="12" name="C2" x="1400" y="350" width="700" height="350"/>
   <object id="13" name="C3" x="1400" y="700" width="700" height="350"/>
+  <object id="14" name="D1" x="2100" y="0" width="700" height="350"/>
+  <object id="15" name="D2" x="2100" y="350" width="700" height="350"/>
+  <object id="16" name="D3" x="2100" y="700" width="700" height="350"/>
+ </objectgroup>
+ <objectgroup id="2" name="Spawns">
+  <object id="1" name="spawn_player2" x="359.891" y="564.883">
+   <point/>
+  </object>
+  <object id="2" name="spawn_player1" x="2478.09" y="524.468">
+   <point/>
+  </object>
  </objectgroup>
 </map>

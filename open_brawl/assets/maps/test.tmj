@@ -4,9 +4,9 @@
  "layers":[
         {
          "id":8,
-         "image":"..\/..\/..\/..\/..\/OneDrive\/Bilder\/maps\/arena(30x15).png",
+         "image":"..\/..\/..\/..\/..\/OneDrive\/Bilder\/maps\/arena(40x15).png",
          "imageheight":1050,
-         "imagewidth":2100,
+         "imagewidth":2800,
          "name":"Bildebene 1",
          "opacity":1,
          "type":"imagelayer",
@@ -115,43 +115,6 @@
          "type":"tilelayer",
          "visible":true,
          "width":30,
-         "x":0,
-         "y":0
-        }, 
-        {
-         "draworder":"topdown",
-         "id":2,
-         "name":"Spawns",
-         "objects":[
-                {
-                 "height":0,
-                 "id":1,
-                 "name":"spawn_player2",
-                 "opacity":1,
-                 "point":true,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":359.891,
-                 "y":564.883
-                }, 
-                {
-                 "height":0,
-                 "id":2,
-                 "name":"spawn_player1",
-                 "opacity":1,
-                 "point":true,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":1788.09,
-                 "y":571.468
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
          "x":0,
          "y":0
         }, 
@@ -278,6 +241,79 @@
                  "width":700,
                  "x":1400,
                  "y":700
+                }, 
+                {
+                 "height":350,
+                 "id":14,
+                 "name":"D1",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":700,
+                 "x":2100,
+                 "y":0
+                }, 
+                {
+                 "height":350,
+                 "id":15,
+                 "name":"D2",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":700,
+                 "x":2100,
+                 "y":350
+                }, 
+                {
+                 "height":350,
+                 "id":16,
+                 "name":"D3",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":700,
+                 "x":2100,
+                 "y":700
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":2,
+         "name":"Spawns",
+         "objects":[
+                {
+                 "height":0,
+                 "id":1,
+                 "name":"spawn_player2",
+                 "opacity":1,
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":359.891,
+                 "y":564.883
+                }, 
+                {
+                 "height":0,
+                 "id":2,
+                 "name":"spawn_player1",
+                 "opacity":1,
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":2478.09,
+                 "y":524.468
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -286,7 +322,7 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":14,
+ "nextobjectid":17,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",
