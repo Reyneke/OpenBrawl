@@ -38,6 +38,48 @@ Dieses Dokument ist die **zentrale Referenz der Spielregeln** für das Match-Sys
 - 🔶 Die Sichtbarkeit der **Torzone** ist davon **unabhängig**: Zu Beginn ist jede Torzone nur für das **besitzende Team** sichtbar.
 - 🔶 Erst wenn ein Spieler des anderen Teams die Torzone **wahrgenommen** hat (**Würfelwurf**, voraussichtlich über den Wahrnehmungspool → `PlayerAttribute.attention`), wird sie für dieses Team offenbar.
 
+### Sektorkontrolle
+
+- Alle Sektoren sind zu **Spielbeginn unkontrolliert**.
+- Ein Sektor kommt unter **Kontrolle eines Teams**, wenn sich am **Ende eines Spielzugs** nur Spieler dieses Teams in ihm aufhalten.
+- 🔶 Status: Regel beschlossen; Kontroll-Zustand & Abrechnung am Spielzug-Ende sind im Code nicht umgesetzt.
+
+### Verteidigungsbonus (Sektor)
+
+Ein von einem Team kontrollierter Sektor gibt dessen Spielern einen **Bonus auf die Verteidigung** – er wirkt auf den **Defensiv-Würfelpool** (vgl. [Würfelsystem](#würfelsystem-konzept)). Der Bonus setzt sich zusammen aus:
+
+| # | Eingangswert |
+|---|--------------|
+| 1 | Defensivwert aller Verteidiger (**Mittelwert**) |
+| 2 | Persönlichkeit des **Kapitäns**, wenn dieser unter den Verteidigern ist; sonst Persönlichkeit der Person mit dem **höchsten Verteidigungswert** |
+| 3 | Gelände |
+| 4 | Points of Interest (spätere Implementierung) |
+| 5 | Sektoreffekte (spätere Implementierung) |
+
+Zur Festlegung wird ein **Fuzzyset** definiert (siehe Fuzzy Library in diesem Projekt: `lib/fuzzy_logic/` mit `FuzzySet`, `FuzzyVariable`, `FuzzyRuleBase`). Es erstreckt sich zwischen **„Ideal“** und **„Miserabel“**, nimmt als Eingangswerte die obigen Wertigkeiten und liefert als Ausgangswert eine Menge zwischen **−4 und +4**.
+
+- Für **Angreifer** in diesem Sektor wird der errechnete Wert als **Malus auf den Offensiv-Pool** angerechnet.
+- 🔶 Status: Fuzzy-Library existiert (`lib/fuzzy_logic/`), die sektorbezogene Anwendung (Eingangs-Aggregation, Fuzzyset-Parameter, Pool-Verknüpfung) fehlt noch.
+
+### Angriffsbonus (Sektor)
+
+Ein von einem Team kontrollierter Sektor gibt dessen Spielern einen **Bonus beim Konterangriff gegen Angreifer** – er wirkt auf den **Offensiv-Würfelpool** (vgl. [Würfelsystem](#würfelsystem-konzept)). Der Bonus setzt sich zusammen aus:
+
+| # | Eingangswert |
+|---|--------------|
+| 1 | Angriffswert aller Verteidiger (**Mittelwert**) |
+| 2 | Persönlichkeit des **Kapitäns**, wenn dieser unter den Verteidigern ist; sonst Persönlichkeit der Person mit dem höchsten **Angriffswert** ⚠️ |
+| 3 | Gelände |
+| 4 | Points of Interest (spätere Implementierung) |
+| 5 | Sektoreffekte (spätere Implementierung) |
+
+Zur Festlegung wird – wie beim [Verteidigungsbonus](#verteidigungsbonus-sektor) – ein **Fuzzyset** (Fuzzy Library: `lib/fuzzy_logic/`) zwischen **„Ideal“** und **„Miserabel“** mit einem Ausgangsbereich von **−4 bis +4** definiert.
+
+- Für **Angreifer** in diesem Sektor wird der errechnete Wert als **Malus auf den Defensiv-Pool** angerechnet.
+- 🔶 Status: Fuzzy-Library existiert (`lib/fuzzy_logic/`), die sektorbezogene Anwendung fehlt noch.
+
+> ⚠️ **Hinweis:** Beim Angriffsbonus ist der Fallback bei der Kapitäns-Persönlichkeit als „höchster **Angriffswert** ⚠️“ markiert – zu klären bleibt, ob hier tatsächlich der Angriffswert gemeint ist (Kopierfehler vom Verteidigungsbonus wäre ausgeräumt) oder doch der Verteidigungswert (vgl. Offene Punkte #27).
+
 ### Ball
 
 - **Maße:** 65–70 cm Umfang, 500–600 g schwer
@@ -171,6 +213,30 @@ Hinzu kommen die **Kampfmanöver** (Taktik kleinerer Einheiten) für Gruppenakti
 
 > **Stand:** Hacking und Magie werden für die erste Simulation **weggelassen** (vgl. Diskussion in `spielerhandlungen/spielehandlungen.md`). Eine Aktionen-/Kampfmanöver-Engine gibt es im Code noch nicht (❌).
 
+### Auswahl von Aktion / Manöver
+
+Die Wahl der richtigen **Aktion bzw. des Manövers** wird **je nach Aufstellung** entschieden (offensiv / defensiv / scouten, vgl. [Manager-Entscheidung (Aufstellung)](#manager-entscheidung-aufstellung)).
+
+**Entscheider:**
+
+- Befindet sich der **Teamkapitän** in der Aufstellung, gibt er die Aktion/das Manöver an.
+- Ansonsten entscheidet der Spieler mit dem **höchsten Wert**, der der jeweiligen Aufstellung zugeordnet ist (**Offensiv-Pool für offensiv, Defensiv-Pool für defensiv, Scouting-Pool für scouten** – vgl. [Würfelsystem](#würfelsystem-konzept)).
+
+**Faktoren, welche die Wahl beeinflussen:**
+
+| # | Faktor |
+|---|--------|
+| 1 | Wer hat den Ball? |
+| 2 | Persönlichkeit |
+| 3 | Moral |
+| 4 | Art der Aufstellung (offensiv / defensiv / scouten) |
+| 5 | Zustand der Aufstellung (Verletzungsmodifikatoren) |
+| 6 | Andere Faktoren (noch zu definieren) |
+
+Diese Werte dienen als **Eingangswerte eines Fuzzysets** (vgl. `lib/fuzzy_logic/`); die Ausgangswerte sind **alle möglichen Aktionen/Manöver**, von denen das **wahrscheinlichste** ausgewählt wird (Ziel: `FuzzyRuleBase` mit Aktionen/Manövern als Ausgang).
+
+> 🔶 **Status:** Konzept beschlossen, im Code nicht umgesetzt – die Entscheider-Logik (Kapitän → höchster Pool-Wert), das Fuzzyset der Einflussfaktoren und die Auswahlwahrscheinlichkeit existieren noch nicht.
+
 ## Strafen & Verstöße
 
 Der Strafen-Katalog (Scan `image2.png` in diesem Ordner, Titel „Strafen und Verstösse“) regelt die **Konsequenzen von Regelverstößen** während des Spiels. Der gesamte Katalog ist 🔶 **beschlossen, aber im Code noch nicht umgesetzt**.
@@ -278,6 +344,142 @@ Der Katalog aus `spielerwerte/spielerwerte.md` (18 Werte als Würfelpools) mit U
 
 > **Hinweis:** Die Basisattribute existieren im Modell; die **Würfelpool-Logik** (wie die Werte in Würfe übersetzt werden) steht noch aus.
 
+## Würfelsystem (Konzept)
+
+> **Status:** 🔶 Konzept **beschlossen** (Entwurf), im Code noch nicht umgesetzt – die bestehende Tabelle [Spielerwerte (Würfelpools)](#spielerwerte-würfelpools) listet die Werte; die eigentliche **Würfelpool-Logik** fehlt noch. Die Pool-Bezeichnungen dieses Abschnitts sind **Gruppen** des Werte-Katalogs.
+
+### Die drei Würfelpools
+
+Prinzipiell gibt es – zusätzlich zum [Bewegungsfaktor](#bewegungsfaktor) – **drei Würfelpools pro Spieler**:
+
+| Pool | Zusammensetzung (Attribut + Attribut) |
+|------|---------------------------------------|
+| **Offensiv** | Angriff + **Agilität** |
+| **Defensiv** | Verteidigung + Widerstand |
+| **Scouting** | Aufmerksamkeit + Moral |
+
+### Modifikatoren
+
+Alle drei Pools werden durch folgende Faktoren modifiziert:
+
+| # | Faktor |
+|---|--------|
+| 1 | Rolle |
+| 2 | Persönlichkeit |
+| 3 | Ausrüstung |
+| 4 | Cyber/Bioware |
+| 5 | Aufstellung |
+| 6 | Verletzungsstufen |
+
+### Aufstellungs-Boni
+
+Bei der Aufstellung ergeben sich folgende Boni auf die Pool-Werte:
+
+| Aufstellung | Offensiv-Pool | Defensiv-Pool | Scouting-Pool |
+|-------------|---------------|---------------|---------------|
+| **Offensiv** | doppelter Wert | – | halber Wert |
+| **Defensiv** | – | doppelter Wert | halber Wert |
+| **Scouting** | – | halber Wert | doppelter Wert |
+
+### Bewegungsfaktor
+
+Zusätzlich zu den drei Pools gibt es einen Bewegungsfaktor:
+
+```
+Bewegung (in Pixeln pro Spielzug) =
+  ( Agilität (Basiswert)
+    + Agilität (Erfolge: Würfel gegen 5 oder höher)
+    - Modifikatoren )
+  * 5
+```
+
+- Der **Bewegungsfaktor** wird durch **dieselben Faktoren** modifiziert wie die drei Pools (Rolle, Persönlichkeit, Ausrüstung, Cyber/Bioware, Aufstellung, Verletzungsstufen).
+- **Ausnahme „Aufstellung“:** Bei **Scouting-Aufstellung** gilt beim Bewegungsfaktor **doppelte Bewegung** (zusätzlich zum doppelten Scouting-Pool).
+
+> 🔶 **Hinweis:** Die Pool-Bezeichnungen (Offensiv/Defensiv/Scouting) sind konsistent mit den Aufstellungs-„Einsatzarten“ (scouten/offensiv/defensiv, vgl. [Manager-Entscheidung](#manager-entscheidung-aufstellung)) – eine offensiv eingestellte Mannschaft stärkt genau den Offensiv-Pool usw.
+
+### Kampf (Kampfentscheidung)
+
+Während eines Spielzugs bewegen sich die Spieler über das Feld und versuchen, ihrer Aufstellung und ihren Rollen gerecht zu werden. Treffen sich Spieler **beider Teams** in einem Sektor, kann es zu einem **Kampf** kommen.
+
+Die Bedingungen, ob ein Kampf entsteht, sind spielerbasiert und von mehreren Faktoren abhängig:
+
+| # | Faktor |
+|---|--------|
+| 1 | Aufstellung |
+| 2 | Persönlichkeit |
+| 3 | Moral |
+| 4 | Erlittene Wunden |
+| 5 | Anwesenheit des Teamkapitäns im Sektor |
+| 6 | Ob bereits ein Kampf im Sektor stattfindet |
+| 7 | Das gerade angesagte Manöver |
+
+Diese Werte bilden ein **Fuzzyset** (vgl. `lib/fuzzy_logic/`): Eingangswerte sind die obigen Faktoren, der Ausgangswert ist eine **Wahrscheinlichkeit von 1 bis 10**, die jeder Spieler im Sektor mit seinem **doppelten Moralwert überwürfeln** muss.
+
+**Gewichtung der Faktoren** (absteigende Priorität):
+
+1. **Anwesenheit des Teamkapitäns im Sektor** – und ob dieser in den Kampf geht bzw. sich bereits darin befindet (wichtigster Faktor).
+2. **Das angesagte Manöver**.
+3. **Anzahl der erlittenen Wunden**.
+4. **Zugehörigkeit zur Aufstellung** – ein offensives Team ist eher angriffsbereit als ein defensives; **Scouts sind ganz unten** (vgl. [Manager-Entscheidung (Aufstellung)](#manager-entscheidung-aufstellung)).
+5. **Moral** – wenn der Kampf für ein Team schlecht verläuft, zögern zusätzliche Mitglieder eher.
+6. **Ob bereits ein Kampf im Sektor stattfindet** (zuletzt).
+
+> 🔶 **Status:** Konzept beschlossen, im Code nicht umgesetzt – die Kampfentscheidung (Fuzzyset, Überwürfeln mit doppeltem Moralwert, Gewichtung) existiert noch nicht.
+
+### Zielauswahl
+
+Ein Spieler, der in den Kampf in einem Sektor einsteigt, wählt sein Ziel anhand **ähnlicher Faktoren** wie bei der [Kampfentscheidung](#kampf-kampfentscheidung) aus. Änderungen gegenüber der Entscheidungsprobe:
+
+- **Zustand / Wunden aller Verteidigenden** fließen mit ein.
+- Die **Gewichtung aller Faktoren** ist anders.
+
+Bei der Gewichtung steht zuerst die **Persönlichkeit**, die direkt mit **Moral** und **Zustand / Wunden** korreliert: Für manche Persönlichkeiten ist es eher vertretbar, die **schwächste Einheit** anzugreifen als die stärkste – besonders, wenn es sich um eine Einheit handelt, die regeltechnisch gar nicht angegriffen werden darf (z. B. der **Sani**, vgl. [Sonderregeln](#sonderregeln) und [Strafen & Verstöße](#strafen--verstöße)).
+
+Auch hier wird ein **Fuzzyset** gebildet – allerdings mit einem **Spieler der Gegenseite als Ausgangswert**, welcher zum **Ziel des Angreifers** wird.
+
+> 🔶 **Status:** Konzept beschlossen, im Code nicht umgesetzt – die Zielauswahl (Persönlichkeits-Gewichtung, Fuzzyset mit Spieler-Output) fehlt noch.
+
+### Angriff und Verteidigung
+
+Bei einem Kampf würfeln **Angreifer und Verteidiger gegeneinander** – jeweils mit den Würfen aus dem [Würfelsystem](#würfelsystem-konzept):
+
+1. **Angriff:** Der Angreifer würfelt seinen **Offensiv-Pool** gegen den (ebenfalls gewürfelten) **Defensiv-Pool** des Verteidigers. Hat er **mehr Erfolge**, ist die Differenz (**Erfolge Angreifer − Erfolge Verteidiger**) die **erlittene Anzahl an Verletzungsstufen** des Verteidigers.
+2. **Gegenangriff (zeitgleich):** Der Verteidiger würfelt seinen **Offensiv-Pool** gegen den **Defensiv-Pool** des Angreifers – mit demselben Ergebnis (der Angreifer erleidet entsprechend Verletzungsstufen).
+
+> **Hinweis:** Da beide Würfe **zeitgleich** laufen, können beide Kontrahenten im selben Kampf Verletzungen erleiden.
+
+Anschließend folgt eine **Moralprobe**:
+
+- **Probe-Gegner:** **maximale Anzahl Verletzungsstufen − aktuelle Verletzungsstufe**.
+- **Kein Erfolg:** Der Spieler **gibt das Spiel für sich auf** – „Er war einfach zu verletzt“ – und scheidet aus dem aktuellen Spiel aus.
+- **„Sterbend“ oder höher:** Erreicht ein Spieler die Verletzungsstufe **„Sterbend“** (`CharacterStatus.dying`) oder höher, fällt er ebenfalls aus dem aktuellen Spiel aus (vgl. [Verletzungsstatus (Zustandsmonitor)](#verletzungsstatus-zustandsmonitor): `dying → dead → overkilled`).
+
+> 🔶 **Status:** Konzept beschlossen, im Code nicht umgesetzt – die Kampfabwicklung (Offensiv-/Defensiv-Pool gegeneinander, Verletzungsstufen-Differenz, Moralprobe, Ausscheiden ab „Sterbend“) existiert noch nicht. Die **maximale Anzahl Verletzungsstufen** ist noch zu definieren (vgl. Offene Punkte #30/#31).
+
+### Specials
+
+Würfelt ein **Angreifer oder ein Verteidiger** bei seiner **Angriffsprobe** **mehr als drei Erfolge über** die Verteidigungsprobe seines Gegners (Differenz **> 3**), tritt ein **Special** in Kraft. Das Special wird mit **2W6** ausgewürfelt und ergibt sich aus folgender Tabelle:
+
+| 2W6 | Special |
+|-----|---------|
+| 2 | Kritischer Treffer (Schaden verdoppelt) |
+| 3 | Ausrüstungsspecial 1 |
+| 4 | Rollenspecial 1 |
+| 5 | Aufstellungsspecial 1 |
+| 6 | Ausrüstungsspecial 2 |
+| 7 | Rollenspecial 2 |
+| 8 | Aufstellungsspecial 2 |
+| 9 | Ausrüstungsspecial 3 |
+| 10 | Rollenspecial 3 |
+| 11 | Aufstellungsspecial 3 |
+| 12 | Zweimal auf dieser Tabelle würfeln |
+
+- Der Auslöser greift **symmetrisch**: Wird eine **Verteidigungsprobe** um mehr als drei Erfolge über eine Angriffsprobe geworfen, passiert dasselbe (vgl. [Angriff und Verteidigung](#angriff-und-verteidigung), wo beide Würfe zeitgleich laufen).
+- **„Schaden“ beim Kritischen Treffer** = die erlittenen Verletzungsstufen aus der Erfolgs-Differenz (siehe [Angriff und Verteidigung](#angriff-und-verteidigung)).
+
+> 🔶 **Status:** Konzept beschlossen, im Code nicht umgesetzt – die Special-Auslösung (Erfolgs-Differenz > 3), der 2W6-Wurf und die Special-Effekte existieren noch nicht. Die **Kataloge der Specials** (Ausrüstung/Rolle/Aufstellung 1–3) sind noch offen (vgl. Offene Punkte #32/#33).
+
 ## Aktueller Stand (Simulation)
 
 ### ✅ Umgesetzt
@@ -301,13 +503,19 @@ Der Katalog aus `spielerwerte/spielerwerte.md` (18 Werte als Würfelpools) mit U
 
 - **Viertel-/Spielzug-Logik** im `ObjectReferee` (4 × 30 Min., 5-Min-Spielzüge, Wechsel nur zwischen Vierteln).
 - **Sektor-Sicht / Fog of War:** volle Sicht nur im Sektor mit eigenen Spielern; Sektorennamen für alle sichtbar; Datenmodell (Sektor je Spieler) & Rendering fehlen.
+- **Sektorkontrolle & Sektor-Boni:** Kontroll-Mechanismus (Ende eines Spielzugs, nur Spieler eines Teams), Verteidigungs-/Angriffsbonus über Fuzzyset (`lib/fuzzy_logic/`), Malus für Angreifer.
 - **Torzonen-Platzierung & -Wahrnehmung:** Auswahl in den Startsektoren, zufällige Platzierung („Automatisch“/keine Wahl), Wahrnehmung per Würfelwurf (`PlayerAttribute.attention`).
 - **Siegbedingungen** im Code umsetzen (beschlossen: meiste Punkte → Tiebreaker spielfähige Spieler; Spielfähigkeit/Wipeout; Schiri-Abbruch; beidseitiger Wipeout → Unentschieden).
 - **Auszeiten, toter Ball** (Häufigkeiten, Dauer, Konsequenzen).
 - **Strafen-Engine** umsetzen: Regelverstoß-Katalog (Strafe je Verstoß), Strafarten (Freeze/Treffer/Abschuss), „Strafverdrahtung“, automatische Niederlage bei Spielabbruch (beschlossen, vgl. Abschnitt [Strafen & Verstöße](#strafen--verstöße)).
 - **Aufstellung (scouten/offensiv/defensiv)** als Manager-Entscheidung pro Viertel – inkl. Automatik-Checkbox (bei Spielsuche) und RL-Zeitlimit (15 Min.).
 - **Punkte-/Verletzungswurf** (Würfelmechanik) mit Einfluss von Aufstellung und Spielerwerten.
+- **Würfelsystem implementieren:** drei Würfelpools (Offensiv/Defensiv/Scouting), Modifikatoren (Rolle, Persönlichkeit, Ausrüstung, Cyber/Bioware, Aufstellung, Verletzungsstufen), Aufstellungs-Boni (doppelt/halbiert), Bewegungsfaktor (inkl. doppelter Bewegung bei Scouting-Aufstellung).
+- **Kampfentscheidung & Zielauswahl:** Fuzzyset der 7 Faktoren (Ausgang 1–10) auf Basis von `lib/fuzzy_logic/`, Überwürfeln mit doppeltem Moralwert, Gewichtungsreihenfolge; Zielauswahl-Fuzzyset mit gegnerischem Spieler als Output (Persönlichkeits-Gewichtung, Sani-Schutz).
+- **Angriff & Verteidigung:** gegenläufige Würfe (Offensiv-Pool vs. Defensiv-Pool), Verletzungsstufen als Erfolgs-Differenz, Moralprobe (`max. Stufen − aktuelle Stufe`), Ausscheiden beim Aufgeben bzw. ab „Sterbend“.
+- **Specials:** Auslöser bei Erfolgs-Differenz > 3 (Angriffs- und Verteidigungsprobe), 2W6-Specialtabelle (2–12), Effekt-Kataloge (Ausrüstung/Rolle/Aufstellung 1–3) noch offen.
 - **Aktionen-Engine** inkl. Kampfmanöver, Sani-Schutz („nicht angegriffen“), Stürmer-Transport/Motorrad, Ballführungs-Verbot (Sani/Stürmer).
+- **Aktions-/Manöver-Auswahl:** Entscheider (Kapitän → höchster aufstellungsbezogener Pool-Wert), Fuzzyset der Einflussfaktoren (Ballbesitz, Persönlichkeit, Moral, Aufstellungsart/-zustand, weitere), Auswahl des wahrscheinlichsten Ausgangs (`FuzzyRuleBase`).
 - **Einwechsel-Logik** (beschlossen): Primärrolle zuerst, sonst Sekundärrolle; ungedeckte Rollen bleiben leer (`isRoleFree`-API vorbereitet).
 - **Magie/Hacking** (bewusst für die erste Simulation ausgeklammert).
 
@@ -337,6 +545,19 @@ Der Katalog aus `spielerwerte/spielerwerte.md` (18 Werte als Würfelpools) mit U
 | 20 | **Verletzungsarten in der Simulation:** Wie werden Unfall / Friendly Fire / Outside Interference / Combat Wound in der abstrakten Auflösung ausgelöst (Wurf-Trigger)? „Friendly Fire“-Behandlung („Shit happens“) fixieren | ❌ |
 | 21 | **Fog of War / Sektor-Sicht:** volle Sicht nur im Sektor mit eigenen Spielern; Datenmodell (Sektor je Spieler), Sichtbarkeits-Logik & Rendering offen | ❌ |
 | 22 | **Torzonen-Platzierung & -Wahrnehmung:** Auswahl in den Startsektoren (15-Min-Zeitlimit/„Automatisch“), zufällige Platzierung, Wahrnehmung per Würfelwurf (Wahrnehmungspool `attention`) | ❌ |
+| 23 | **Würfelsystem (Konzept):** drei Pools (Offensiv=Angriff+Agilität, Defensiv=Verteidigung+Widerstand, Scouting=Aufmerksamkeit+Moral), Modifikatoren (Rolle, Persönlichkeit, Ausrüstung, Cyber/Bioware, Aufstellung, Verletzungsstufen), Aufstellungs-Boni (doppelt/halbiert) – Umsetzung offen | ❌ |
+| 24 | **Bewegungsfaktor:** Formel `(Agilität Basis + Erfolge ≥5 − Modifikatoren) × 5` px/Spielzug; doppelte Bewegung bei Scouting-Aufstellung; Pixel-Koordination mit HexGrid (Tilemap-Engine) offen | ❌ |
+| 25 | **Sektorkontrolle:** Kontroll-Mechanismus umsetzen (am Ende eines Spielzugs: nur Spieler eines Teams im Sektor) – erst danach greifen die Sektor-Boni | ❌ |
+| 26 | **Fuzzyset für Sektor-Boni:** Eingangs-Aggregation (Mittelwert Verteidigungs-/Angriffswert, Kapitäns-Persönlichkeit, Gelände, später PoI/Sektoreffekte) und Ausgangswert (−4 bis +4, „Ideal“–„Miserabel“) auf Basis von `lib/fuzzy_logic/` definieren; Malus für Angreifer in Offensiv-/Defensiv-Pool integrieren | ❌ |
+| 27 | **Angriffsbonus (Sektor) – Inkonsistenz:** Fallback der Kapitäns-Persönlichkeit lautet „höchster Verteidigungswert“ – vermutlich Kopierfehler; gemeint ist vermutlich „höchster Angriffswert“ (klären) | ❌ |
+| 28 | **Kampfentscheidung:** Fuzzyset der 7 Faktoren (Aufstellung, Persönlichkeit, Moral, Wunden, Kapitän, laufender Kampf, Manöver) mit Ausgangswert 1–10; Überwürfeln mit doppeltem Moralwert (exakte Wurfmechanik offen); Gewichtungsreihenfolge fixieren | ❌ |
+| 29 | **Zielauswahl:** Fuzzyset mit gegnerischem Spieler als Ausgangswert; Gewichtung nach Persönlichkeit (korreliert mit Moral & Zustand/Wunden); Umgang mit „darf nicht angegriffen werden“ (Sani, ausgeschaltete Spieler, Offizielle) klären | ❌ |
+| 30 | **Kampfabwicklung (Angriff & Verteidigung):** gegenläufige Würfe (Offensiv- vs. Defensiv-Pool), Verletzungsstufen = Erfolgs-Differenz, Moralprobe (`max. Stufen − aktuelle Stufen`, Aufgeben bei 0 Erfolgen), Ausscheiden ab `CharacterStatus.dying` – exakte Wurfmechanik/Erfolgszählung offen | ❌ |
+| 31 | **Maximale Verletzungsstufen festlegen:** Die Moralprobe referenziert „maximale Anzahl Verletzungsstufen“ – entspricht das der `CharacterStatus`-Stufenleiter (8 Stufen, `fine`→`overkilled`) oder einem eigenen Wert? | ❌ |
+| 32 | **Special-Kataloge definieren:** Ausrüstungsspecial 1–3, Rollenspecial 1–3, Aufstellungsspecial 1–3 (Effekte, Dauer, Ziel), Kritischer Treffer (Schaden verdoppelt), „Zweimal würfeln“ bei 12 – inhaltliche Ausgestaltung offen | ❌ |
+| 33 | **Special-Auslösung & Balance:** Auslöser Erfolgs-Differenz > 3 bei Angriffs- UND Verteidigungsprobe; 2W6-Verteilung (2 und 12 selten, 7 häufig) berücksichtigen; Rekursion bei wiederholtem 12er-Wurf klären (Rekursionslimit?) | ❌ |
+| 34 | **Aktions-/Manöver-Auswahl:** Entscheider-Logik (Kapitän → Spieler mit höchstem aufstellungsbezogenem Pool-Wert), Fuzzyset der Einflussfaktoren (Ballbesitz, Persönlichkeit, Moral, Aufstellungsart/-zustand, weitere offen), Auswahl des wahrscheinlichsten Ausgangs – Umsetzung offen | ❌ |
+| 35 | **Auswahl-Faktoren vervollständigen:** „Andere Faktoren (noch zu definieren)“ der Aktions-/Manöver-Auswahl festlegen; Zuordnung „höchster Wert“ je Aufstellung präzisieren (Offensiv-/Defensiv-/Scouting-Pool, vgl. Würfelsystem) | ❌ |
 
 ## Quellen
 
@@ -348,6 +569,7 @@ Der Katalog aus `spielerwerte/spielerwerte.md` (18 Werte als Würfelpools) mit U
 - `2do_07_07_26.md` – Sprintvorgaben (Spielstruktur, Spielzug-Dauer, Systemparameter, Output)
 - `3_Object_Player.md`, `4_Object_Team.md`, `5_Ausruestung.md` – Modell- und Werte-Dokumentation
 - `image2.png` (Scan „Strafen und Verstösse“) – Strafen-Katalog: Regelverstoß → Strafe, Strafarten, Verletzungen
+- `lib/fuzzy_logic/` – Fuzzy-Logik-Bibliothek (Fuzzyset-Basis für die Sektor-Boni: `FuzzySet`, `FuzzyVariable`, `FuzzyRuleBase`)
 
 ---
 
