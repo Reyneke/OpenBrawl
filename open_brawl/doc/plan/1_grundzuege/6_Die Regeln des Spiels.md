@@ -181,7 +181,7 @@ Verteilungsschlüssel und Profil je Rolle (im Code als `TeamPositions`; umgesetz
 
 ### Verletzungsstatus (Zustandsmonitor)
 
-`CharacterStatus` bildet die Verletzungsspur ab: `fine → reeling → hurt → afraid → injured → dying → dead → overkilled` (✅ im Code, deutsche `displayName`). Die konkreten Auswirkungen der einzelnen Stufen auf die Würfe (Verletzungswurf etc.) sind noch offen (❌). Die **Verletzungs-Arten** aus dem Scan (Unfall, Friendly Fire, Outside Interference, Combat Wound) sind im Abschnitt [Strafen & Verstöße](#strafen--verstöße) festgehalten.
+`CharacterStatus` bildet die Verletzungsspur ab: `fine → reeling → hurt → afraid → injured → dying → dead → overkilled` (✅ im Code, deutsche `displayName`). Die konkreten Auswirkungen der einzelnen Stufen auf die Würfe (Verletzungswurf etc.) sind noch offen (❌) – die **Todes-Folgen** von `dying` / `dead` / `overkilled` sind dagegen in [Verwundung und Tod](#verwundung-und-tod) festgelegt (inkl. Stabilisierungsschwelle `dead` und Sani-Rettung, Beschluss 30.08.2026). Die **Verletzungs-Arten** aus dem Scan (Unfall, Friendly Fire, Outside Interference, Combat Wound) sind im Abschnitt [Strafen & Verstöße](#strafen--verstöße) festgehalten.
 
 ## Aktionen & Kampfmanöver
 
@@ -337,7 +337,7 @@ Der Katalog aus `spielerwerte/spielerwerte.md` (18 Werte als Würfelpools) mit U
 | Heimlichkeitspool | Schleichen/Tarnen | ❌ |
 | Edge | Glück / Schicksalspunkte | ✅ Basiswert `PlayerAttribute.edge` |
 | Einfluss | Führung/Taktik kleinerer Einheiten | ❌ |
-| Biotechpool | Medizinische Versorgung (nur Sani) | ❌ |
+| Biotechpool | Medizinische Versorgung (nur Sani); Grundlage des Sani-Rettungswurfs (vgl. [Verwundung und Tod](#verwundung-und-tod)) | ❌ |
 | Moral | Kampfmoral | ✅ Basiswert `PlayerAttribute.morale` |
 | Ruf/Fame | Bekanntheitsgrad | ✅ `ObjectPlayer.fame` |
 | Marktwert | Wert auf dem Spielermarkt | ✅ `ObjectPlayer.price` / `marketValue` |
@@ -453,7 +453,7 @@ Anschließend folgt eine **Moralprobe**:
 
 - **Probe-Gegner:** **maximale Anzahl Verletzungsstufen − aktuelle Verletzungsstufe**.
 - **Kein Erfolg:** Der Spieler **gibt das Spiel für sich auf** – „Er war einfach zu verletzt“ – und scheidet aus dem aktuellen Spiel aus.
-- **„Sterbend“ oder höher:** Erreicht ein Spieler die Verletzungsstufe **„Sterbend“** (`CharacterStatus.dying`) oder höher, fällt er ebenfalls aus dem aktuellen Spiel aus (vgl. [Verletzungsstatus (Zustandsmonitor)](#verletzungsstatus-zustandsmonitor): `dying → dead → overkilled`).
+- **„Sterbend“ oder höher:** Erreicht ein Spieler die Verletzungsstufe **„Sterbend“** (`CharacterStatus.dying`) oder höher, fällt er ebenfalls aus dem aktuellen Spiel aus. `dying`-Spieler können geheilt werden und im neuen Viertel zurückkehren; ab `dead` greift die [Rettungs-Kette](#verwundung-und-tod) (Stabilisierung durch Sani möglich, sonst endgültiger Tod).
 
 > 🔶 **Status:** Konzept beschlossen, im Code nicht umgesetzt – die Kampfabwicklung (Offensiv-/Defensiv-Pool gegeneinander, Verletzungsstufen-Differenz, Moralprobe, Ausscheiden ab „Sterbend“) existiert noch nicht. Die **maximale Anzahl Verletzungsstufen** ist noch zu definieren (vgl. Offene Punkte #30/#31).
 
@@ -480,6 +480,61 @@ Würfelt ein **Angreifer oder ein Verteidiger** bei seiner **Angriffsprobe** **m
 
 > 🔶 **Status:** Konzept beschlossen, im Code nicht umgesetzt – die Special-Auslösung (Erfolgs-Differenz > 3), der 2W6-Wurf und die Special-Effekte existieren noch nicht. Die **Kataloge der Specials** (Ausrüstung/Rolle/Aufstellung 1–3) sind noch offen (vgl. Offene Punkte #32/#33).
 
+### Verwundung und Tod
+
+Unterhalb von `dying` liegen auf der Verletzungsspur (`CharacterStatus`, `lib/objects/object_player.dart`) die Stufen `dead` und `overkilled`. **Beschlossen (30.08.2026):** Die **Stabilisierungsschwelle liegt bei `dead`** (Lesart a). Im Gegensatz zum ursprünglichen Freitext ist ein Spieler bei `dead` **nicht** unwiderruflich tot – ein Sani kann ihn über die [Rettungs-Kette](#rettungs-kette-stabilisierung) stabilisieren. Alle daraus resultierenden Schwellen (etwa das Ausscheiden aus dem Spiel, vgl. [Angriff und Verteidigung](#angriff-und-verteidigung)) sind entsprechend angepasst.
+
+| Stufe | Konsequenz |
+|---|---|
+| `dying` („Sterbend“) | Fällt aus dem Spiel aus, kann aber **geheilt** werden und im **neuen Viertel** zurückkehren. |
+| `dead` („Tot“) | **Stabilisierungsschwelle:** Fällt ganz aus dem Spiel aus, ist aber **nicht** unwiderruflich tot – die [Rettungs-Kette](#rettungs-kette-stabilisierung) greift; ohne erfolgreiche Rettung endgültig tot. |
+| `overkilled` („Übertötet“) | Wie `dead`, aber der Sani benötigt die **doppelte** Anzahl an Biotech-Erfolgen (Tiefe unter `dead` × 2). |
+| Schaden **oberhalb** von `overkilled` | **Permanent tot** – weder Stabilisierung noch Rettung durch den Sani. |
+
+#### Rettungs-Kette (Stabilisierung)
+
+Erreicht ein Spieler die Stabilisierungsschwelle (`dead` oder tiefer), greift **einmalig** folgende Kette:
+
+1. **Eigenwurf auf doppelten Widerstand:** Der Spieler würfelt auf **doppelten Widerstand** (`PlayerAttribute.resistance` × 2). Erwürfelt er **mindestens zwei Erfolge**, stabilisiert er sich und **heilt eine Stufe** – danach wird nach den üblichen Regeln verfahren.
+2. **Scheitern ohne Sani:** Gelingt der Wurf nicht und ist **kein Sani (mehr) im Team**, ist der Spieler **endgültig tot**.
+3. **Scheitern mit Sani im Sektor:** Ist ein **Sani im Sektor**, würfelt dieser aus dem **Biotechpool**. Erforderlich sind **mindestens so viele Erfolge, wie der verletzte Spieler unter `dead` liegt** – 0-basiert gezählt, mindestens **1**; ab `overkilled` **verdoppeln** sich die benötigten Erfolge:
+
+   | Status des Spielers | Tiefe unter `dead` | Benötigte Sani-Erfolge (Biotechpool) |
+   |---|---|---|
+   | `dead` | 0 (Minimum) | **1** |
+   | `overkilled` | 1 | **2** (1 × 2) |
+
+   Gelingt der Wurf, heilt der verletzte Spieler **eine Stufe Schaden**, und es wird weiter nach der Stufenlogik verfahren.
+4. **Scheitern des Sani:** Gelingt dem Sani der Biotech-Wurf nicht, ist der Charakter **tot**.
+
+> ✅ **Beschlossen (30.08.2026):** Lesart **(a)** – Stabilisierungsschwelle bei `dead`. Ein Spieler auf `dead` ist **nicht** unwiderruflich tot; ein Sani kann ihn stabilisieren. Benötigte Sani-Erfolge = Tiefe unter `dead` (0-basiert, min. 1), ab `overkilled` **verdoppelt**. „Permanent tot“ gilt nur noch oberhalb von `overkilled` bzw. bei gescheiterter Rettung (kein Sani im Team oder Biotech-Wurf nicht bestanden).
+
+> 🔶 **Status:** Regeln beschlossen (Freitext + Ergänzung 30.08.2026: Sani-Rettung für `dead`/`overkilled`). Im Code existieren die Stufen (`CharacterStatus`), aber **keine Widerstands-/Biotech-Proben und keine Rettungs-Logik** – `isAlive` (`dead`/`overkilled` = endgültig) müsste für die Sani-Rettung angepasst werden. Bausteine: `PlayerAttribute.resistance` (doppelter Widerstand), **Biotechpool** (nur Sani, ❌ vgl. [Spielerwerte (Würfelpools)](#spielerwerte-würfelpools)), Sani mit Medkit (vgl. [Rollenprofil](#rollenprofil)).
+
+## Events (Viertel-Events)
+
+Wie bereits in `9_TeamManagement.md` angedeutet (anheuerbare NSC, insbesondere der **Fixer**), kann es während eines **Viertels** zu **Events** kommen, die das Spielgeschehen beeinflussen. Es gibt **zwei Auslöser-Arten**:
+
+| Auslöser | Beispiele | Beschreibung |
+|---|---|---|
+| **Manager-getriggert** | **Shadowrunner** (Sabotage) | Wird von einem Teammanager ausgelöst – z. B. über einen anheuerbaren **Fixer**-NSC (vgl. `9_TeamManagement.md`). |
+| **Zufällig** | **Wetter** | Passiert ohne Zutun der Manager, beeinflusst aber das Spiel (z. B. über Sicht, Bewegung oder Würfe). |
+
+- Die **Standardwahrscheinlichkeit** für **zufällige** Events beginnt bei **50 %** und ist durch **noch zu bestimmende Faktoren** beeinflussbar (vgl. Offener Punkt #38).
+- **Manager-getriggerte** Events (z. B. Shadowrunner-Sabotage) folgen eigenen Auslösern (Würfelproben der NSC, vgl. `9_TeamManagement.md`) und unterliegen nicht der Zufalls-Wahrscheinlichkeit.
+
+### Eventliste
+
+Die konkrete **Eventliste** ist noch offen – zu jedem Event sind **Auslöser**, **Wirkung** und **Wahrscheinlichkeit** zu definieren (vgl. Offener Punkt #38). Erste Kandidaten aus dem Vorschlag:
+
+| # | Event | Auslöser | Wirkung (Entwurf) |
+|---|-------|----------|-------------------|
+| 1 | **Shadowrunner-Sabotage** | Manager-getriggert (Fixer) | Sabotageaktionen vor oder während eines Spiels; Einordnung zwischen Verletzungsart „Outside Interference“ ([Strafen & Verstöße](#strafen--verstöße)) und Siegbedingung 3 „Schiedsrichter-Abbruch“ steht aus |
+| 2 | **Wetter** | Zufällig (Standardp. 50 %) | Beeinflusst das Spiel dynamisch (z. B. Sicht, Bewegung, Würfe) – konkrete Wirkung offen |
+| … | **– weitere –** | – | Noch zu definieren |
+
+> ❌ **Status:** Vorschlag, nicht beschlossen – kein Code. Anknüpfung: `9_TeamManagement.md` (anheuerbare NSC, Fixer), [Strafen & Verstöße](#strafen--verstöße) (Verletzungsart „Outside Interference“), [Siegbedingungen](#siegbedingungen) („Schiedsrichter-Abbruch“).
+
 ## Aktueller Stand (Simulation)
 
 ### ✅ Umgesetzt
@@ -502,6 +557,7 @@ Würfelt ein **Angreifer oder ein Verteidiger** bei seiner **Angriffsprobe** **m
 ### ❌ Fehlt noch
 
 - **Viertel-/Spielzug-Logik** im `ObjectReferee` (4 × 30 Min., 5-Min-Spielzüge, Wechsel nur zwischen Vierteln).
+- **Events (Viertel-Events):** Manager-getriggerte (z. B. Shadowrunner via Fixer-NSC) und zufällige (z. B. Wetter) Events pro Viertel; Standardwahrscheinlichkeit 50 % bei zufälligen Events, Eventliste offen – vgl. [Events (Viertel-Events)](#events-viertel-events).
 - **Sektor-Sicht / Fog of War:** volle Sicht nur im Sektor mit eigenen Spielern; Sektorennamen für alle sichtbar; Datenmodell (Sektor je Spieler) & Rendering fehlen.
 - **Sektorkontrolle & Sektor-Boni:** Kontroll-Mechanismus (Ende eines Spielzugs, nur Spieler eines Teams), Verteidigungs-/Angriffsbonus über Fuzzyset (`lib/fuzzy_logic/`), Malus für Angreifer.
 - **Torzonen-Platzierung & -Wahrnehmung:** Auswahl in den Startsektoren, zufällige Platzierung („Automatisch“/keine Wahl), Wahrnehmung per Würfelwurf (`PlayerAttribute.attention`).
@@ -510,6 +566,7 @@ Würfelt ein **Angreifer oder ein Verteidiger** bei seiner **Angriffsprobe** **m
 - **Strafen-Engine** umsetzen: Regelverstoß-Katalog (Strafe je Verstoß), Strafarten (Freeze/Treffer/Abschuss), „Strafverdrahtung“, automatische Niederlage bei Spielabbruch (beschlossen, vgl. Abschnitt [Strafen & Verstöße](#strafen--verstöße)).
 - **Aufstellung (scouten/offensiv/defensiv)** als Manager-Entscheidung pro Viertel – inkl. Automatik-Checkbox (bei Spielsuche) und RL-Zeitlimit (15 Min.).
 - **Punkte-/Verletzungswurf** (Würfelmechanik) mit Einfluss von Aufstellung und Spielerwerten.
+- **Verletzungswurf & Tod** umsetzen: Rettungs-Kette (Stabilisierungswurf mit doppeltem Widerstand, Sani-Rettung über Biotechpool mit tiefenabhängigen Erfolgen – ab `overkilled` verdoppelt; permanenter Tod nur oberhalb von `overkilled` bzw. nach gescheiterter Rettung) – vgl. [Verwundung und Tod](#verwundung-und-tod).
 - **Würfelsystem implementieren:** drei Würfelpools (Offensiv/Defensiv/Scouting), Modifikatoren (Rolle, Persönlichkeit, Ausrüstung, Cyber/Bioware, Aufstellung, Verletzungsstufen), Aufstellungs-Boni (doppelt/halbiert), Bewegungsfaktor (inkl. doppelter Bewegung bei Scouting-Aufstellung).
 - **Kampfentscheidung & Zielauswahl:** Fuzzyset der 7 Faktoren (Ausgang 1–10) auf Basis von `lib/fuzzy_logic/`, Überwürfeln mit doppeltem Moralwert, Gewichtungsreihenfolge; Zielauswahl-Fuzzyset mit gegnerischem Spieler als Output (Persönlichkeits-Gewichtung, Sani-Schutz).
 - **Angriff & Verteidigung:** gegenläufige Würfe (Offensiv-Pool vs. Defensiv-Pool), Verletzungsstufen als Erfolgs-Differenz, Moralprobe (`max. Stufen − aktuelle Stufe`), Ausscheiden beim Aufgeben bzw. ab „Sterbend“.
@@ -558,6 +615,9 @@ Würfelt ein **Angreifer oder ein Verteidiger** bei seiner **Angriffsprobe** **m
 | 33 | **Special-Auslösung & Balance:** Auslöser Erfolgs-Differenz > 3 bei Angriffs- UND Verteidigungsprobe; 2W6-Verteilung (2 und 12 selten, 7 häufig) berücksichtigen; Rekursion bei wiederholtem 12er-Wurf klären (Rekursionslimit?) | ❌ |
 | 34 | **Aktions-/Manöver-Auswahl:** Entscheider-Logik (Kapitän → Spieler mit höchstem aufstellungsbezogenem Pool-Wert), Fuzzyset der Einflussfaktoren (Ballbesitz, Persönlichkeit, Moral, Aufstellungsart/-zustand, weitere offen), Auswahl des wahrscheinlichsten Ausgangs – Umsetzung offen | ❌ |
 | 35 | **Auswahl-Faktoren vervollständigen:** „Andere Faktoren (noch zu definieren)“ der Aktions-/Manöver-Auswahl festlegen; Zuordnung „höchster Wert“ je Aufstellung präzisieren (Offensiv-/Defensiv-/Scouting-Pool, vgl. Würfelsystem) | ❌ |
+| 36 | **Verwundung und Tod – Stufen-Zuordnung (beschlossen 30.08.2026):** Stabilisierungsschwelle = `dead` (Lesart a); ein Spieler bei `dead` ist **nicht** unwiderruflich tot, ein Sani kann ihn stabilisieren – benötigte Biotech-Erfolge = Tiefe unter `dead` (0-basiert, min. 1), ab `overkilled` verdoppelt; permanenter Tod nur oberhalb von `overkilled` bzw. nach gescheiterter Rettung. Restfragen: „doppelter Widerstand“ = `resistance` × 2, Bedingung „Sani im Sektor“ vs. „im Team“ | ✅ |
+| 37 | **Sani-Rettung im Code:** `isAlive`/`CharacterStatus` anpassen (da `dead`/`overkilled` nicht mehr endgültig sind, vgl. #36), Widerstands-/Biotech-Proben und Rettungs-Logik implementieren | ❌ |
+| 38 | **Events (Viertel-Events):** Eventliste definieren (Event, Auslöser, Wirkung, Wahrscheinlichkeit); beeinflussende Faktoren der Standard-Wahrscheinlichkeit (50 %) festlegen; Zusammenspiel mit `9_TeamManagement.md` (Fixer/Shadowrunner) klären; Einordnung „Outside Interference“ / „Schiedsrichter-Abbruch“ | ❌ |
 
 ## Quellen
 
@@ -570,6 +630,7 @@ Würfelt ein **Angreifer oder ein Verteidiger** bei seiner **Angriffsprobe** **m
 - `3_Object_Player.md`, `4_Object_Team.md`, `5_Ausruestung.md` – Modell- und Werte-Dokumentation
 - `image2.png` (Scan „Strafen und Verstösse“) – Strafen-Katalog: Regelverstoß → Strafe, Strafarten, Verletzungen
 - `lib/fuzzy_logic/` – Fuzzy-Logik-Bibliothek (Fuzzyset-Basis für die Sektor-Boni: `FuzzySet`, `FuzzyVariable`, `FuzzyRuleBase`)
+- `data/Shadowrun 4D - Blut & Spiele (Scan).pdf` – Zustandsmonitor-/Todes-Konzept (Grundlage des `CharacterStatus`-Enums und des Abschnitts [Verwundung und Tod](#verwundung-und-tod))
 
 ---
 
