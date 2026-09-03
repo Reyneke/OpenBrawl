@@ -30,7 +30,7 @@ Dieses Dokument ist die **zentrale Referenz der Spielregeln** für das Match-Sys
 
 - **Form:** Kreis mit **4 m Durchmesser** auf Straßenhöhe.
 - **Platzierung:** Beide Teams platzieren ihre Torzone innerhalb ihrer **Startsektoren** (vgl. [Startsektoren](#startsektoren)); zwischen den Vierteln darf sie neu platziert werden.
-- **Wahl/Zeitlimit:** Ist der **„Automatisch“-Haken** nicht gesetzt (vgl. [Manager-Entscheidung](#manager-entscheidung-aufstellung)), haben die Manager **15 Minuten** Zeit, die Torzone zu wählen. Trifft ein Manager keine Wahl oder ist „Automatisch“ aktiv, wird die Torzone **zufällig** platziert.
+- **Wahl/Zeitlimit:** Ist der **„Automatisch“-Haken** nicht gesetzt (vgl. [Manager-Entscheidung](#manager-entscheidung-positionen)), haben die Manager **15 Minuten** Zeit, die Torzone zu wählen. Trifft ein Manager keine Wahl oder ist „Automatisch“ aktiv, wird die Torzone **zufällig** platziert.
 
 ### Fog of War
 
@@ -110,16 +110,47 @@ Ein Spielzug endet, wenn ein Team punktet, die Spielzuguhr (oder das Viertel) ab
 
 > **Hinweis:** Bei 2.400 Kampfrunden pro Spiel würde die Detail-Simulation („jeder Schuss jedes Spielers“) die Spielzeit explodieren lassen (vgl. Diskussion in `spielablauf.md`). Deshalb ist die **abstrakte Auflösung** pro Spielzug beschlossen: Die Züge werden über Würfe aufgelöst (siehe [Wertung](#wertung--siegbedingungen)) statt über Einzelaktionen.
 
-### Manager-Entscheidung (Aufstellung)
+### Manager-Entscheidung (Positionen)
 
-- Vor dem Spiel / pro Viertel entscheidet der **Manager**, wie viele und welche Spieler **scouten**, **offensiv** oder **defensiv** eingesetzt werden.
-- **Scouten** verstärkt die Fähigkeit, die gegnerische Torzone zu finden; ein offensiver bzw. defensiver Einsatz verstärkt die **Offensiv- bzw. Defensivkraft** des Teams. Die Aufstellung fließt in die Würfe ein.
+- Vor dem Spiel / pro Viertel entscheidet der **Manager**, wie viele und welche Spieler **aufklären**, **offensiv** oder **defensiv** eingesetzt werden.
+- **Aufklären** verstärkt die Fähigkeit, die gegnerische Torzone zu finden; ein offensiver bzw. defensiver Einsatz verstärkt die **Offensiv- bzw. Defensivkraft** des Teams. Die Positionierung fließt in die Würfe ein.
 
-> **Automatik-Option („Automatisch“):** Der Geschwindigkeit halber kann der Manager bereits bei der **Spielsuche** per Checkbox die Option **„Automatisch“** aktivieren. Das Setup vor Spielbeginn bzw. die Aufstellung zwischen den Vierteln erfolgt dann automatisch – die Spieler werden nach ihren **Positionen und Werten** auf die drei Einsatzarten (scouten/offensiv/defensiv) verteilt.
+> **Automatik-Option („Automatisch“):** Der Geschwindigkeit halber kann der Manager bereits bei der **Spielsuche** per Checkbox die Option **„Automatisch“** aktivieren. Das Setup vor Spielbeginn bzw. die Positionierung zwischen den Vierteln erfolgt dann automatisch – die Spieler werden nach ihren **Positionen und Werten** auf die drei Einsatzarten (aufklären/offensiv/defensiv) verteilt.
 >
-> **Zeitlimit:** Ist die Checkbox **nicht** gesetzt, hat der Manager eine **RL-Viertelstunde** (15 Minuten Echtzeit) Zeit, die Aufstellung manuell zu treffen. Läuft das Zeitlimit ab, greift derselbe Automatismus.
+> **Zeitlimit:** Ist die Checkbox **nicht** gesetzt, hat der Manager eine **RL-Viertelstunde** (15 Minuten Echtzeit) Zeit, die Positionierung manuell vorzunehmen. Läuft das Zeitlimit ab, greift derselbe Automatismus.
 
-> **Status:** ❌ beschlossen, im Code noch nicht umgesetzt – weder Aufstellungs-UI noch Automatik/Zeitlimit existieren bisher.
+> **Status:** ❌ beschlossen, im Code noch nicht umgesetzt – weder Positions-UI noch Automatik/Zeitlimit existieren bisher.
+
+### Positionen und Aufgaben
+
+Die Positionierung teilt die Mannschaft in die drei **Einsatzarten** bzw. **Positionen** **Offensiv**, **Defensiv** und **Aufklärer** (vgl. [Manager-Entscheidung (Positionen)](#manager-entscheidung-positionen)). Jede Position übernimmt während eines Spielzugs eigene Aufgaben:
+
+#### Offensiv
+
+- Braucht **immer mindestens eine Rolle, die den Ball tragen kann** – wer den Ball führen darf, regelt der Aktionen-Katalog („Ball aufheben/werfen/fangen: alle außer Sani und Stürmer“, vgl. [Aktionen & Kampfmanöver](#aktionen--kampfmanöver)):
+  - Ist **kein Ballträger** mehr in der Position „Offensiv“, ist das **Viertel** für die Mannschaft gelaufen.
+  - Kann sie keinen Ballträger mehr **reinrotieren**, ist das **Spiel** für die Mannschaft gelaufen (vgl. [Siegbedingungen](#siegbedingungen) – Spielfähigkeit).
+- Aufgaben:
+  1. Sucht die Torzone
+  2. Macht Tore
+  3. Unterstützt die Aufklärer
+
+#### Defensiv
+
+1. Verteidigt die eigene Torzone
+2. Verteidigt kontrollierte Sektoren (vgl. [Sektorkontrolle](#sektorkontrolle))
+3. Kann sich verstecken, um die Offensiv Position zu überraschen
+
+#### Aufklärer
+
+1. Sucht die gegnerische Torzone
+2. Sucht das gegnerische Team – als **einzige Position** sehen Aufklärer dafür in **angrenzende Sektoren** (vgl. [Fog of War](#fog-of-war))
+3. Erobert Sektoren (vgl. [Sektorkontrolle](#sektorkontrolle))
+4. Bewegt sich in der Regel versteckt voran
+
+> ⚠️ **Hinweis:** Die Sicht-Ausnahme der Aufklärer („in angrenzende Sektoren sehen“) ist bislang nur hier festgehalten; der Abschnitt [Fog of War](#fog-of-war) beschreibt bisher nur die volle Sicht im Sektor mit eigenen Spielern.
+
+> **Status:** ❌ Aufgaben beschlossen, im Code noch nicht umgesetzt – die Positionierungs-Logik folgt mit der Match-Engine (vgl. Offener Punkt #4).
 
 ## Wertung & Siegbedingungen
 
@@ -127,7 +158,7 @@ Ein Spielzug endet, wenn ein Team punktet, die Spielzuguhr (oder das Viertel) ab
 
 - **Punkt:** wenn der Ball **innerhalb der gegnerischen Torzone den Boden berührt**.
 - Nach einem Punkt **resetten beide Teams in ihre eigene Torzone**; ein neuer Spielzug beginnt.
-- Das Spielergebnis (inkl. Verletzungen) wird „per Zufall“ ermittelt: **Verletzungswurf** + **Punktwurf**, beide beeinflusst durch die **Aufstellung** (scouten/offensiv/defensiv) und die **Spielerwerte**.
+- Das Spielergebnis (inkl. Verletzungen) wird „per Zufall“ ermittelt: **Verletzungswurf** + **Punktwurf**, beide beeinflusst durch die **Positionierung** (aufklären/offensiv/defensiv) und die **Spielerwerte**.
 
 ### Siegbedingungen
 
@@ -215,12 +246,12 @@ Hinzu kommen die **Kampfmanöver** (Taktik kleinerer Einheiten) für Gruppenakti
 
 ### Auswahl von Aktion / Manöver
 
-Die Wahl der richtigen **Aktion bzw. des Manövers** wird **je nach Aufstellung** entschieden (offensiv / defensiv / scouten, vgl. [Manager-Entscheidung (Aufstellung)](#manager-entscheidung-aufstellung)).
+Die Wahl der richtigen **Aktion bzw. des Manövers** wird **je nach Positionierung** entschieden (offensiv / defensiv / aufklären, vgl. [Manager-Entscheidung (Positionen)](#manager-entscheidung-positionen)).
 
 **Entscheider:**
 
-- Befindet sich der **Teamkapitän** in der Aufstellung, gibt er die Aktion/das Manöver an.
-- Ansonsten entscheidet der Spieler mit dem **höchsten Wert**, der der jeweiligen Aufstellung zugeordnet ist (**Offensiv-Pool für offensiv, Defensiv-Pool für defensiv, Scouting-Pool für scouten** – vgl. [Würfelsystem](#würfelsystem-konzept)).
+- Befindet sich der **Teamkapitän** in der Positionierung, gibt er die Aktion/das Manöver an.
+- Ansonsten entscheidet der Spieler mit dem **höchsten Wert**, der der jeweiligen Positionierung zugeordnet ist (**Offensiv-Pool für offensiv, Defensiv-Pool für defensiv, Aufklärungs-Pool für aufklären** – vgl. [Würfelsystem](#würfelsystem-konzept)).
 
 **Faktoren, welche die Wahl beeinflussen:**
 
@@ -229,8 +260,8 @@ Die Wahl der richtigen **Aktion bzw. des Manövers** wird **je nach Aufstellung*
 | 1 | Wer hat den Ball? |
 | 2 | Persönlichkeit |
 | 3 | Moral |
-| 4 | Art der Aufstellung (offensiv / defensiv / scouten) |
-| 5 | Zustand der Aufstellung (Verletzungsmodifikatoren) |
+| 4 | Art der Positionierung (offensiv / defensiv / aufklären) |
+| 5 | Zustand der Positionierung (Verletzungsmodifikatoren) |
 | 6 | Andere Faktoren (noch zu definieren) |
 
 Diese Werte dienen als **Eingangswerte eines Fuzzysets** (vgl. `lib/fuzzy_logic/`); die Ausgangswerte sind **alle möglichen Aktionen/Manöver**, von denen das **wahrscheinlichste** ausgewählt wird (Ziel: `FuzzyRuleBase` mit Aktionen/Manövern als Ausgang).
@@ -348,19 +379,22 @@ Der Katalog aus `spielerwerte/spielerwerte.md` (18 Werte als Würfelpools) mit U
 
 > **Status:** 🔶 Konzept **beschlossen** (Entwurf), im Code noch nicht umgesetzt – die bestehende Tabelle [Spielerwerte (Würfelpools)](#spielerwerte-würfelpools) listet die Werte; die eigentliche **Würfelpool-Logik** fehlt noch. Die Pool-Bezeichnungen dieses Abschnitts sind **Gruppen** des Werte-Katalogs.
 
-### Die drei Würfelpools
+### Die vier Würfelpools
 
-Prinzipiell gibt es – zusätzlich zum [Bewegungsfaktor](#bewegungsfaktor) – **drei Würfelpools pro Spieler**:
+Prinzipiell gibt es – zusätzlich zum [Bewegungsfaktor](#bewegungsfaktor) – **vier Würfelpools pro Spieler**:
 
 | Pool | Zusammensetzung (Attribut + Attribut) |
 |------|---------------------------------------|
 | **Offensiv** | Angriff + **Agilität** |
 | **Defensiv** | Verteidigung + Widerstand |
-| **Scouting** | Aufmerksamkeit + Moral |
+| **Aufklärung** | Aufmerksamkeit + Moral |
+| **Verstecken** | Agilität + Widerstand |
+
+> 🔶 **Zusatz (beschlossen):** Als **vierter Würfelpool** wurde der **Verstecken-Pool** festgelegt – er setzt sich zusammen aus **Agilität + Widerstand**. Er kommt dort zum Tragen, wo sich Spieler versteckt fortbewegen oder aus dem Versteck agieren (vgl. [Positionen und Aufgaben](#positionen-und-aufgaben)). Ob er mit dem **Heimlichkeitspool** (Schleichen/Tarnen) des [Werte-Katalogs](#spielerwerte-würfelpools) identisch ist, ist noch zu klären (vgl. Offener Punkt #39).
 
 ### Modifikatoren
 
-Alle drei Pools werden durch folgende Faktoren modifiziert:
+Alle **vier Würfelpools** werden durch folgende Faktoren modifiziert:
 
 | # | Faktor |
 |---|--------|
@@ -368,22 +402,26 @@ Alle drei Pools werden durch folgende Faktoren modifiziert:
 | 2 | Persönlichkeit |
 | 3 | Ausrüstung |
 | 4 | Cyber/Bioware |
-| 5 | Aufstellung |
+| 5 | Positionierung |
 | 6 | Verletzungsstufen |
 
-### Aufstellungs-Boni
+### Positions-Boni
 
-Bei der Aufstellung ergeben sich folgende Boni auf die Pool-Werte:
+Bei der Positionierung ergeben sich folgende Boni auf die Pool-Werte:
 
-| Aufstellung | Offensiv-Pool | Defensiv-Pool | Scouting-Pool |
-|-------------|---------------|---------------|---------------|
-| **Offensiv** | doppelter Wert | – | halber Wert |
-| **Defensiv** | – | doppelter Wert | halber Wert |
-| **Scouting** | – | halber Wert | doppelter Wert |
+| Positionierung | Offensiv-Pool | Defensiv-Pool | Aufklärungs-Pool | Verstecken-Pool |
+|----------------|---------------|---------------|------------------|-----------------|
+| **Offensiv** | doppelter Wert | – | halber Wert | halber Wert |
+| **Defensiv** | halber Wert | doppelter Wert | halber Wert | – |
+| **Aufklärung** | halber Wert | normaler Wert | doppelter Wert | doppelter Wert |
+
+> **Erläuterung:** „–“ bedeutet **normaler Wert** (kein Bonus, keine Änderung).
+
+> 🔶 **Änderung (beschlossen):** Die **Aufklärung** (in der Rohquelle „Scouts“ genannt) erhält einen **normalen Defensiv-Pool** – statt des bisherigen halben Werts – und dafür einen **doppelten Verstecken-Pool**. **Defensiv**-Positionierte behalten den **normalen Verstecken-Wert**; bei der **Offensiv**-Positionierung ändert sich nichts (Verstecken-Pool bleibt normal).
 
 ### Bewegungsfaktor
 
-Zusätzlich zu den drei Pools gibt es einen Bewegungsfaktor:
+Zusätzlich zu den vier Würfelpools gibt es einen Bewegungsfaktor:
 
 ```
 Bewegung (in Pixeln pro Spielzug) =
@@ -393,20 +431,27 @@ Bewegung (in Pixeln pro Spielzug) =
   * 5
 ```
 
-- Der **Bewegungsfaktor** wird durch **dieselben Faktoren** modifiziert wie die drei Pools (Rolle, Persönlichkeit, Ausrüstung, Cyber/Bioware, Aufstellung, Verletzungsstufen).
-- **Ausnahme „Aufstellung“:** Bei **Scouting-Aufstellung** gilt beim Bewegungsfaktor **doppelte Bewegung** (zusätzlich zum doppelten Scouting-Pool).
+- Der **Bewegungsfaktor** wird durch **dieselben Faktoren** modifiziert wie die Würfelpools (Rolle, Persönlichkeit, Ausrüstung, Cyber/Bioware, Positionierung, Verletzungsstufen).
+- **Ausnahme „Positionierung“:** Bei **Aufklärungs-Positionierung** gilt beim Bewegungsfaktor **doppelte Bewegung** (zusätzlich zum doppelten Aufklärungs-Pool).
 
-> 🔶 **Hinweis:** Die Pool-Bezeichnungen (Offensiv/Defensiv/Scouting) sind konsistent mit den Aufstellungs-„Einsatzarten“ (scouten/offensiv/defensiv, vgl. [Manager-Entscheidung](#manager-entscheidung-aufstellung)) – eine offensiv eingestellte Mannschaft stärkt genau den Offensiv-Pool usw.
+> 🔶 **Hinweis:** Die Pool-Bezeichnungen (Offensiv/Defensiv/Aufklärung) sind konsistent mit den Positions-„Einsatzarten“ (aufklären/offensiv/defensiv, vgl. [Manager-Entscheidung](#manager-entscheidung-positionen)) – eine offensiv eingestellte Mannschaft stärkt genau den Offensiv-Pool usw. Für den **Verstecken-Pool** gibt es keine eigene Einsatzart; sein Wert wird über die [Positions-Boni](#positions-boni) geregelt (doppelt bei Aufklärung).
+
+### Suchen und Finden
+Mit der Einführung eines Verstecken Pools, wurde auch die Einführung einer Suchen und Finden Mechanik beschlossen.
+
+Prinzipeill funktioniert sie Sektorweise. Der Spieler einer Position mit dem höchsten Wert in "Aufklärung" würfelt beim Betreten eines Sektors gegen den Spieler höchsten "Verstecken" Wert von jeder, bereits im Sektor vorhandenen Position. Hat der aufklärende Spieler mehr Erfolge, entdeckt er die Spieler jener anderen Position. Würfeln die sich versteckenden Spieler der Gegenmannschaft höher, bleiben sie verborgen.
+
+jeweils hächsten Wert in Verstecken und Aufklärung stellvertretend für alle Spieler seiner Fraktion würfelt.
 
 ### Kampf (Kampfentscheidung)
 
-Während eines Spielzugs bewegen sich die Spieler über das Feld und versuchen, ihrer Aufstellung und ihren Rollen gerecht zu werden. Treffen sich Spieler **beider Teams** in einem Sektor, kann es zu einem **Kampf** kommen.
+Während eines Spielzugs bewegen sich die Spieler über das Feld und versuchen, ihrer Positionierung und ihren Rollen gerecht zu werden. Treffen sich Spieler **beider Teams** in einem Sektor, kann es zu einem **Kampf** kommen.
 
 Die Bedingungen, ob ein Kampf entsteht, sind spielerbasiert und von mehreren Faktoren abhängig:
 
 | # | Faktor |
 |---|--------|
-| 1 | Aufstellung |
+| 1 | Positionierung |
 | 2 | Persönlichkeit |
 | 3 | Moral |
 | 4 | Erlittene Wunden |
@@ -421,7 +466,7 @@ Diese Werte bilden ein **Fuzzyset** (vgl. `lib/fuzzy_logic/`): Eingangswerte sin
 1. **Anwesenheit des Teamkapitäns im Sektor** – und ob dieser in den Kampf geht bzw. sich bereits darin befindet (wichtigster Faktor).
 2. **Das angesagte Manöver**.
 3. **Anzahl der erlittenen Wunden**.
-4. **Zugehörigkeit zur Aufstellung** – ein offensives Team ist eher angriffsbereit als ein defensives; **Scouts sind ganz unten** (vgl. [Manager-Entscheidung (Aufstellung)](#manager-entscheidung-aufstellung)).
+4. **Zugehörigkeit zur Positionierung** – ein offensives Team ist eher angriffsbereit als ein defensives; **Aufklärer sind ganz unten** (vgl. [Manager-Entscheidung (Positionen)](#manager-entscheidung-positionen)).
 5. **Moral** – wenn der Kampf für ein Team schlecht verläuft, zögern zusätzliche Mitglieder eher.
 6. **Ob bereits ein Kampf im Sektor stattfindet** (zuletzt).
 
@@ -466,19 +511,21 @@ Würfelt ein **Angreifer oder ein Verteidiger** bei seiner **Angriffsprobe** **m
 | 2 | Kritischer Treffer (Schaden verdoppelt) |
 | 3 | Ausrüstungsspecial 1 |
 | 4 | Rollenspecial 1 |
-| 5 | Aufstellungsspecial 1 |
+| 5 | Positionsspecial 1 |
 | 6 | Ausrüstungsspecial 2 |
 | 7 | Rollenspecial 2 |
-| 8 | Aufstellungsspecial 2 |
+| 8 | Positionsspecial 2 |
 | 9 | Ausrüstungsspecial 3 |
 | 10 | Rollenspecial 3 |
-| 11 | Aufstellungsspecial 3 |
+| 11 | Positionsspecial 3 |
 | 12 | Zweimal auf dieser Tabelle würfeln |
 
 - Der Auslöser greift **symmetrisch**: Wird eine **Verteidigungsprobe** um mehr als drei Erfolge über eine Angriffsprobe geworfen, passiert dasselbe (vgl. [Angriff und Verteidigung](#angriff-und-verteidigung), wo beide Würfe zeitgleich laufen).
 - **„Schaden“ beim Kritischen Treffer** = die erlittenen Verletzungsstufen aus der Erfolgs-Differenz (siehe [Angriff und Verteidigung](#angriff-und-verteidigung)).
 
-> 🔶 **Status:** Konzept beschlossen, im Code nicht umgesetzt – die Special-Auslösung (Erfolgs-Differenz > 3), der 2W6-Wurf und die Special-Effekte existieren noch nicht. Die **Kataloge der Specials** (Ausrüstung/Rolle/Aufstellung 1–3) sind noch offen (vgl. Offene Punkte #32/#33).
+> 🔶 **Status:** Konzept beschlossen, im Code nicht umgesetzt – die Special-Auslösung (Erfolgs-Differenz > 3), der 2W6-Wurf und die Special-Effekte existieren noch nicht. Die **Kataloge der Specials** (Ausrüstung/Rolle/Position 1–3) sind noch offen (vgl. Offene Punkte #32/#33).
+
+=> Specials können auch passieren, wenn einer aus der Gegenseite patzt.
 
 ### Verwundung und Tod
 
@@ -564,15 +611,15 @@ Die konkrete **Eventliste** ist noch offen – zu jedem Event sind **Auslöser**
 - **Siegbedingungen** im Code umsetzen (beschlossen: meiste Punkte → Tiebreaker spielfähige Spieler; Spielfähigkeit/Wipeout; Schiri-Abbruch; beidseitiger Wipeout → Unentschieden).
 - **Auszeiten, toter Ball** (Häufigkeiten, Dauer, Konsequenzen).
 - **Strafen-Engine** umsetzen: Regelverstoß-Katalog (Strafe je Verstoß), Strafarten (Freeze/Treffer/Abschuss), „Strafverdrahtung“, automatische Niederlage bei Spielabbruch (beschlossen, vgl. Abschnitt [Strafen & Verstöße](#strafen--verstöße)).
-- **Aufstellung (scouten/offensiv/defensiv)** als Manager-Entscheidung pro Viertel – inkl. Automatik-Checkbox (bei Spielsuche) und RL-Zeitlimit (15 Min.).
-- **Punkte-/Verletzungswurf** (Würfelmechanik) mit Einfluss von Aufstellung und Spielerwerten.
+- **Positionierung (aufklären/offensiv/defensiv)** als Manager-Entscheidung pro Viertel – inkl. Automatik-Checkbox (bei Spielsuche) und RL-Zeitlimit (15 Min.).
+- **Punkte-/Verletzungswurf** (Würfelmechanik) mit Einfluss von Positionierung und Spielerwerten.
 - **Verletzungswurf & Tod** umsetzen: Rettungs-Kette (Stabilisierungswurf mit doppeltem Widerstand, Sani-Rettung über Biotechpool mit tiefenabhängigen Erfolgen – ab `overkilled` verdoppelt; permanenter Tod nur oberhalb von `overkilled` bzw. nach gescheiterter Rettung) – vgl. [Verwundung und Tod](#verwundung-und-tod).
-- **Würfelsystem implementieren:** drei Würfelpools (Offensiv/Defensiv/Scouting), Modifikatoren (Rolle, Persönlichkeit, Ausrüstung, Cyber/Bioware, Aufstellung, Verletzungsstufen), Aufstellungs-Boni (doppelt/halbiert), Bewegungsfaktor (inkl. doppelter Bewegung bei Scouting-Aufstellung).
+- **Würfelsystem implementieren:** vier Würfelpools (Offensiv/Defensiv/Aufklärung/Verstecken), Modifikatoren (Rolle, Persönlichkeit, Ausrüstung, Cyber/Bioware, Positionierung, Verletzungsstufen), Positions-Boni (doppelt/halbiert, inkl. Verstecken-Pool), Bewegungsfaktor (inkl. doppelter Bewegung bei Aufklärungs-Positionierung).
 - **Kampfentscheidung & Zielauswahl:** Fuzzyset der 7 Faktoren (Ausgang 1–10) auf Basis von `lib/fuzzy_logic/`, Überwürfeln mit doppeltem Moralwert, Gewichtungsreihenfolge; Zielauswahl-Fuzzyset mit gegnerischem Spieler als Output (Persönlichkeits-Gewichtung, Sani-Schutz).
 - **Angriff & Verteidigung:** gegenläufige Würfe (Offensiv-Pool vs. Defensiv-Pool), Verletzungsstufen als Erfolgs-Differenz, Moralprobe (`max. Stufen − aktuelle Stufe`), Ausscheiden beim Aufgeben bzw. ab „Sterbend“.
-- **Specials:** Auslöser bei Erfolgs-Differenz > 3 (Angriffs- und Verteidigungsprobe), 2W6-Specialtabelle (2–12), Effekt-Kataloge (Ausrüstung/Rolle/Aufstellung 1–3) noch offen.
+- **Specials:** Auslöser bei Erfolgs-Differenz > 3 (Angriffs- und Verteidigungsprobe), 2W6-Specialtabelle (2–12), Effekt-Kataloge (Ausrüstung/Rolle/Position 1–3) noch offen.
 - **Aktionen-Engine** inkl. Kampfmanöver, Sani-Schutz („nicht angegriffen“), Stürmer-Transport/Motorrad, Ballführungs-Verbot (Sani/Stürmer).
-- **Aktions-/Manöver-Auswahl:** Entscheider (Kapitän → höchster aufstellungsbezogener Pool-Wert), Fuzzyset der Einflussfaktoren (Ballbesitz, Persönlichkeit, Moral, Aufstellungsart/-zustand, weitere), Auswahl des wahrscheinlichsten Ausgangs (`FuzzyRuleBase`).
+- **Aktions-/Manöver-Auswahl:** Entscheider (Kapitän → höchster positionsbezogener Pool-Wert), Fuzzyset der Einflussfaktoren (Ballbesitz, Persönlichkeit, Moral, Positionsart/-zustand, weitere), Auswahl des wahrscheinlichsten Ausgangs (`FuzzyRuleBase`).
 - **Einwechsel-Logik** (beschlossen): Primärrolle zuerst, sonst Sekundärrolle; ungedeckte Rollen bleiben leer (`isRoleFree`-API vorbereitet).
 - **Magie/Hacking** (bewusst für die erste Simulation ausgeklammert).
 
@@ -582,8 +629,8 @@ Die konkrete **Eventliste** ist noch offen – zu jedem Event sind **Auslöser**
 |---|-------|--------|
 | 1 | **Siegbedingungen** im Code umsetzen (meiste Punkte → Tiebreaker spielfähige Spieler; Spielfähigkeit/Wipeout; Schiri-Abbruch; beidseitiger Wipeout → Unentschieden) | 🔶 |
 | 2 | **Viertel-/Spielzug-Logik** im `ObjectReferee` (4 × 30 Min., 5-Min-Zug, Wechselregeln) | ❌ |
-| 3 | **Abstrakte Auflösung:** Punkte-/Verletzungswurf inkl. Aufstellungs- und Werte-Einfluss | ❌ |
-| 4 | **Aufstellung (scouten/offensiv/defensiv)** inkl. Automatik-Checkbox & RL-Zeitlimit (15 Min.) | ❌ |
+| 3 | **Abstrakte Auflösung:** Punkte-/Verletzungswurf inkl. Positions- und Werte-Einfluss | ❌ |
+| 4 | **Positionierung (aufklären/offensiv/defensiv)** inkl. Automatik-Checkbox & RL-Zeitlimit (15 Min.) | ❌ |
 | 5 | **Auszeiten, toter Ball** (Häufigkeit/Dauer/Konsequenzen; Strafen-Katalog liegt vor) | ❌ |
 | 6 | **Feld-Slot-Mechanismus** (26 Spieler gleichzeitig auf dem Feld) | ❌ |
 | 7 | **Aktionen-/Kampfmanöver-Engine** | ❌ |
@@ -593,8 +640,8 @@ Die konkrete **Eventliste** ist noch offen – zu jedem Event sind **Auslöser**
 | 11 | **Zeitmodell pro Aktion** (variable Zuglängen) | ❌ |
 | 12 | **Ausrüstung → Marktwert/Preis-Formel** | 🔶 |
 | 13 | **Magie/Hacking** endgültig beschließen (erste Simulation: weglassen) | 🔶 |
-| 14 | **Scouten-Mechanik:** Wie wirkt das Scouten konkret auf das Auffinden der gegnerischen Torzone (Modifikator auf den Wahrnehmungs-Wurf, vgl. [Torzone (Zielzone)](#torzone-zielzone))? | ❌ |
-| 15 | **Automatik-Algorithmus:** Nach welcher Logik werden Positionen/Werte auf scouten/offensiv/defensiv verteilt? | ❌ |
+| 14 | **Aufklärungs-Mechanik:** Wie wirkt das Aufklären konkret auf das Auffinden der gegnerischen Torzone (Modifikator auf den Wahrnehmungs-Wurf, vgl. [Torzone (Zielzone)](#torzone-zielzone))? | ❌ |
+| 15 | **Automatik-Algorithmus:** Nach welcher Logik werden Positionen/Werte auf aufklären/offensiv/defensiv verteilt? | ❌ |
 | 16 | **Schiedsrichter-Abbruch in der Simulation:** Wie wird Siegbedingung 3 (Abbruch bei Übergriff von außen) abgebildet – manueller Admin-/Schiri-Eingriff oder Automatik? | ❌ |
 | 17 | **Beidseitiger Wipeout → Unentschieden:** Siegbedingung 4 ist beschlossen. Offen: (a) Soll der beidseitige Wipeout als zusätzlicher (6.) Ausgang der abstrakten Spielzug-Auflösung modelliert werden? (b) Umsetzung im Match-Record: `endMatch`/`recordMatchResult` kennen nur Winner/Loser – `TeamMatchRecord.drawn` existiert bereits | ❌ |
 | 18 | **Einwechsel-Logik:** beschlossen (Primär- vor Sekundärrolle; ungedeckte Rolle bleibt leer). Umsetzung folgt mit der Match-Engine/Substitutions-UI auf Basis von `isRoleFree` | ❌ |
@@ -602,22 +649,23 @@ Die konkrete **Eventliste** ist noch offen – zu jedem Event sind **Auslöser**
 | 20 | **Verletzungsarten in der Simulation:** Wie werden Unfall / Friendly Fire / Outside Interference / Combat Wound in der abstrakten Auflösung ausgelöst (Wurf-Trigger)? „Friendly Fire“-Behandlung („Shit happens“) fixieren | ❌ |
 | 21 | **Fog of War / Sektor-Sicht:** volle Sicht nur im Sektor mit eigenen Spielern; Datenmodell (Sektor je Spieler), Sichtbarkeits-Logik & Rendering offen | ❌ |
 | 22 | **Torzonen-Platzierung & -Wahrnehmung:** Auswahl in den Startsektoren (15-Min-Zeitlimit/„Automatisch“), zufällige Platzierung, Wahrnehmung per Würfelwurf (Wahrnehmungspool `attention`) | ❌ |
-| 23 | **Würfelsystem (Konzept):** drei Pools (Offensiv=Angriff+Agilität, Defensiv=Verteidigung+Widerstand, Scouting=Aufmerksamkeit+Moral), Modifikatoren (Rolle, Persönlichkeit, Ausrüstung, Cyber/Bioware, Aufstellung, Verletzungsstufen), Aufstellungs-Boni (doppelt/halbiert) – Umsetzung offen | ❌ |
-| 24 | **Bewegungsfaktor:** Formel `(Agilität Basis + Erfolge ≥5 − Modifikatoren) × 5` px/Spielzug; doppelte Bewegung bei Scouting-Aufstellung; Pixel-Koordination mit HexGrid (Tilemap-Engine) offen | ❌ |
+| 23 | **Würfelsystem (Konzept):** vier Pools (Offensiv=Angriff+Agilität, Defensiv=Verteidigung+Widerstand, Aufklärung=Aufmerksamkeit+Moral, Verstecken=Agilität+Widerstand), Modifikatoren (Rolle, Persönlichkeit, Ausrüstung, Cyber/Bioware, Positionierung, Verletzungsstufen), Positions-Boni (doppelt/halbiert, inkl. Verstecken-Pool) – Umsetzung offen | ❌ |
+| 24 | **Bewegungsfaktor:** Formel `(Agilität Basis + Erfolge ≥5 − Modifikatoren) × 5` px/Spielzug; doppelte Bewegung bei Aufklärungs-Positionierung; Pixel-Koordination mit HexGrid (Tilemap-Engine) offen | ❌ |
 | 25 | **Sektorkontrolle:** Kontroll-Mechanismus umsetzen (am Ende eines Spielzugs: nur Spieler eines Teams im Sektor) – erst danach greifen die Sektor-Boni | ❌ |
 | 26 | **Fuzzyset für Sektor-Boni:** Eingangs-Aggregation (Mittelwert Verteidigungs-/Angriffswert, Kapitäns-Persönlichkeit, Gelände, später PoI/Sektoreffekte) und Ausgangswert (−4 bis +4, „Ideal“–„Miserabel“) auf Basis von `lib/fuzzy_logic/` definieren; Malus für Angreifer in Offensiv-/Defensiv-Pool integrieren | ❌ |
 | 27 | **Angriffsbonus (Sektor) – Inkonsistenz:** Fallback der Kapitäns-Persönlichkeit lautet „höchster Verteidigungswert“ – vermutlich Kopierfehler; gemeint ist vermutlich „höchster Angriffswert“ (klären) | ❌ |
-| 28 | **Kampfentscheidung:** Fuzzyset der 7 Faktoren (Aufstellung, Persönlichkeit, Moral, Wunden, Kapitän, laufender Kampf, Manöver) mit Ausgangswert 1–10; Überwürfeln mit doppeltem Moralwert (exakte Wurfmechanik offen); Gewichtungsreihenfolge fixieren | ❌ |
+| 28 | **Kampfentscheidung:** Fuzzyset der 7 Faktoren (Positionierung, Persönlichkeit, Moral, Wunden, Kapitän, laufender Kampf, Manöver) mit Ausgangswert 1–10; Überwürfeln mit doppeltem Moralwert (exakte Wurfmechanik offen); Gewichtungsreihenfolge fixieren | ❌ |
 | 29 | **Zielauswahl:** Fuzzyset mit gegnerischem Spieler als Ausgangswert; Gewichtung nach Persönlichkeit (korreliert mit Moral & Zustand/Wunden); Umgang mit „darf nicht angegriffen werden“ (Sani, ausgeschaltete Spieler, Offizielle) klären | ❌ |
 | 30 | **Kampfabwicklung (Angriff & Verteidigung):** gegenläufige Würfe (Offensiv- vs. Defensiv-Pool), Verletzungsstufen = Erfolgs-Differenz, Moralprobe (`max. Stufen − aktuelle Stufen`, Aufgeben bei 0 Erfolgen), Ausscheiden ab `CharacterStatus.dying` – exakte Wurfmechanik/Erfolgszählung offen | ❌ |
 | 31 | **Maximale Verletzungsstufen festlegen:** Die Moralprobe referenziert „maximale Anzahl Verletzungsstufen“ – entspricht das der `CharacterStatus`-Stufenleiter (8 Stufen, `fine`→`overkilled`) oder einem eigenen Wert? | ❌ |
-| 32 | **Special-Kataloge definieren:** Ausrüstungsspecial 1–3, Rollenspecial 1–3, Aufstellungsspecial 1–3 (Effekte, Dauer, Ziel), Kritischer Treffer (Schaden verdoppelt), „Zweimal würfeln“ bei 12 – inhaltliche Ausgestaltung offen | ❌ |
+| 32 | **Special-Kataloge definieren:** Ausrüstungsspecial 1–3, Rollenspecial 1–3, Positionsspecial 1–3 (Effekte, Dauer, Ziel), Kritischer Treffer (Schaden verdoppelt), „Zweimal würfeln“ bei 12 – inhaltliche Ausgestaltung offen | ❌ |
 | 33 | **Special-Auslösung & Balance:** Auslöser Erfolgs-Differenz > 3 bei Angriffs- UND Verteidigungsprobe; 2W6-Verteilung (2 und 12 selten, 7 häufig) berücksichtigen; Rekursion bei wiederholtem 12er-Wurf klären (Rekursionslimit?) | ❌ |
-| 34 | **Aktions-/Manöver-Auswahl:** Entscheider-Logik (Kapitän → Spieler mit höchstem aufstellungsbezogenem Pool-Wert), Fuzzyset der Einflussfaktoren (Ballbesitz, Persönlichkeit, Moral, Aufstellungsart/-zustand, weitere offen), Auswahl des wahrscheinlichsten Ausgangs – Umsetzung offen | ❌ |
-| 35 | **Auswahl-Faktoren vervollständigen:** „Andere Faktoren (noch zu definieren)“ der Aktions-/Manöver-Auswahl festlegen; Zuordnung „höchster Wert“ je Aufstellung präzisieren (Offensiv-/Defensiv-/Scouting-Pool, vgl. Würfelsystem) | ❌ |
+| 34 | **Aktions-/Manöver-Auswahl:** Entscheider-Logik (Kapitän → Spieler mit höchstem positionsbezogenem Pool-Wert), Fuzzyset der Einflussfaktoren (Ballbesitz, Persönlichkeit, Moral, Positionsart/-zustand, weitere offen), Auswahl des wahrscheinlichsten Ausgangs – Umsetzung offen | ❌ |
+| 35 | **Auswahl-Faktoren vervollständigen:** „Andere Faktoren (noch zu definieren)“ der Aktions-/Manöver-Auswahl festlegen; Zuordnung „höchster Wert“ je Positionierung präzisieren (Offensiv-/Defensiv-/Aufklärungs-Pool, vgl. Würfelsystem) | ❌ |
 | 36 | **Verwundung und Tod – Stufen-Zuordnung (beschlossen 30.08.2026):** Stabilisierungsschwelle = `dead` (Lesart a); ein Spieler bei `dead` ist **nicht** unwiderruflich tot, ein Sani kann ihn stabilisieren – benötigte Biotech-Erfolge = Tiefe unter `dead` (0-basiert, min. 1), ab `overkilled` verdoppelt; permanenter Tod nur oberhalb von `overkilled` bzw. nach gescheiterter Rettung. Restfragen: „doppelter Widerstand“ = `resistance` × 2, Bedingung „Sani im Sektor“ vs. „im Team“ | ✅ |
 | 37 | **Sani-Rettung im Code:** `isAlive`/`CharacterStatus` anpassen (da `dead`/`overkilled` nicht mehr endgültig sind, vgl. #36), Widerstands-/Biotech-Proben und Rettungs-Logik implementieren | ❌ |
 | 38 | **Events (Viertel-Events):** Eventliste definieren (Event, Auslöser, Wirkung, Wahrscheinlichkeit); beeinflussende Faktoren der Standard-Wahrscheinlichkeit (50 %) festlegen; Zusammenspiel mit `9_TeamManagement.md` (Fixer/Shadowrunner) klären; Einordnung „Outside Interference“ / „Schiedsrichter-Abbruch“ | ❌ |
+| 39 | **Verstecken-Pool vs. Heimlichkeitspool:** Verhältnis des neuen Verstecken-Pools (Agilität + Widerstand, vgl. [Würfelsystem](#würfelsystem-konzept)) zum „Heimlichkeitspool“ (Schleichen/Tarnen) des [Werte-Katalogs](#spielerwerte-würfelpools) klären – gleicher Pool (Namens-/Übersetzungsfrage) oder zwei getrennte Pools? | ❌ |
 
 ## Quellen
 
@@ -634,5 +682,5 @@ Die konkrete **Eventliste** ist noch offen – zu jedem Event sind **Auslöser**
 
 ---
 
-*Stand: 29.08.2026*
+*Stand: 03.09.2026*
 
