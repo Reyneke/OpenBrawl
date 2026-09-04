@@ -42,6 +42,7 @@ Dieses Dokument ist die **zentrale Referenz der Spielregeln** für das Match-Sys
 
 - Alle Sektoren sind zu **Spielbeginn unkontrolliert**.
 - Ein Sektor kommt unter **Kontrolle eines Teams**, wenn sich am **Ende eines Spielzugs** nur Spieler dieses Teams in ihm aufhalten.
+- Ein Team kann sich _nur_ in einem Sektor verstecken, wenn es ihn kontrolliert.
 - 🔶 Status: Regel beschlossen; Kontroll-Zustand & Abrechnung am Spielzug-Ende sind im Code nicht umgesetzt.
 
 ### Verteidigungsbonus (Sektor)
@@ -125,11 +126,14 @@ Ein Spielzug endet, wenn ein Team punktet, die Spielzuguhr (oder das Viertel) ab
 
 Die Positionierung teilt die Mannschaft in die drei **Einsatzarten** bzw. **Positionen** **Offensiv**, **Defensiv** und **Aufklärer** (vgl. [Manager-Entscheidung (Positionen)](#manager-entscheidung-positionen)). Jede Position übernimmt während eines Spielzugs eigene Aufgaben:
 
+Die Fähigkeit einer Position, sich zu **verstecken**, bestimmt, ob ihre Spieler als „versteckt“ gelten – und ist damit relevant für den [Verstecken-Pool](#die-vier-würfelpools), die [„Suchen und Finden“-Enttarnprobe](#suchen-und-finden) sowie die halbtransparente Tokendarstellung im [Fog of War](#fog-of-war).
+
 #### Offensiv
 
 - Braucht **immer mindestens eine Rolle, die den Ball tragen kann** – wer den Ball führen darf, regelt der Aktionen-Katalog („Ball aufheben/werfen/fangen: alle außer Sani und Stürmer“, vgl. [Aktionen & Kampfmanöver](#aktionen--kampfmanöver)):
   - Ist **kein Ballträger** mehr in der Position „Offensiv“, ist das **Viertel** für die Mannschaft gelaufen.
   - Kann sie keinen Ballträger mehr **reinrotieren**, ist das **Spiel** für die Mannschaft gelaufen (vgl. [Siegbedingungen](#siegbedingungen) – Spielfähigkeit).
+- Kann sich nicht verstecken
 - Aufgaben:
   1. Sucht die Torzone
   2. Macht Tore
@@ -139,18 +143,20 @@ Die Positionierung teilt die Mannschaft in die drei **Einsatzarten** bzw. **Posi
 
 1. Verteidigt die eigene Torzone
 2. Verteidigt kontrollierte Sektoren (vgl. [Sektorkontrolle](#sektorkontrolle))
-3. Kann sich verstecken, um die Offensiv Position zu überraschen
+3. Kann sich **verstecken**, wenn es die Lage zulässt (Special, Points of Interest)
 
 #### Aufklärer
 
 1. Sucht die gegnerische Torzone
 2. Sucht das gegnerische Team – als **einzige Position** sehen Aufklärer dafür in **angrenzende Sektoren** (vgl. [Fog of War](#fog-of-war))
 3. Erobert Sektoren (vgl. [Sektorkontrolle](#sektorkontrolle))
-4. Bewegt sich in der Regel versteckt voran
+4. Bewegt sich immer **„versteckt“** voran
 
 > ⚠️ **Hinweis:** Die Sicht-Ausnahme der Aufklärer („in angrenzende Sektoren sehen“) ist bislang nur hier festgehalten; der Abschnitt [Fog of War](#fog-of-war) beschreibt bisher nur die volle Sicht im Sektor mit eigenen Spielern.
 
 > **Status:** ❌ Aufgaben beschlossen, im Code noch nicht umgesetzt – die Positionierungs-Logik folgt mit der Match-Engine (vgl. Offener Punkt #4).
+>
+> 🔶 **Status (Verstecken-Fähigkeit):** Die positionsbezogene Regel „Offensiv nie, Defensiv situativ, Aufklärer immer“ ist beschlossen, aber noch nicht umgesetzt – die „versteckt“-Zustandslogik folgt mit der [Suchen und Finden](#suchen-und-finden)-Engine (vgl. Offene Punkte #41/#42).
 
 ## Wertung & Siegbedingungen
 
@@ -419,6 +425,8 @@ Bei der Positionierung ergeben sich folgende Boni auf die Pool-Werte:
 
 > 🔶 **Änderung (beschlossen):** Die **Aufklärung** (in der Rohquelle „Scouts“ genannt) erhält einen **normalen Defensiv-Pool** – statt des bisherigen halben Werts – und dafür einen **doppelten Verstecken-Pool**. **Defensiv**-Positionierte behalten den **normalen Verstecken-Wert**; bei der **Offensiv**-Positionierung ändert sich nichts (Verstecken-Pool bleibt normal).
 
+> ⚠️ **Hinweis (Inkonsistenz):** Die [Positions-Boni](#positions-boni)-Tabelle weist für die **Offensiv**-Positionierung beim **Verstecken-Pool** „halber Wert“ aus, die 🔶-Änderungsnotiz dagegen „bleibt normal“ – zu klären (vgl. Offener Punkt #42). Relevant v. a. im Zusammenspiel mit der Regel, dass sich **Offensiv nicht verstecken** kann (vgl. [Positionen und Aufgaben](#positionen-und-aufgaben)).
+
 ### Bewegungsfaktor
 
 Zusätzlich zu den vier Würfelpools gibt es einen Bewegungsfaktor:
@@ -437,11 +445,21 @@ Bewegung (in Pixeln pro Spielzug) =
 > 🔶 **Hinweis:** Die Pool-Bezeichnungen (Offensiv/Defensiv/Aufklärung) sind konsistent mit den Positions-„Einsatzarten“ (aufklären/offensiv/defensiv, vgl. [Manager-Entscheidung](#manager-entscheidung-positionen)) – eine offensiv eingestellte Mannschaft stärkt genau den Offensiv-Pool usw. Für den **Verstecken-Pool** gibt es keine eigene Einsatzart; sein Wert wird über die [Positions-Boni](#positions-boni) geregelt (doppelt bei Aufklärung).
 
 ### Suchen und Finden
-Mit der Einführung eines Verstecken Pools, wurde auch die Einführung einer Suchen und Finden Mechanik beschlossen.
 
-Prinzipeill funktioniert sie Sektorweise. Der Spieler einer Position mit dem höchsten Wert in "Aufklärung" würfelt beim Betreten eines Sektors gegen den Spieler höchsten "Verstecken" Wert von jeder, bereits im Sektor vorhandenen Position. Hat der aufklärende Spieler mehr Erfolge, entdeckt er die Spieler jener anderen Position. Würfeln die sich versteckenden Spieler der Gegenmannschaft höher, bleiben sie verborgen.
+Mit der Einführung des **Verstecken-Pools** wurde auch eine **„Suchen und Finden“-Mechanik** beschlossen. Sie regelt, wann Spieler eines Teams gegnerische Spieler in einem **Sektor** entdecken bzw. **enttarnen** können und wie sich das auf die Sichtbarkeit im [Fog of War](#fog-of-war) auswirkt. Sie baut auf dem [Verstecken-Pool](#die-vier-würfelpools) (Agilität + Widerstand) sowie dem Aufklärungs-Pool auf.
 
-jeweils hächsten Wert in Verstecken und Aufklärung stellvertretend für alle Spieler seiner Fraktion würfelt.
+**Ablauf:** Die Mechanik funktioniert **sektorweise** und greift, sobald Spieler eines Teams einen Sektor **aufdecken**, der bisher unter dem [Fog of War](#fog-of-war) gelegen hat:
+
+1. Aus der Gruppe der aufdeckenden Spieler würfelt derjenige, der **innerhalb seiner Position** den **höchsten Wert in „Aufklärung“** besitzt, auf genau diesen Wert.
+2. Jeder Spieler des gegnerischen Teams, dessen **„Verstecken“-Pool** kleiner ist als die so erzielten **Erfolge**, gilt als **enttarnt**.
+3. Haben sich gegnerische Spieler versteckt (etwa **Aufklärer** – vgl. doppelter [Verstecken-Pool](#positions-boni)), würfeln diese – sollte ihre Entdeckung drohen – mit ihrem **„Verstecken“-Pool**. Erzielen sie dabei **mehr oder gleich viele Erfolge**, wie bei der Aufklärung gewürfelt wurden, bleiben sie **versteckt**.
+
+**Sichtbarkeit:**
+
+- Entdeckte Spieler des gegnerischen Teams sind automatisch **allen Spielern des eigenen Teams** bekannt.
+- Versteckte Spielertokens werden auf der Kamera **halb durchsichtig** dargestellt; entdeckte wechseln auf **vollständig undurchsichtig**.
+
+> 🔶 **Status:** Mechanik **beschlossen**, im Code noch nicht umgesetzt – weder eine sektorweise Aufdeckungs-/Enttarnungs-Logik noch die daran gekoppelte Sichtbarkeits-Umsetzung (halbtransparente Tokens) existieren. Die Bausteine ([Verstecken-Pool](#die-vier-würfelpools), [Fog of War](#fog-of-war), Positions-Boni der [Aufklärung](#positions-boni)) sind definiert; offene Umsetzungsfragen siehe Offener Punkt #40.
 
 ### Kampf (Kampfentscheidung)
 
@@ -476,6 +494,7 @@ Diese Werte bilden ein **Fuzzyset** (vgl. `lib/fuzzy_logic/`): Eingangswerte sin
 
 Ein Spieler, der in den Kampf in einem Sektor einsteigt, wählt sein Ziel anhand **ähnlicher Faktoren** wie bei der [Kampfentscheidung](#kampf-kampfentscheidung) aus. Änderungen gegenüber der Entscheidungsprobe:
 
+- Ist das Ziel sichtbar? (siehe Verstecken)
 - **Zustand / Wunden aller Verteidigenden** fließen mit ein.
 - Die **Gewichtung aller Faktoren** ist anders.
 
@@ -615,6 +634,7 @@ Die konkrete **Eventliste** ist noch offen – zu jedem Event sind **Auslöser**
 - **Punkte-/Verletzungswurf** (Würfelmechanik) mit Einfluss von Positionierung und Spielerwerten.
 - **Verletzungswurf & Tod** umsetzen: Rettungs-Kette (Stabilisierungswurf mit doppeltem Widerstand, Sani-Rettung über Biotechpool mit tiefenabhängigen Erfolgen – ab `overkilled` verdoppelt; permanenter Tod nur oberhalb von `overkilled` bzw. nach gescheiterter Rettung) – vgl. [Verwundung und Tod](#verwundung-und-tod).
 - **Würfelsystem implementieren:** vier Würfelpools (Offensiv/Defensiv/Aufklärung/Verstecken), Modifikatoren (Rolle, Persönlichkeit, Ausrüstung, Cyber/Bioware, Positionierung, Verletzungsstufen), Positions-Boni (doppelt/halbiert, inkl. Verstecken-Pool), Bewegungsfaktor (inkl. doppelter Bewegung bei Aufklärungs-Positionierung).
+- **Suchen und Finden (Enttarnen):** sektorweise Aufdeckung eines zuvor unter dem [Fog of War](#fog-of-war) liegenden Sektors – Aufklärungs-Wurf der aufdeckenden Gruppe (höchster positionsbezogener Wert) gegen die „Verstecken“-Pools der Gegner, Gegenwurf versteckter Spieler; enttarnte Spieler werden automatisch dem ganzen Team bekannt, versteckte Tokens erscheinen halbtransparent (vgl. [Suchen und Finden](#suchen-und-finden), Offener Punkt #40).
 - **Kampfentscheidung & Zielauswahl:** Fuzzyset der 7 Faktoren (Ausgang 1–10) auf Basis von `lib/fuzzy_logic/`, Überwürfeln mit doppeltem Moralwert, Gewichtungsreihenfolge; Zielauswahl-Fuzzyset mit gegnerischem Spieler als Output (Persönlichkeits-Gewichtung, Sani-Schutz).
 - **Angriff & Verteidigung:** gegenläufige Würfe (Offensiv-Pool vs. Defensiv-Pool), Verletzungsstufen als Erfolgs-Differenz, Moralprobe (`max. Stufen − aktuelle Stufe`), Ausscheiden beim Aufgeben bzw. ab „Sterbend“.
 - **Specials:** Auslöser bei Erfolgs-Differenz > 3 (Angriffs- und Verteidigungsprobe), 2W6-Specialtabelle (2–12), Effekt-Kataloge (Ausrüstung/Rolle/Position 1–3) noch offen.
@@ -666,6 +686,9 @@ Die konkrete **Eventliste** ist noch offen – zu jedem Event sind **Auslöser**
 | 37 | **Sani-Rettung im Code:** `isAlive`/`CharacterStatus` anpassen (da `dead`/`overkilled` nicht mehr endgültig sind, vgl. #36), Widerstands-/Biotech-Proben und Rettungs-Logik implementieren | ❌ |
 | 38 | **Events (Viertel-Events):** Eventliste definieren (Event, Auslöser, Wirkung, Wahrscheinlichkeit); beeinflussende Faktoren der Standard-Wahrscheinlichkeit (50 %) festlegen; Zusammenspiel mit `9_TeamManagement.md` (Fixer/Shadowrunner) klären; Einordnung „Outside Interference“ / „Schiedsrichter-Abbruch“ | ❌ |
 | 39 | **Verstecken-Pool vs. Heimlichkeitspool:** Verhältnis des neuen Verstecken-Pools (Agilität + Widerstand, vgl. [Würfelsystem](#würfelsystem-konzept)) zum „Heimlichkeitspool“ (Schleichen/Tarnen) des [Werte-Katalogs](#spielerwerte-würfelpools) klären – gleicher Pool (Namens-/Übersetzungsfrage) oder zwei getrennte Pools? | ❌ |
+| 40 | **Suchen und Finden umsetzen:** sektorweise Aufdeckung unter dem [Fog of War](#fog-of-war) – wer würfelt (höchster positionsbezogener Aufklärungs-Wert der Gruppe) und wie „Erfolge“ gezählt werden; Gegenwurf versteckter Spieler mit dem Verstecken-Pool; sofortige Teambekanntgabe enttarnter Spieler; halbtransparente/undurchsichtige Tokendarstellung; Zusammenspiel mit der Aufklärer-Sicht in angrenzende Sektoren und dem Datenmodell „Sektor je Spieler“ klären | ❌ |
+| 41 | **Verstecken je Positionierung:** Offensiv darf sich nicht verstecken – besteht sein (halber) Verstecken-Pool aus den [Positions-Boni](#positions-boni) dennoch für die [Suchen-und-Finden](#suchen-und-finden)-Enttarnprobe der Gegner fort? Defensiv versteckt sich nur bei „Special/Points of Interest“ – Auslöser/Wirkung präzisieren; Aufklärer „immer versteckt“ – automatischer Gegenwurf bei jeder Aufdeckung unter dem [Fog of War](#fog-of-war) (doppelter Verstecken-Pool)? Zusammenspiel mit „versteckt“-Status und halbtransparenter Tokendarstellung klären | ❌ |
+| 42 | **Positions-Boni – Offensiv-Verstecken (Inkonsistenz):** [Positions-Boni](#positions-boni)-Tabelle zeigt „halber Wert“, die 🔶-Änderungsnotiz sagt „bleibt normal“ für den Verstecken-Pool der Offensiv-Positionierung – welcher Wert ist verbindlich? Zusammenspiel mit „Offensiv kann sich nicht verstecken“ (vgl. [Positionen und Aufgaben](#positionen-und-aufgaben)) klären | ❌ |
 
 ## Quellen
 
