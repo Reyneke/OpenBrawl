@@ -81,6 +81,81 @@ Zur Festlegung wird – wie beim [Verteidigungsbonus](#verteidigungsbonus-sektor
 
 > ⚠️ **Hinweis:** Beim Angriffsbonus ist der Fallback bei der Kapitäns-Persönlichkeit als „höchster **Angriffswert** ⚠️“ markiert – zu klären bleibt, ob hier tatsächlich der Angriffswert gemeint ist (Kopierfehler vom Verteidigungsbonus wäre ausgeräumt) oder doch der Verteidigungswert (vgl. Offene Punkte #27).
 
+### Points of Interest (Sektor)
+
+Es gibt pro Sektor **1w3 Points of Interest**. Diese werden nach der Tabelle **„The Downtown“** (2W10-Grid) auf **Seite 5** des **„Augmented Reality PLUS“-PDFs** ausgewürfelt und klassifiziert (lokale Quelle: `data/Augmented Reality PLUS.pdf`).
+
+**Lesart der „The Downtown“-Tabelle:** Der erste W10 bestimmt die **Zeile (1–10)**, der zweite W10 die **Position/Spalte (1–10) innerhalb der Zeile**; jede Zelle ergibt einen **Standort-/Gebäudetyp** (Point of Interest). Die **Standorttypen samt Zeile (1. W10)** sind weiter unten als PoI-Liste aufgeführt; die genaue **Positions-Zuordnung innerhalb der Zeile (2. W10)** bleibt in der lokalen Quelle (`data/Augmented Reality PLUS.pdf`, S. 5) hinterlegt und wird hier **nicht dupliziert** (vgl. [Quellen](#quellen)).
+
+Points of Interests haben Effekte. Diese können **Specials** sein (siehe [Specials](#specials)) oder den **Spielverlauf** beeinflussen. Die **Aktivierung** eines Effekts hängt von der [Sektorkontrolle](#sektorkontrolle) ab und kann genau einen der drei folgenden Zustände annehmen:
+
+| Aktivierung | Bedeutung |
+|---|---|
+| **Nur bei Kontrolle** | Effekt ist nur aktiv, solange **ein Team** den Sektor kontrolliert; nutzbar ist er **nur von diesem kontrollierenden Team**. |
+| **Immer aktiv** | Effekt wirkt **unabhängig von der Sektorkontrolle** – je nach Effekt neutral, für Anwesende beider Teams oder umgebungsbedingt. |
+| **Nur unkontrolliert** | Effekt ist **nur aktiv, solange niemand** den Sektor kontrolliert; sobald ein Team kontrolliert, ist er **deaktiviert**. |
+
+Der **konkrete Effekt je Point of Interest** wird samt seiner **Aktivierungs-Option** in einer eigenen Spalte geführt:
+
+| 1. W10 (Zeile) | Point of Interest | Aktivierung (Sektorkontrolle) | Effekt | Status |
+|---|---|---|---|---|
+| 1 | Pharmacy | Kontrolliert | "Da gibts doch was von ...": Ermöglicht allen Spielern des sektorkontrollierenden Teams im Sektor die Verwendung der Fertigkeit "Erste Hilfe" | ❌ |
+| 1 | Consumer Electronics | Kontrolliert | "Augen auf": 1w6 Bonus auf "Aufmerksamkeit" für Spieler des sektorkontrollierenden Teams innerhalb des Sektors | ❌ |
+| 1 | Art Dealer or Gallery | Immer | "Ist das Kunst oder ...?": 1W6 Bonus auf "Verstecken" | ❌ |
+| 1 | Auto or Robotics Repair | Kontrolliert | "Bastelstunde": Ermöglicht allen Spielern des sektorkontrollierenden Teams im Sektor die Reparatur beschädigter Ausrüstung | ❌ |
+| 1 | Storage Units or Warehousing | Immer | Unkontrolliert: "Unerwartete Mieter": 25% Chance auf Begegnung mit 2w6 Ghulen (75% Chance auf Kampf). "Spontane Autogrammstunde": 25& Chance auf Begegnung mit Fans (= Bonus auf erzielten Ruhm für alle. Ja, auch für Schiris). Kontrolliert: "Hide and Seek": 1w6 Bonus auf "Verstecken" für Spieler des sektorkontrollierenden Teams | ❌ |
+| 1 | Legal Firm | Immer | "Das war vorher noch ganz!": 75% Chance auf erhöhte Kosten / Strafe wegen Sachbeschädigung nach dem Spiel bei Kämpfen  | ❌ |
+| 2 | Religious Building | Immer | "Zuflucht": Verletzte Charaktere Beider Teams oberhalb der dritten Verletzungsstufe angreifen führt zu einer automatischen Strafe wegen Angriffs eines am Boden liegenden Spielers. "Haus der Heilung": Stabilisiert Charaktere die auf "Sterbend" oder tiefer sind. Eigentlich tote Charaktere die so stabilisiert werden, erleiden dabei mit 75% einen Persönlichkeittwechsel | ❌ |
+| 2 | Capsule Hotel | Kontrolliert | "Ruhepause": Verletzungen erholen sich um 1 pro Spielzug bei Spielern des kontrollierenden Teams | ❌ |
+| 2 | Data Storage | Immer | "Hey, das bin ja ich!": Bonus auf erzielten Ruhm für alle Spieler. | ❌ |
+| 2 | Low Rent Housing Project | Immer | "Drunter und Drüber": Alle Angriffe um 2W6 erschwert. Dazu 50% Chance auf Strafe von Schiri wegen Sachbeschädigung, inklusive Geldstrafe fürs Team. "Hausbesetzter" 25& Chance auf Begegnung mit wütendem Mob, der alle Anwesenden angreift. | ❌ |
+| 2 | Grocery Store or Hypermarket | Kontrolliert | "MAHLZEIT": Verletzungen erholen sich um 1 pro Viertel und 1W6 Bonus bei Verteidigungsproben bei Spielern des kontrollierenden Teams. | ❌ |
+| 3 | Elevated Rail or Road Overpass | Immer | "Sind alle Römer weg?": Versteckengrundwerte werden verdoppelt. Aufklärer sind gleich völlig unauffindbar. Beide Teams. | ❌ |
+| 3 | Fast Food Franchise | Immer | "Food Fight!": Verletzungen erholen sich um 1 Stufe pro Spielzug. 75% Chance auf Schaden durch Ausrutschen bei Kampfhandlungen, für Beide Teams und egal ob verteidigt oder angegriffen wird. | ❌ |
+| 3 | Police Precinct | Immer | "Der lange Arm des Gesetzes": 50% Chance auf erhöhte Kosten / Strafe wegen Sachbeschädigung nach dem Spiel plus 50% Chance auf eine spontane Verhaftung (und damit Süielausschluss) eines kämpfenden Spielers bei Kampfhandlungen. Wenn kontrolliert: "Der geheime Stash des Polizeichefs": 2w6 Bonus bei Kämpfen für das Team, welches den Sektor kontrolliert (sektorunabhängig!) | ❌ |
+| 3 | School or College | kontrolliert | "Ich kann jetzt Karate!": 25% Chance pro Spielzug, dass ein Attribut eines Spielers den sektorkontrollierenden Teams dauerhaft um 1 ansteigt. | ❌ |
+| 3 | Government Building | Immer | "Passierschein A36": 75% Chance, dass ein Spieler eines Teams wegen bürokratischen Querelen für 1W6 Spielzüge ausfällt. | ❌ |
+| 3 | Garage or Parking Block | Immer | "Von Deck 2 nach Deck 4 ... Moment, was?": 1W6 auf alle Verteidigungen bei allen Spielern. "Parken verboten, aber who cares?" 25% Chance auf Strafe wegen Sachbeschädigung bei Kampfhandlung gegen einzelne Spieler. | ❌ |
+| 4 | Office Block | – | – | ❌ |
+| 4 | Public Transport Hub | – | – | ❌ |
+| 4 | Hospital or Clinic | – | – | ❌ |
+| 4 | Department Store | – | – | ❌ |
+| 5 | Body Augmentation Clinic | – | – | ❌ |
+| 5 | Luxury Apartments | – | – | ❌ |
+| 5 | New Media Company | – | – | ❌ |
+| 5 | Industrial | – | – | ❌ |
+| 5 | Security Tech | – | – | ❌ |
+| 6 | Vehicle Showroom | – | – | ❌ |
+| 6 | Fashion Boutique | – | – | ❌ |
+| 6 | Commercial Cybernetics | – | – | ❌ |
+| 6 | Mall | – | – | ❌ |
+| 6 | VRcade | – | – | ❌ |
+| 6 | Gym | – | – | ❌ |
+| 7 | Leisureplex | – | – | ❌ |
+| 7 | Apartment Block or Hab Stack | – | – | ❌ |
+| 7 | Nightclub | – | – | ❌ |
+| 8 | Underpass | – | – | ❌ |
+| 8 | Hotel | – | – | ❌ |
+| 8 | Ripperdoc | – | – | ❌ |
+| 8 | 3D Print Fabrication | – | – | ❌ |
+| 8 | Courier or Bulk Transport Company | – | – | ❌ |
+| 9 | Bar | – | – | ❌ |
+| 9 | Restaurant | – | – | ❌ |
+| 9 | Pop-Up Market | – | – | ❌ |
+| 9 | Coffee Shop | – | – | ❌ |
+| 9 | Taxi Firm | – | – | ❌ |
+| 10 | Pocket Park | – | – | ❌ |
+| 10 | Suburban Housing | – | – | ❌ |
+| 10 | Movie Theatre | – | – | ❌ |
+| 10 | Weapons Tech or Sales | – | – | ❌ |
+| 10 | Multi-Level Car Park | – | – | ❌ |
+| 10 | Bank | – | – | ❌ |
+| 10 | Antiques | – | – | ❌ |
+
+> **Hinweis:** In der Spalte **Aktivierung (Sektorkontrolle)** ist je Point of Interest später eine der drei Optionen einzutragen (Nur bei Kontrolle / Immer aktiv / Nur unkontrolliert, vgl. Tabelle oben). **Effekt** wird an die [Special-Kataloge](#specials) angebunden. Beides ist derzeit noch **nicht definiert** (❌). Die Zuordnung **innerhalb der Zeile (2. W10)** stammt aus der lokalen Quelle.
+
+> 🔶 **Status:** Klassifikations-Quelle ist geklärt (lokal `data/Augmented Reality PLUS.pdf`, S. 5, „The Downtown 2D10 Grid“). Die **drei Aktivierungs-Zustände** der PoI-Effekte sind hiermit als **Struktur beschlossen**. Die **PoI-Liste (Standorttyp + Zeile/1. W10)** ist eingepflegt; **Aktivierung und Effekt je Point of Interest** werden eingetragen, sobald die [Special-Kataloge](#specials) (Offene Punkte #32/#33) und die Sektor-Bonus-Einbindung („Points of Interest (spätere Implementierung)“, Eingangswert Nr. 4 der Sektor-Bonus-Tabellen) festliegen.
+
 ### Ball
 
 - **Maße:** 65–70 cm Umfang, 500–600 g schwer
@@ -702,8 +777,9 @@ Die konkrete **Eventliste** ist noch offen – zu jedem Event sind **Auslöser**
 - `image2.png` (Scan „Strafen und Verstösse“) – Strafen-Katalog: Regelverstoß → Strafe, Strafarten, Verletzungen
 - `lib/fuzzy_logic/` – Fuzzy-Logik-Bibliothek (Fuzzyset-Basis für die Sektor-Boni: `FuzzySet`, `FuzzyVariable`, `FuzzyRuleBase`)
 - `data/Shadowrun 4D - Blut & Spiele (Scan).pdf` – Zustandsmonitor-/Todes-Konzept (Grundlage des `CharacterStatus`-Enums und des Abschnitts [Verwundung und Tod](#verwundung-und-tod))
+- `data/Augmented Reality PLUS.pdf` – „The Downtown 2D10 Grid“ (S. 5): Klassifikation der [Points of Interest (Sektor)](#points-of-interest-sektor) per 2W10
 
 ---
 
-*Stand: 03.09.2026*
+*Stand: 05.09.2026*
 
