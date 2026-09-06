@@ -83,11 +83,11 @@ Zur Festlegung wird – wie beim [Verteidigungsbonus](#verteidigungsbonus-sektor
 
 ### Points of Interest (Sektor)
 
-Es gibt pro Sektor **1w3 Points of Interest**. Diese werden nach der Tabelle **„The Downtown“** (2W10-Grid) auf **Seite 5** des **„Augmented Reality PLUS“-PDFs** ausgewürfelt und klassifiziert (lokale Quelle: `data/Augmented Reality PLUS.pdf`).
+Die Erzeugung ist inzwischen präzisiert: Pro Sektor gibt es mit **75 % Chance keinen Point of Interest** und, falls erzeugt, **genau einen** – die frühere „1w3“-Regel ist damit verworfen (die Chance auf mehrere PoIs wäre ein Gamebreaker). Ein erzeugter Point of Interest wird nach der Tabelle **„The Downtown“** (2W10-Grid) auf **Seite 5** des **„Augmented Reality PLUS“-PDFs** ausgewürfelt und klassifiziert (lokale Quelle: `data/Augmented Reality PLUS.pdf`).
 
 **Lesart der „The Downtown“-Tabelle:** Der erste W10 bestimmt die **Zeile (1–10)**, der zweite W10 die **Position/Spalte (1–10) innerhalb der Zeile**; jede Zelle ergibt einen **Standort-/Gebäudetyp** (Point of Interest). Die **Standorttypen samt Zeile (1. W10)** sind weiter unten als PoI-Liste aufgeführt; die genaue **Positions-Zuordnung innerhalb der Zeile (2. W10)** bleibt in der lokalen Quelle (`data/Augmented Reality PLUS.pdf`, S. 5) hinterlegt und wird hier **nicht dupliziert** (vgl. [Quellen](#quellen)).
 
-Points of Interests haben Effekte. Diese können **Specials** sein (siehe [Specials](#specials)) oder den **Spielverlauf** beeinflussen. Die **Aktivierung** eines Effekts hängt von der [Sektorkontrolle](#sektorkontrolle) ab und kann genau einen der drei folgenden Zustände annehmen:
+Points of Interests haben Effekte. Diese können **Specials** sein (siehe [Specials](#specials)) oder den **Spielverlauf** beeinflussen. Die **Aktivierung** eines Effekts hängt von der [Sektorkontrolle](#sektorkontrolle) ab; jeder Point of Interest nimmt als **Dach-Zustand** genau einen der drei folgenden Zustände an (für PoIs mit gemischten Teil-Effekten vgl. den Hinweis unterhalb der Tabelle):
 
 | Aktivierung | Bedeutung |
 |---|---|
@@ -95,66 +95,70 @@ Points of Interests haben Effekte. Diese können **Specials** sein (siehe [Speci
 | **Immer aktiv** | Effekt wirkt **unabhängig von der Sektorkontrolle** – je nach Effekt neutral, für Anwesende beider Teams oder umgebungsbedingt. |
 | **Nur unkontrolliert** | Effekt ist **nur aktiv, solange niemand** den Sektor kontrolliert; sobald ein Team kontrolliert, ist er **deaktiviert**. |
 
+> **Hinweis (Dach-Zustand & Teil-Effekte):** In der Spalte **Aktivierung (Sektorkontrolle)** steht der **Dach-Zustand** der Umgebungswirkung (Nur bei Kontrolle / Immer aktiv / Nur unkontrolliert). Bündelt ein PoI Teil-Effekte mit unterschiedlicher Abhängigkeit von der [Sektorkontrolle](#sektorkontrolle) (z. B. Umgebungs-Effekt **plus** Vorteil für das kontrollierende Team), so werden diese **je Teil-Effekt** in `11_Points_of_Interest_und_Specials.md` aufgeschlüsselt.
+
 Der **konkrete Effekt je Point of Interest** wird samt seiner **Aktivierungs-Option** in einer eigenen Spalte geführt:
 
 | 1. W10 (Zeile) | Point of Interest | Aktivierung (Sektorkontrolle) | Effekt | Status |
 |---|---|---|---|---|
-| 1 | Pharmacy | Kontrolliert | "Da gibts doch was von ...": Ermöglicht allen Spielern des sektorkontrollierenden Teams im Sektor die Verwendung der Fertigkeit "Erste Hilfe" | ❌ |
-| 1 | Consumer Electronics | Kontrolliert | "Augen auf": 1w6 Bonus auf "Aufmerksamkeit" für Spieler des sektorkontrollierenden Teams innerhalb des Sektors | ❌ |
-| 1 | Art Dealer or Gallery | Immer | "Ist das Kunst oder ...?": 1W6 Bonus auf "Verstecken" | ❌ |
-| 1 | Auto or Robotics Repair | Kontrolliert | "Bastelstunde": Ermöglicht allen Spielern des sektorkontrollierenden Teams im Sektor die Reparatur beschädigter Ausrüstung | ❌ |
-| 1 | Storage Units or Warehousing | Immer | Unkontrolliert: "Unerwartete Mieter": 25% Chance auf Begegnung mit 2w6 Ghulen (75% Chance auf Kampf). "Spontane Autogrammstunde": 25& Chance auf Begegnung mit Fans (= Bonus auf erzielten Ruhm für alle. Ja, auch für Schiris). Kontrolliert: "Hide and Seek": 1w6 Bonus auf "Verstecken" für Spieler des sektorkontrollierenden Teams | ❌ |
-| 1 | Legal Firm | Immer | "Das war vorher noch ganz!": 75% Chance auf erhöhte Kosten / Strafe wegen Sachbeschädigung nach dem Spiel bei Kämpfen  | ❌ |
-| 2 | Religious Building | Immer | "Zuflucht": Verletzte Charaktere Beider Teams oberhalb der dritten Verletzungsstufe angreifen führt zu einer automatischen Strafe wegen Angriffs eines am Boden liegenden Spielers. "Haus der Heilung": Stabilisiert Charaktere die auf "Sterbend" oder tiefer sind. Eigentlich tote Charaktere die so stabilisiert werden, erleiden dabei mit 75% einen Persönlichkeittwechsel | ❌ |
-| 2 | Capsule Hotel | Kontrolliert | "Ruhepause": Verletzungen erholen sich um 1 pro Spielzug bei Spielern des kontrollierenden Teams | ❌ |
-| 2 | Data Storage | Immer | "Hey, das bin ja ich!": Bonus auf erzielten Ruhm für alle Spieler. | ❌ |
-| 2 | Low Rent Housing Project | Immer | "Drunter und Drüber": Alle Angriffe um 2W6 erschwert. Dazu 50% Chance auf Strafe von Schiri wegen Sachbeschädigung, inklusive Geldstrafe fürs Team. "Hausbesetzter" 25& Chance auf Begegnung mit wütendem Mob, der alle Anwesenden angreift. | ❌ |
-| 2 | Grocery Store or Hypermarket | Kontrolliert | "MAHLZEIT": Verletzungen erholen sich um 1 pro Viertel und 1W6 Bonus bei Verteidigungsproben bei Spielern des kontrollierenden Teams. | ❌ |
-| 3 | Elevated Rail or Road Overpass | Immer | "Sind alle Römer weg?": Versteckengrundwerte werden verdoppelt. Aufklärer sind gleich völlig unauffindbar. Beide Teams. | ❌ |
-| 3 | Fast Food Franchise | Immer | "Food Fight!": Verletzungen erholen sich um 1 Stufe pro Spielzug. 75% Chance auf Schaden durch Ausrutschen bei Kampfhandlungen, für Beide Teams und egal ob verteidigt oder angegriffen wird. | ❌ |
-| 3 | Police Precinct | Immer | "Der lange Arm des Gesetzes": 50% Chance auf erhöhte Kosten / Strafe wegen Sachbeschädigung nach dem Spiel plus 50% Chance auf eine spontane Verhaftung (und damit Süielausschluss) eines kämpfenden Spielers bei Kampfhandlungen. Wenn kontrolliert: "Der geheime Stash des Polizeichefs": 2w6 Bonus bei Kämpfen für das Team, welches den Sektor kontrolliert (sektorunabhängig!) | ❌ |
-| 3 | School or College | kontrolliert | "Ich kann jetzt Karate!": 25% Chance pro Spielzug, dass ein Attribut eines Spielers den sektorkontrollierenden Teams dauerhaft um 1 ansteigt. | ❌ |
-| 3 | Government Building | Immer | "Passierschein A36": 75% Chance, dass ein Spieler eines Teams wegen bürokratischen Querelen für 1W6 Spielzüge ausfällt. | ❌ |
-| 3 | Garage or Parking Block | Immer | "Von Deck 2 nach Deck 4 ... Moment, was?": 1W6 auf alle Verteidigungen bei allen Spielern. "Parken verboten, aber who cares?" 25% Chance auf Strafe wegen Sachbeschädigung bei Kampfhandlung gegen einzelne Spieler. | ❌ |
-| 4 | Office Block | – | – | ❌ |
-| 4 | Public Transport Hub | – | – | ❌ |
-| 4 | Hospital or Clinic | – | – | ❌ |
-| 4 | Department Store | – | – | ❌ |
-| 5 | Body Augmentation Clinic | – | – | ❌ |
-| 5 | Luxury Apartments | – | – | ❌ |
-| 5 | New Media Company | – | – | ❌ |
-| 5 | Industrial | – | – | ❌ |
-| 5 | Security Tech | – | – | ❌ |
-| 6 | Vehicle Showroom | – | – | ❌ |
-| 6 | Fashion Boutique | – | – | ❌ |
-| 6 | Commercial Cybernetics | – | – | ❌ |
-| 6 | Mall | – | – | ❌ |
-| 6 | VRcade | – | – | ❌ |
-| 6 | Gym | – | – | ❌ |
-| 7 | Leisureplex | – | – | ❌ |
-| 7 | Apartment Block or Hab Stack | – | – | ❌ |
-| 7 | Nightclub | – | – | ❌ |
-| 8 | Underpass | – | – | ❌ |
-| 8 | Hotel | – | – | ❌ |
-| 8 | Ripperdoc | – | – | ❌ |
-| 8 | 3D Print Fabrication | – | – | ❌ |
-| 8 | Courier or Bulk Transport Company | – | – | ❌ |
-| 9 | Bar | – | – | ❌ |
-| 9 | Restaurant | – | – | ❌ |
-| 9 | Pop-Up Market | – | – | ❌ |
-| 9 | Coffee Shop | – | – | ❌ |
-| 9 | Taxi Firm | – | – | ❌ |
-| 10 | Pocket Park | – | – | ❌ |
-| 10 | Suburban Housing | – | – | ❌ |
-| 10 | Movie Theatre | – | – | ❌ |
-| 10 | Weapons Tech or Sales | – | – | ❌ |
-| 10 | Multi-Level Car Park | – | – | ❌ |
-| 10 | Bank | – | – | ❌ |
-| 10 | Antiques | – | – | ❌ |
+| 1 | Pharmacy | Nur bei Kontrolle | "Da gibts doch was von ...": Ermöglicht allen Spielern des sektorkontrollierenden Teams im Sektor die Verwendung der Fertigkeit "Erste Hilfe" | 🔶 |
+| 1 | Consumer Electronics | Nur bei Kontrolle | "Augen auf": 1W6 Bonus auf "Aufmerksamkeit" für Spieler des sektorkontrollierenden Teams innerhalb des Sektors | 🔶 |
+| 1 | Art Dealer or Gallery | Immer aktiv | "Ist das Kunst oder ...?": 1W6 Bonus auf "Verstecken" | 🔶 |
+| 1 | Auto or Robotics Repair | Nur bei Kontrolle | "Bastelstunde": Ermöglicht allen Spielern des sektorkontrollierenden Teams im Sektor die Reparatur beschädigter Ausrüstung | 🔶 |
+| 1 | Storage Units or Warehousing | Immer aktiv | Unkontrolliert: "Unerwartete Mieter": 25% Chance auf Begegnung mit 2W6 Ghulen (75% Chance auf Kampf). "Spontane Autogrammstunde": 25% Chance auf Begegnung mit Fans (= Bonus auf erzielten Ruhm für alle. Ja, auch für Schiris). Kontrolliert: "Hide and Seek": 1W6 Bonus auf "Verstecken" für Spieler des sektorkontrollierenden Teams | 🔶 |
+| 1 | Legal Firm | Immer aktiv | "Das war vorher noch ganz!": 75% Chance auf erhöhte Kosten / Strafe wegen Sachbeschädigung nach dem Spiel bei Kämpfen | 🔶 |
+| 2 | Religious Building | Immer aktiv | "Zuflucht": Verletzte Charaktere beider Teams oberhalb der dritten Verletzungsstufe anzugreifen führt zu einer automatischen Strafe wegen Angriffs eines am Boden liegenden Spielers. "Haus der Heilung": Stabilisiert Charaktere, die auf "Sterbend" oder tiefer sind. Eigentlich tote Charaktere, die so stabilisiert werden, erleiden dabei mit 75% einen Persönlichkeitswechsel. Bei Kampfhandlungen besteht zudem eine 10% Chance, einen nahezu unbesiegbaren Cyberzombie zu aktivieren, der "sein" Revier verteidigen und die "Ungläubigen" (Sprich: Alle Kämpfenden) zum Weg des Friedens bekehren will. Der Cyberzombie verbleibt allerdings lokal, also im Sektor, verschwindet aber nicht mehr von alleine. | 🔶 |
+| 2 | Capsule Hotel | Nur bei Kontrolle | "Ruhepause": Verletzungen erholen sich um 1 pro Spielzug bei Spielern des kontrollierenden Teams | 🔶 |
+| 2 | Data Storage | Immer aktiv | "Hey, das bin ja ich!": Bonus auf erzielten Ruhm für alle Spieler. | 🔶 |
+| 2 | Low Rent Housing Project | Immer aktiv | "Drunter und Drüber": Alle Angriffe um 2W6 erschwert. Dazu 50% Chance auf Strafe von Schiri wegen Sachbeschädigung, inklusive Geldstrafe fürs Team. "Hausbesetzer": 25% Chance auf Begegnung mit wütendem Mob, der alle Anwesenden angreift. | 🔶 |
+| 2 | Grocery Store or Hypermarket | Nur bei Kontrolle | "MAHLZEIT": Verletzungen erholen sich um 1 pro Viertel und 1W6 Bonus bei Verteidigungsproben bei Spielern des kontrollierenden Teams. | 🔶 |
+| 3 | Elevated Rail or Road Overpass | Immer aktiv | "Sind alle Römer weg?": Versteckengrundwerte werden verdoppelt. Zusätzlich 1W6 Bonus auf Verstecken. Aufklärer sind gleich völlig unauffindbar. Beide Teams. | 🔶 |
+| 3 | Fast Food Franchise | Immer aktiv | "Food Fight!": Verletzungen erholen sich um 1 Stufe pro Spielzug. 75% Chance auf Schaden durch Ausrutschen bei Kampfhandlungen, für beide Teams und egal ob verteidigt oder angegriffen wird. | 🔶 |
+| 3 | Police Precinct | Immer aktiv | "Der lange Arm des Gesetzes": 50% Chance auf erhöhte Kosten / Strafe wegen Sachbeschädigung nach dem Spiel plus 50% Chance auf eine spontane Verhaftung (und damit Spielausschluss) eines kämpfenden Spielers bei Kampfhandlungen. Wenn kontrolliert: "Der geheime Stash des Polizeichefs": 2W6 Bonus bei Kämpfen für das Team, welches den Sektor kontrolliert (sektorunabhängig!) | 🔶 |
+| 3 | School or College | Nur bei Kontrolle | "Ich kann jetzt Karate!": 25% Chance pro Spielzug, dass ein Attribut eines Spielers des sektorkontrollierenden Teams dauerhaft um 1 ansteigt. | 🔶 |
+| 3 | Government Building | Immer aktiv | "Passierschein A36": 75% Chance, dass ein Spieler eines Teams wegen "bürokratischen Querelen" für 1W6 Spielzüge ausfällt. | 🔶 |
+| 3 | Garage or Parking Block | Immer aktiv | "Von Deck 2 nach Deck 4 ... Moment, was?": 1W6 auf alle Verteidigungen bei allen Spielern. "Parken verboten, aber who cares?": 25% Chance auf Strafe wegen Sachbeschädigung bei Kampfhandlung gegen einzelne Spieler. | 🔶 |
+| 4 | Office Block | Immer aktiv | "Haben Sie dafür eine Lizenz?": 50% Chance auf aktive Sicherheits-KI, welche bei Kampfhandlungen mit 2W6 Drohnen in den Kampf eingreift und alle Kämpfenden beharkt. | 🔶 |
+| 4 | Public Transport Hub | Nur bei Kontrolle | "Öffentlicher Nahverkehr": Alle Mitglieder des sektorkontrollierenden Teams können von diesem POI in jeden Sektor gelangen - ohne Bewegungskosten. | 🔶 |
+| 4 | Hospital or Clinic | Nur bei Kontrolle | Vereint die Effekte von "Pharmacy" und "Religious Building", allerdings nur für die Spieler des sektorkontrollierenden Teams. Außerdem heilen verletzte Spieler 1 Verletzungsstufe pro Spielzug. | 🔶 |
+| 4 | Department Store | Immer aktiv | "Hail to the king!": 25% Chance auf Begegnung mit einem Mitarbeiter, der einen Kettensägenarm und eine Schrotflinte besitzt bei Kampfhandlungen. Kontrolliert: "Sie finden das in der Sportartikelabteilung.": 1W6 Bonus auf Angriffswürfe für das sektorkontrollierende Team - in allen Sektoren. | 🔶 |
+| 5 | Body Augmentation Clinic | Nur bei Kontrolle | Wie "Hospital or Clinic", aber mit einer 75% Chance für 1W6 Cyberzombies, die, als weitere Änderungen, nicht lokal bleiben, sondern auf Wanderschaft durch alle Sektoren gehen. | 🔶 |
+| 5 | Luxury Apartments | Nur bei Kontrolle | "Das wahre Leben": 50% Chance dank Autobots für Spieler des sektorkontrollierenden Teams pro Spielzug 1 Verletzungsstufe zu heilen. "Das war Absicht!": 75% für Strafen wegen Sachbeschädigung bei Kampfhandlungen. | 🔶 |
+| 5 | New Media Company | Nur bei Kontrolle | "Laterna Magica": Um 75% erhöhter Gewinn von Ruhm für alle Spieler des sektorkontrollierenden Teams - in allen Sektoren. | 🔶 |
+| 5 | Industrial | Immer aktiv | "Eine enge Sache": 2W6 Malus auf alle Angriffsproben für alle Kämpfenden. "Wer ist Osha?": 50% Chance auf 1W3 Verletzungen durch schwere Maschinerie. "Hast du das gesehen?": Um 25% erhöhter Gewinn von Ruhm für alle Spieler des sektorkontrollierenden Teams. "Fehlfunktion": 75% Chance, einen Sektoreffekt auszulösen bei Kampfhandlungen. | 🔶 |
+| 5 | Security Tech | Nur bei Kontrolle | Wie "Consumer Electronics", allerdings mit zusätzlichem 1W6 Angriffsbonus für das sektorkontrollierende Team. | 🔶 |
+| 6 | Vehicle Showroom | Nur bei Kontrolle | "Ich geb Gas, ich hab Spaß!": Bewegungsreichweiten für die Spieler des sektorkontrollierenden Teams verdoppelt. | 🔶 |
+| 6 | Fashion Boutique | Immer aktiv | "Fasching": 1W6 Bonus auf Verstecken-Proben für das sektorkontrollierende Team (2W6 Bonus für Aufklärer). | 🔶 |
+| 6 | Commercial Cybernetics | Nur bei Kontrolle | Heilung von 1 Verletzungsstufe pro Viertel für das sektorkontrollierende Team. Einmaliger 25% Abzug auf Einbauten von Cyberware während/nach dem Viertel für alle Spieler. | 🔶 |
+| 6 | Mall | Immer aktiv | "Ich sagte: 'Nicht rennen!'": 25% Chance auf Begegnung mit 1W6 Sicherheitsdrohnen, welche alle Spieler im Sektor angreifen. "Spätkauf": 25% Chance auf Begegnung mit Ghulen (50% Chance auf Angriff), 25% (75%, wenn der Sektor außen auf der Karte liegt) Chance auf Begegnung mit Fans (= Bonus auf erzielten Ruhm für alle. Ja, auch für Schiris). | 🔶 |
+| 6 | VRcade | Immer aktiv | "Spiegelkabinett": 2W6 Bonus auf Verteidigungs- und Verstecken-Proben für Spieler des sektorkontrollierenden Teams. "Sicherheitsprotokolle Offline": ständige 25% Chance auf Begegnung mit Hochsicherheitsdrohnen, welche alle Spieler im Sektor angreifen / die Spieler des gegnerischen Teams angreifen (wenn der Sektor kontrolliert wird). "Nur noch eine Runde": 10 + nach Persönlichkeit bestimmter Prozentwert darauf, Spieler beider Teams für 1W6 Spielzüge temporär zu verlieren - sie sind am Zocken. | 🔶 |
+| 6 | Gym | Nur bei Kontrolle | "Probeworkout": 50% Chance, dass Spieler des sektorkontrollierenden Teams für ein Viertel ausfallen, dafür aber 1W6 temporäre Bonuspunkte erhalten, die zufällig auf ihre Attribute verteilt werden. | 🔶 |
+| 7 | Leisureplex | Immer aktiv | "Pigalle": 25 + nach Persönlichkeit bestimmter Prozentwert darauf, Spieler beider Teams für 3W6 Spielzüge temporär zu verlieren - sie haben sich von den Möglichkeiten verlocken lassen. Dafür sind sie anschließend wieder vollständig hergestellt, selbst wenn sie vorher tot waren. "Luxusleben": Heilung von 1 Verletzungspunkt pro Spielzug für Spieler des sektorkontrollierenden Teams. | 🔶 |
+| 7 | Apartment Block or Hab Stack | Immer aktiv | Wie "Storage Units or Warehousing", aber mit 50% Begegnungen für Ghule / Fans und einem Bonus auf Verteidigung, anstelle von Verstecken. | 🔶 |
+| 7 | Nightclub | Immer aktiv | "Party like it's 1999": 25 + nach Persönlichkeit bestimmter Prozentwert darauf, Spieler beider Teams für 1W6 Spielzüge temporär zu verlieren - sie sind feiern gegangen. Dafür erhalten diese Spieler einen Bonus auf erhaltenen Ruhm in Höhe ihrer errechneten Chance, welcher bis zum Ende des Spiels anhält. | 🔶 |
+| 8 | Underpass | Nur bei Kontrolle | "Bei Nacht sind alle Katzen grau": 2W6 Bonus auf Verstecken-Proben für Spieler des sektorkontrollierenden Teams. | 🔶 |
+| 8 | Hotel | Immer aktiv | "Zimmer frei": Spieler beider Teams, egal welcher Verletzungsstufe, können hier eine Stufe heilen - dafür fallen sie für den Rest des Viertels aus. 5% + einem Bonus aus Verletzungsmodifikatoren und Persönlichkeit, dass er das Viertel versäumt oder den Rest des Spiels ausfällt. "Ich sagte: ZIMMER FREI!": 25% Chance, dass der Effekt automatisch triggert, selbst bei unverletzten Spielern. | 🔶 |
+| 8 | Ripperdoc | Nur bei Kontrolle | Wie "Hospital or Clinic", aber mit dem Unterschied, dass hier nur ein Spieler den Effekt sicher nutzen kann, während es bei "Hospital or Clinic" mehrere Spieler sein können. Pro Spieler, der zusätzlich behandelt wird, steigt die Chance um jeweils 5% auf einen Nebeneffekt ("Kunstfehler": 1W6 Attribute werden für den Rest des Spiels gesenkt. "Das brauche ich noch": Dauerhafter Ausbau von einem Stück Cyberware, so vorhanden. "Mister Smith existiert hier nicht": Spieler verschwindet für den Rest des Spiels (50% Chance für immer) unter ungeklärten Umständen. "Das war vorher schon so": Persönlichkeitswechsel. Kann gerne ergänzt werden.) | 🔶 |
+| 8 | 3D Print Fabrication | Nur bei Kontrolle | Wie "Industrial", aber der Malus beträgt nur 1W6, die Chance auf Verletzungen 25% und die Chance auf einen Sektoreffekt bei Kämpfen 25%. | 🔶 |
+| 8 | Courier or Bulk Transport Company | Immer aktiv | "Fran Jatzek was here": Durch eine Fehlfunktion der automatischen Anlage besteht zu 25% die Chance, dass Spieler versendet werden und somit in einem zufälligen Sektor landen, für einen Spielzug/Viertel/ganz (Zufall) aus dem Spiel verschwinden oder nie wieder gesehen werden. "Packetpost": Erlaubt Spielern, wenn der Sektor kontrolliert wird, sich selbst als Paket in einen anderen Sektor zu versenden, womit sie als "versteckt" gelten. | 🔶 |
+| 9 | Bar | Immer aktiv | "Drunken Master": 25% Chance auf eine temporäre (Spielzug/Viertel/Spiel (Zufall)) 1W3 Verbesserung aller Attribute. 75% Chance auf den genau gegenteiligen Effekt. Bei gegenteiligem Effekt: 25% - Wert in Widerstand Chance, dass der Spieler wegen Alkoholvergiftung für das ganze Spiel ausfällt. Wirkt auf beide Teams. | 🔶 |
+| 9 | Restaurant | Nur bei Kontrolle | "Food for thought": Für den Verlust von Spielzügen besteht für die Spieler des sektorkontrollierenden Teams die Möglichkeit, Verletzungsmodifikatoren zu heilen. Der Austausch ist dabei 1:1, also ein Spielzug aussetzen heilt 1 Modifikator. "Echo hatte Schicht": Mit einer Chance von 25% (ausgewürfelt bei Spielbeginn) haben die Zubereitungsautomaten eine Fehlfunktion - der Spieler, welcher das Angebot annimmt, fällt für den Rest des Viertels wegen Lebensmittelvergiftung aus. | 🔶 |
+| 9 | Pop-Up Market | Immer aktiv | "Was für ein Durcheinander": 1W6 Bonus auf Verteidigungswürfe. "Ich will den Teppich nicht kaufen": 25% Chance auf Extraausgaben, weil sich einer der Spieler Tinnef hat aufschwatzen lassen. "Das müssen sie mir bezahlen!": 50% Chance auf Sachbeschädigung bei Kampfhandlungen. | 🔶 |
+| 9 | Coffee Shop | Nur bei Kontrolle | "Macht müde Krieger munter": 1W6 Verletzungsstufen werden temporär für den Rest des Viertels geheilt. Nach dem Viertel kehren sie jedoch zurück - zusammen mit dem Rest der seitdem erlittenen Verletzungen. "Espresso doppelt!": 1W3 Bonus auf alle Attribute für diesen Spielzug für Spieler, welche den Sektor kontrollieren. | 🔶 |
+| 9 | Taxi Firm | Nur bei Kontrolle | "Taxiunternehmen Ranjid": Ein Spieler des kontrollierenden Teams, ja auch der Ballträger, kann sich per Taxi in einen Zielsektor seiner/ihrer Wahl bringen lassen. Allerdings besteht eine 75% plus Aufmerksamkeit der Schiedsrichter Chance (25% plus Aufmerksamkeit der Schiedsrichter für Aufklärer), dass die Schiedsrichter das mitbekommen und entsprechende Strafen verteilen. | 🔶 |
+| 10 | Pocket Park | Immer aktiv | "Wilde Natur": 75% Chance auf Begegnung mit 1W6 Wildtieren. Wenn das geschieht: 75% Chance auf Kampf, wobei die Wildtiere fliehen, wenn sie drohen, überwältigt zu werden / bei den verbliebenen 25% und dann, mit denselben Kampfregeln, durch die Sektoren marodieren. Außerdem heilen die Wildtiere 1 Verletzung pro Spielzug. | 🔶 |
+| 10 | Suburban Housing | Immer aktiv | "Ups!": 50% für Strafen wegen Sachbeschädigung bei Kampfhandlungen. "Knights of Suburbia": 50% Chance auf Kampf mit 1W6 Drohnen, welche ihre Heimat verteidigen wollen. "Ich identifiziere mich als Briefkasten": 1W6 Bonus auf Verstecken-Proben bei sektorkontrollierenden Spielern. "Eingegraben": 2W6 auf Verteidigungsproben bei Spielern des sektorkontrollierenden Teams. | 🔶 |
+| 10 | Movie Theatre | Immer aktiv | "Guck mal, Mama, ich bin im Kino!": 75% Bonus auf erhaltenen Ruhm für alle Spieler beider Teams. "Ist das der neue Karl Kombatmage?": 25% Chance, Spieler für den Rest des Spiels zu verlieren - sie sind dem Bann der Leinwand erlegen. | 🔶 |
+| 10 | Weapons Tech or Sales | Nur bei Kontrolle | "Mehr Dakka!": 3W6 Bonus für alle Angriffsproben des sektorkontrollierenden Teams. "War was?": Ermöglicht Sanis, ihren Angriffspool einzusetzen. 75% Chance (25%, wenn der Sani in der Offensive ist) plus dem höchsten Aufmerksamkeitspool der Schiedsrichter minus dem Verstecken-Pool des Sanis, dass ein Schiedsrichter das bemerkt und eine Strafe verhängt. | 🔶 |
+| 10 | Multi-Level Car Park | Immer aktiv | "Der ist noch fast wie neu": 75% auf Strafe wegen Sachbeschädigung bei Kampfhandlungen. "Hütchenspiel mit Autos": 2W6 Bonus auf Verteidigungsproben für Spieler der sektorkontrollierenden Mannschaft. | 🔶 |
+| 10 | Bank | Nur bei Kontrolle | "Ba-Ba-Banküberfall": Kampf mit 3W6 Drohnen bei Kampfhandlungen. 75% Chance auf Strafen wegen Sachbeschädigung bei Kampfhandlungen. "Tresorraum": 3W6 Bonus auf alle Verteidigungsproben von Spielern der sektorkontrollierenden Mannschaft. | 🔶 |
+| 10 | Antiques | Immer aktiv | "Sicherheitsnetzwerk": Kampf mit 1W6 Drohnen bei Kampfhandlungen. "Wo gehobelt wird, fallen Späne": 75% Chance auf Strafe wegen Sachbeschädigung bei Kampfhandlungen, wenn der Angreifer danebenschießt. "Garantiert echt": 1W6 auf Verteidigungsproben der Spieler, welche den Sektor kontrollieren. | 🔶 |
 
-> **Hinweis:** In der Spalte **Aktivierung (Sektorkontrolle)** ist je Point of Interest später eine der drei Optionen einzutragen (Nur bei Kontrolle / Immer aktiv / Nur unkontrolliert, vgl. Tabelle oben). **Effekt** wird an die [Special-Kataloge](#specials) angebunden. Beides ist derzeit noch **nicht definiert** (❌). Die Zuordnung **innerhalb der Zeile (2. W10)** stammt aus der lokalen Quelle.
+> **Hinweis:** In der Spalte **Aktivierung (Sektorkontrolle)** steht der **Dach-Zustand** je Point of Interest in kanonischer Terminologie (Nur bei Kontrolle / Immer aktiv / Nur unkontrolliert, vgl. Tabelle oben). Bündelt ein PoI Teil-Effekte mit unterschiedlicher Abhängigkeit von der [Sektorkontrolle](#sektorkontrolle), so ist er in `11_Points_of_Interest_und_Specials.md` **je Teil-Effekt** aufgeschlüsselt. **Effekt** ist an die [Special-Kataloge](#specials) bzw. die [Sektor-Bonus](#verteidigungsbonus-sektor)-Eingangswerte angebunden; die **Positions-Zuordnung innerhalb der Zeile (2. W10)** stammt aus der lokalen Quelle.
 
-> 🔶 **Status:** Klassifikations-Quelle ist geklärt (lokal `data/Augmented Reality PLUS.pdf`, S. 5, „The Downtown 2D10 Grid“). Die **drei Aktivierungs-Zustände** der PoI-Effekte sind hiermit als **Struktur beschlossen**. Die **PoI-Liste (Standorttyp + Zeile/1. W10)** ist eingepflegt; **Aktivierung und Effekt je Point of Interest** werden eingetragen, sobald die [Special-Kataloge](#specials) (Offene Punkte #32/#33) und die Sektor-Bonus-Einbindung („Points of Interest (spätere Implementierung)“, Eingangswert Nr. 4 der Sektor-Bonus-Tabellen) festliegen.
+> 🔶 **Status:** Klassifikations-Quelle (lokal `data/Augmented Reality PLUS.pdf`, S. 5, „The Downtown 2D10 Grid“) und PoI-Liste (Standorttyp + Zeile/1. W10) sind geklärt. **Aktivierung (Dach-Zustand)** und **Effekt-Text** je Point of Interest sind als **Entwurf** in der Tabelle geführt (je Zeile 🔶); die normative Ausgestaltung – kanonische Terminologie, Teil-Effekt-Gating, Sektor-Bonus-Einbindung (Eingangswert Nr. 4 „Points of Interest“ bzw. Nr. 5 „Sektoreffekte“), Special-Kataloge (Offene Punkte #32/#33) sowie offene Abhängigkeiten – liegt in `11_Points_of_Interest_und_Specials.md` (vgl. [Quellen](#quellen)).
+
+
 
 ### Ball
 
@@ -778,8 +782,10 @@ Die konkrete **Eventliste** ist noch offen – zu jedem Event sind **Auslöser**
 - `lib/fuzzy_logic/` – Fuzzy-Logik-Bibliothek (Fuzzyset-Basis für die Sektor-Boni: `FuzzySet`, `FuzzyVariable`, `FuzzyRuleBase`)
 - `data/Shadowrun 4D - Blut & Spiele (Scan).pdf` – Zustandsmonitor-/Todes-Konzept (Grundlage des `CharacterStatus`-Enums und des Abschnitts [Verwundung und Tod](#verwundung-und-tod))
 - `data/Augmented Reality PLUS.pdf` – „The Downtown 2D10 Grid“ (S. 5): Klassifikation der [Points of Interest (Sektor)](#points-of-interest-sektor) per 2W10
+- `data/Augmented Reality PLUS.pdf` – „The Downtown 2D10 Grid“ (S. 5): Klassifikation der [Points of Interest (Sektor)](#points-of-interest-sektor) per 2W10
+- `11_Points_of_Interest_und_Specials.md` – normative Spezifikation der [Points of Interest (Sektor)](#points-of-interest-sektor) und der [Special-Kataloge](#specials): kanonische Terminologie, Teil-Effekt-Gating, Special-Kataloge (#32/#33), Sektor-Bonus-Einbindung und offene Abhängigkeiten
 
 ---
 
-*Stand: 05.09.2026*
+*Stand: 06.09.2026*
 
