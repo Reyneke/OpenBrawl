@@ -239,6 +239,25 @@ Die folgenden Bausteine werden von den PoI-Effekten vorausgesetzt, existieren ab
 - **Vorschlag:** eigener Begegnungs-Baustein (NPC-Typ, Auftreten per Zufallswurf bei Kampfhandlungen bzw. Anwesenheit, Kampfwerte, Verhalten, Lokalität/Persistenz – z. B. Cyberzombie bleibt im Sektor, Body-Aug-„Wanderschaft“). Anknüpfung an die [Events (Viertel-Events)](#events-viertel-events)-Liste (§6 #38) und Referee-Drohnen-Token (`7_Referees.md`).
 - **Owner:** Events-/NPC-Dokument (neu) bzw. §6 [Events](#events-viertel-events). Status ❌ (Review R8).
 
+> **Zusatz (Straßen-Gefahren / „Kreaturenbegegnung“):** Roh-Entwurf aus dem §6-Sektoreffekte-Cleanup (Kreatur je `Event`/Begegnung, ursprünglich „Wetter“). Als **eigenständiger Begegnungs-Katalog** geführt (kein Sektoreffekt); Auftreten/Würfelregel folgt dem Begegnungs-Baustein (❌):
+
+| Kreatur (DE) | Original (EN) | Kurzbeschreibung | Status |
+|---|---|---|---|
+| Giftwespen | Poisonous Wasps | Schnell, bis zur Nähe kaum als Gefahr erkennbar, stechen wiederholt | 🔶 |
+| Parasiten-Brut | Parasitic Spawn | Kriecht zur Wirbelsäule, hackt & verbrennt das Zentralnervensystem | 🔶 |
+| Spinnenratte | Spider rat | Haarloses, 8-beiniges Rattenwesen; DNA-geprägter Rudeljäger | 🔶 |
+| Biodrohnen | Biodrones | Implantat-„geriggte“ kleine Fleischfresser, von menschlichem Operator gesteuert | 🔶 |
+| Leuchtkäfer | Fireflies | Insekten mit implantierten Luft-Kraftstoff-Sprengstoffen im Magensack | 🔶 |
+| Spinnen-Wirt | Spider hive | Menschlicher Wirt, von Sphinkter-Löchern durchsetzt, setzt Spinnen aus | 🔶 |
+| Seuchenbombe | Disease Bomb | Fleischiges Organ wirkt wie Streu-Granate zur Infektion des Gebiets | 🔶 |
+| Die Molluske | The Mollusc | Gepanzert, feuert per Muskelknall giftgetränkte Knochensplitter | 🔶 |
+| Geruchs-Spürer | Smell Tracker | Pheromonempfindliche Zecken, ziehen zum Ziel; leicht zu verfolgen | 🔶 |
+| Hautloser Razorhound | Razorhound Skinless | Hund mit monomolekularen Zähnen, kann klettern | 🔶 |
+| Ghul | Ghule | – (klassischer Zombie-/Ghul-Gegner) | 🔶 |
+| Ganger | Ganger | – (Straßenbande) | 🔶 |
+
+> 🔶 **Status:** Einträge sind als **Entwurf** übersetzt (Originaltexte der Roh-Quelle beibehalten, sofern kein Wert definiert). Auftreten, Kampfwerte & Würfelmechanik folgen dem Begegnungs-Baustein (Owner siehe 6.5).
+
 ---
 
 ## 7. Quellen & Referenzen

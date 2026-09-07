@@ -158,7 +158,45 @@ Der **konkrete Effekt je Point of Interest** wird samt seiner **Aktivierungs-Opt
 
 > 🔶 **Status:** Klassifikations-Quelle (lokal `data/Augmented Reality PLUS.pdf`, S. 5, „The Downtown 2D10 Grid“) und PoI-Liste (Standorttyp + Zeile/1. W10) sind geklärt. **Aktivierung (Dach-Zustand)** und **Effekt-Text** je Point of Interest sind als **Entwurf** in der Tabelle geführt (je Zeile 🔶); die normative Ausgestaltung – kanonische Terminologie, Teil-Effekt-Gating, Sektor-Bonus-Einbindung (Eingangswert Nr. 4 „Points of Interest“ bzw. Nr. 5 „Sektoreffekte“), Special-Kataloge (Offene Punkte #32/#33) sowie offene Abhängigkeiten – liegt in `11_Points_of_Interest_und_Specials.md` (vgl. [Quellen](#quellen)).
 
+### Sektoreffekte
 
+Sektoreffekte sind Effekte, die einen **ganzen Sektor** betreffen (Abgrenzung siehe [Points of Interest (Sektor)](#points-of-interest-sektor)). Ihre Wirkung lässt sich über zwei orthogonale Achsen beschreiben: **Quelle/Auslöser** (woher der Effekt stammt) und **Wirkung** (auf wen/was er wirkt). Manche Sektoreffekte werden durch POIs generiert („Fehlfunktion“, vgl. Industrial bzw. 3D Print Fabrication in der PoI-Tabelle), manche sind **umgebungsbedingt bzw. eventgetriggert** (v. a. **Wetter** als zufälliges [Viertel-Event](#events-viertel-events)) und manche dienen schlicht der **Spielbalance/-abwechslung**.
+
+Jeder Sektoreffekt hat einen **Zeitraum (Wirkungsdauer)** und – soweit sektorkontrollabhängig – einen **Dach-Zustand** ([Aktivierung](#points-of-interest-sektor)). Die Dauer reicht von **dauerhaft** (bis zum Spielende bzw. bis zum nächsten Event) bis hin zu **einem Spielzug** (vgl. [Viertel & Spielzeit](#viertel--spielzeit)). Die Einbindung in die Sektor-Boni ([Verteidigungsbonus](#verteidigungsbonus-sektor) / [Angriffsbonus](#angriffsbonus-sektor)) erfolgt über **Eingangswert Nr. 5** (Abgrenzung zu den PoIs = Eingangswert Nr. 4: vgl. `11_Points_of_Interest_und_Specials.md`, Abschnitt „Sektor-Bonus-Einbindung“).
+
+#### Formatvorlage (Sektoreffekt-Steckbrief)
+
+Jeder Sektoreffekt wird als einheitlicher **Steckbrief** dokumentiert (je Effekt ein Datensatz):
+
+| Feld | Bedeutung | Ausprägungen / Konvention |
+|---|---|---|
+| **Name** | sprechender Bezeichner | „…“-Kurzname analog zu den PoI-Effekten |
+| **Quelle / Auslöser** | Woher stammt der Effekt? | `POI` (Fehlfunktion) · `Umgebung` · `Event` (Wetter, zufällig) · `Balance` |
+| **Zeitraum (Dauer)** | Wie lange wirkt er? | `1 Spielzug` · `pro Viertel` · `Rest des Viertels` · `Rest des Spiels` · `bis zum nächsten Event` · `dauerhaft` |
+| **Dach-Zustand (Aktivierung)** | Kontroll-Abhängigkeit, falls vorhanden | `Nur bei Kontrolle` · `Immer aktiv` · `Nur unkontrolliert` · `–` (keine) |
+| **Wirkungs-Radius** | Räumliche Reichweite | `im Sektor` · `alle Sektoren (team-global)` · `sektorunabhängig` |
+| **Betroffene / Begünstigte** | Auf wen wirkt er? | `eigenes (kontrollierendes) Team` · `beide Teams` · `Umgebung/neutral` · `einzelner Spieler` · `NPC-Gegner` |
+| **Wirkung** | Mechanische Konsequenz in **nW6-Lesart** (vgl. Begriffsklärung in `11_Points_of_Interest_und_Specials.md`) | Würfelpool-Bonus/-Malus (`Offensiv` / `Defensiv` / `Aufklärung` / `Verstecken`), Bewegung, Sicht ([Fog of War](#fog-of-war)), Ruhm, Strafen, Verletzungen, Begegnungen; Angabe als `1W6`/`2W6`- bzw. Prozent-Chance |
+| **Sektor-Bonus-Einbindung** | Fließt er in den Sektor-Bonus ein? | `Eingangswert Nr. 5` · `nein` (eigenständiger team-/matchglobaler Modifikator) |
+| **Kontroll-Abrechnung** | Interaktion mit der [Sektorkontrolle](#sektorkontrolle) bzw. dem Spielzug-Ende | Freitext bzw. Verweis |
+| **Status** | Umsetzungsstand | ✅ / 🔶 / ❌ (Legende oben) |
+
+**Beispiel (ausgefüllt):**
+
+| Feld | Ausprägung |
+|---|---|
+| **Name** | „Schneetreiben“ |
+| **Quelle / Auslöser** | `Event` (Wetter, zufällig) |
+| **Zeitraum (Dauer)** | `bis zum nächsten Event` (Standard, sonst `1 Viertel`) |
+| **Dach-Zustand (Aktivierung)** | `Immer aktiv` |
+| **Wirkungs-Radius** | `1W6 Sektoren` |
+| **Betroffene / Begünstigte** | `beide Teams` |
+| **Wirkung** | −1W6 auf `Offensiv`- und `Aufklärung`-Pool (Sicht/Erfolge), +1W6 auf `Verstecken`-Pool |
+| **Sektor-Bonus-Einbindung** | `nein` – wirkt symmetrisch auf beide Teams und hebt sich im [Sektor-Bonus](#verteidigungsbonus-sektor) auf; rein als Würfelpool-Modifikator modelliert |
+| **Kontroll-Abrechnung** | keine (kontrollunabhängig) |
+| **Status** | 🔶 |
+
+> 🔶 **Status:** Konzept & Steckbrief-Vorlage sind beschlossen; ein **gefüllter Katalog** der nicht-PoI-Sektoreffekte existiert noch nicht als Steckbrief-Reihe. **PoI-generierte** Sektoreffekte werden je Teil-Effekt in `11_Points_of_Interest_und_Specials.md` geführt; die **umgebungs-/eventgetriggerten** (Wetter) Sektoreffekte sind als kompakter Katalog im [Wetter-Katalog](#wetter-katalog-zufälliges-event) der Viertel-Events hinterlegt (vgl. [Quellen](#quellen)).
 
 ### Ball
 
@@ -675,10 +713,29 @@ Die konkrete **Eventliste** ist noch offen – zu jedem Event sind **Auslöser**
 | # | Event | Auslöser | Wirkung (Entwurf) |
 |---|-------|----------|-------------------|
 | 1 | **Shadowrunner-Sabotage** | Manager-getriggert (Fixer) | Sabotageaktionen vor oder während eines Spiels; Einordnung zwischen Verletzungsart „Outside Interference“ ([Strafen & Verstöße](#strafen--verstöße)) und Siegbedingung 3 „Schiedsrichter-Abbruch“ steht aus |
-| 2 | **Wetter** | Zufällig (Standardp. 50 %) | Beeinflusst das Spiel dynamisch (z. B. Sicht, Bewegung, Würfe) – konkrete Wirkung offen |
+| 2 | **Wetter** | Zufällig (Standardp. 50 %) | Wirkt dynamisch über Sicht, Bewegung & Würfe – konkrete Effekte je Wetterlage siehe [Wetter-Katalog](#wetter-katalog-zufälliges-event) |
 | … | **– weitere –** | – | Noch zu definieren |
 
 > ❌ **Status:** Vorschlag, nicht beschlossen – kein Code. Anknüpfung: `9_TeamManagement.md` (anheuerbare NSC, Fixer), [Strafen & Verstöße](#strafen--verstöße) (Verletzungsart „Outside Interference“), [Siegbedingungen](#siegbedingungen) („Schiedsrichter-Abbruch“).
+
+#### Wetter-Katalog (zufälliges Event)
+
+Tritt ein **zufälliges Wetter-Event** auf ([Viertel-Events](#events-viertel-events)), wird der konkrete Effekt nach folgendem Katalog bestimmt. Alle Einträge teilen die Steckbrief-Werte: **Quelle/Auslöser** `Event` (Wetter, zufällig) · **Dach-Zustand (Aktivierung)** `Immer aktiv` · **Betroffene/Begünstigte** `beide Teams` · **Sektor-Bonus-Einbindung** `nein` (wirkt symmetrisch, hebt sich im [Sektor-Bonus](#verteidigungsbonus-sektor) auf) · **Kontroll-Abrechnung** keine. Gewürfelt wird die **Anzahl betroffener Sektoren** (`1W6`).
+
+| Name | Wirkungs-Radius | Zeitraum (Dauer) | Wirkung | Status |
+|---|---|---|---|---|
+| Corrosive Fog | `1W6 Sektoren` | `bis zum nächsten Event` (sonst `1 Viertel`) | Korrosiver, stechender Nebel hüllt die Stadt ein – schlechte Sicht & Luft (Würfelpool-/Sicht-Modifikator folgt, s. u.) | 🔶 |
+| Creep Cloud | `1W6 Sektoren` | `bis zum nächsten Event` (sonst `1 Viertel`) | Chemisch verseuchter Nebel triggert Umgebungsmonitore (Konsequenz offen) | 🔶 |
+| Acidic Monsoon | `1W6 Sektoren` | `bis zum nächsten Event` (sonst `1 Viertel`) | Beißende, korrosive Regenwände bilden Dampfsäulen (Sicht-/Schadens-Wirkung offen) | 🔶 |
+| Glitter-twist | `1W6 Sektoren` | `bis zum nächsten Event` (sonst `1 Viertel`) | Tote Naniten werden von Luftsäulen getragen und funkeln wie Funken (rein optisch / Sicht) | 🔶 |
+| extreme uV Burns | `1W6 Sektoren` | `bis zum nächsten Event` (sonst `1 Viertel`) | UV-Strahlung schädigt die Haut (Schutzpaste nötig) & verursacht Sichtprobleme | 🔶 |
+| Wind Tunnel | `1W6 Sektoren` | `bis zum nächsten Event` (sonst `1 Viertel`) | Extreme Hochhäuser kanalisieren aggressive, peitschende Winde (Bewegung/Proben) | 🔶 |
+| Sweltering heat | `1W6 Sektoren` | `bis zum nächsten Event` (sonst `1 Viertel`) | Hitze: Einsatz in Panzerung führt zu Erschöpfung & Dehydrierung (Verletzung/Erschöpfung) | 🔶 |
+| Cold Snap | `1W6 Sektoren` | `bis zum nächsten Event` (sonst `1 Viertel`) | Schwerer Frost & Hagel erzeugen gefährliche Stadtbedingungen (Bewegung/Gelände) | 🔶 |
+| Minor Flood | `1W6 Sektoren` | `bis zum nächsten Event` (sonst `1 Viertel`) | Massiver Regen ohne Abfluss → urbanes Chaos (Gelände/Bewegung) | 🔶 |
+| lightning Storm | `1W6 Sektoren` | `bis zum nächsten Event` (sonst `1 Viertel`) | Spektakulärer elektrischer Sturm, starke Ionisation mit eMP-Effekten (Elektronik/Technik) | 🔶 |
+
+> 🔶 **Status:** Katalog ist **Entwurf** – Beschreibungen aus der Roh-Quelle übersetzt; die **konkrete mechanische Wirkung** je Effekt (Würfelpool-/Sicht-/Schadens-Werte in der nW6-Lesart) ist noch zu definieren (vgl. [Würfelsystem](#würfelsystem-konzept) und Offener Punkt #38).
 
 ## Aktueller Stand (Simulation)
 
