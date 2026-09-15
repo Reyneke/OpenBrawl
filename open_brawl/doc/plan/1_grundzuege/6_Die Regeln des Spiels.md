@@ -196,6 +196,11 @@ Jeder Sektoreffekt wird als einheitlicher **Steckbrief** dokumentiert (je Effekt
 | **Kontroll-Abrechnung** | keine (kontrollunabhängig) |
 | **Status** | 🔶 |
 
+Effekt: Pater Brown (ausgebrannter Cyberzombie, der zum Glauben übergekehrt ist)
+Störtaubenschwarm in einem Sektor
+"Die Vögel" - wütender Vohelschwarm greift Ballträger an
+geflutet - Karte / Sektoren steht unter Wasser, Chance, dass Zone absäuft
+
 > 🔶 **Status:** Konzept & Steckbrief-Vorlage sind beschlossen; ein **gefüllter Katalog** der nicht-PoI-Sektoreffekte existiert noch nicht als Steckbrief-Reihe. **PoI-generierte** Sektoreffekte werden je Teil-Effekt in `11_Points_of_Interest_und_Specials.md` geführt; die **umgebungs-/eventgetriggerten** (Wetter) Sektoreffekte sind als kompakter Katalog im [Wetter-Katalog](#wetter-katalog-zufälliges-event) der Viertel-Events hinterlegt (vgl. [Quellen](#quellen)).
 
 ### Ball
